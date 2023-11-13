@@ -1,4 +1,5 @@
-import { ref, set, child } from 'firebase/database';
+import { ref, set, child, get, push, remove, query, orderByKey } from 'firebase/database';
+import { GOALS_DATA } from './data';
 import db from './firebase';
 import {
   getNextPlayerId,
@@ -10,13 +11,165 @@ import {
   getCurrentTrick,
   getNumberOfPlayers,
   getCurrentTrickId,
-  getPlayerHint
+  getPlayerHint,
+  getPlayerByName,
+  getIsGameStarted,
+  getIsGameFinished,
+  getUnassignedGoalsExist,
+  getAreAllGoalsAssigned,
 } from './selectors';
-import { Card, HintPlacement, GameState } from './types';
+import { Card, HintPlacement, GameState, ProvisionalGame, ProvisionalClientList, Ruleset, UnassignedGoalList } from './types';
+import { SUIT_ORDER, createDeck, generateCode, shuffle } from './utilities';
 
-function updateState(newState: GameState) {
-  const gameRef = child(child(ref(db), 'games'), 'AAAA');
+const DUMMY_GAME = 'AAAA';
+
+function updateState(newState: GameState | ProvisionalGame, code: string) {
+  const gameRef = child(child(ref(db), 'games'), code);
   set(gameRef, newState);
+}
+
+export async function createGame(playerName: string): Promise<{ code: string, key: string }> {
+  let codeIsValid = false;
+  let code = generateCode();;
+
+  while (!codeIsValid) {
+    const gameRef = child(child(ref(db), 'games'), code);
+    const snapshot = await get(gameRef);
+    if (snapshot.exists()) {
+      code = generateCode();
+    } else {
+      codeIsValid = true;
+    }
+  }
+
+  const newGame: ProvisionalGame = {
+    host: playerName,
+    clientList: {},
+  };
+  updateState(newGame, code);
+
+  const clientListRef = child(child(child(ref(db), 'games'), code), 'clientList');
+  const { key } = push(clientListRef, playerName);
+  if (!key) throw new Error('Failed to join game. Please try again.');
+  return { code, key };
+}
+
+export async function joinGame(playerName: string, code: string): Promise<string> {
+  const gameRef = child(child(ref(db), 'games'), code);
+  const snapshot = await get(gameRef);
+  if (!snapshot.exists()) {
+    throw new Error(`Game ${code} does not exist`);
+  }
+
+  const game: ProvisionalGame | GameState = snapshot.val();
+  if ('players' in game) {
+    const player = getPlayerByName(game, playerName);
+    return player.key;
+  }
+
+  if (Object.values(game.clientList).includes(playerName)) {
+    throw new Error('Please choose a different name, this one is already taken');
+  }
+  const clientListRef = child(gameRef, 'clientList');
+  const { key } = push(clientListRef, playerName);
+  if (!key) throw new Error('Failed to join game. Please try again.');
+  return key;
+}
+
+export function removeProvisionalPlayer(key: string, code: string): void {
+  const gameRef = child(child(ref(db), 'games'), code);
+  remove(child(child(gameRef, 'clientList'), key));
+}
+
+export async function startGame(code: string): Promise<GameState> {
+  const gameRef = child(child(ref(db), 'games'), code);
+  const snapshot = await get(query(child(gameRef, 'clientList'), orderByKey()));
+  if (!snapshot.exists()) {
+    throw new Error(`Provisional game ${code} does not exist`);
+  }
+
+  const clientList: ProvisionalClientList = snapshot.val();
+  if (Object.keys(clientList).length < 3) throw new Error('Cannot play with fewer than 3 people');
+  if (Object.keys(clientList).length > 5) throw new Error('Cannot play with more than 5 people');
+  const gameState: GameState = {
+    players: Object.entries(clientList).map(([key, name], index) => ({
+      id: index,
+      name,
+      key,
+    })),
+  }
+  updateState(gameState, code);
+  return gameState
+}
+
+export function dealGoals(state: GameState, difficulty: number, code: string): void {
+  const numberOfPlayers = getNumberOfPlayers(state);
+
+  const allGoals = shuffle(Object.keys(GOALS_DATA)); // TODO: do this elsewhere
+  const goalsToUse = [];
+  const skippedGoals = [];
+  let difficultyCounter = 0;
+  while (difficultyCounter < difficulty) {
+    const newGoalId = allGoals.shift();
+    if (!newGoalId) throw new Error('Failed to reach difficulty');
+    const newGoalDifficulty = GOALS_DATA[newGoalId].difficulty[numberOfPlayers - 2];
+    if (difficultyCounter + newGoalDifficulty > difficulty) {
+      skippedGoals.push(newGoalId);
+    } else {
+      goalsToUse.push(newGoalId);
+      difficultyCounter += newGoalDifficulty;
+    }
+  }
+
+  const leftoverGoals = skippedGoals.concat(allGoals); // TODO: save this
+
+  const newState = structuredClone(state);
+  
+  newState.unassignedGoals = goalsToUse.reduce((acc, goalId) => ({
+    ...acc,
+    [goalId]: {
+      id: goalId,
+    },
+  }), {} as UnassignedGoalList);
+
+  updateState(newState, code);
+}
+
+export function claimGoal(state: GameState, playerId: number, goalId: number, code: string): void {
+  const newState = structuredClone(state);
+  if (!newState.unassignedGoals?.[goalId]) throw new Error('Cannot claim goal that is not in the game');
+  newState.unassignedGoals[goalId].provisionalPlayerId = playerId;
+  updateState(newState, code);
+}
+
+export function kickGoal(state: GameState, goalId: number) {
+  throw new Error ('Not yet implemented');
+}
+
+export function beginGame(state: GameState, ruleset: Ruleset, code: string) {
+  if (!getUnassignedGoalsExist(state)) {
+    throw new Error('Cannot begin a game that has already started, or with no goals');
+  }
+  if (!getAreAllGoalsAssigned(state)) {
+    throw new Error('Cannot begin game before all goals are assigned');
+  }
+
+  const { unassignedGoals, ...newState } = structuredClone(state);
+  for (const goal of Object.values(unassignedGoals!!)) {
+    const playerId = goal.provisionalPlayerId;
+    if (!newState.players[playerId]) throw new Error('Cannot assign goal to nonexistent player');
+    if (!newState.players[playerId].goals) {
+      newState.players[playerId].goals = {};
+    }
+    newState.players[playerId].goals!![goal.id] = {
+      id: goal.id,
+      done: false,
+    };
+  }
+
+  newState.ruleset = ruleset;
+
+  updateState(newState, code);
 }
 
 export function playCard(state: GameState, playerId: number, cardIndex: number): void {
@@ -71,7 +224,7 @@ export function playCard(state: GameState, playerId: number, cardIndex: number):
     newState.tricks!![getCurrentTrickId(state)] = updatedTrick;
   }
 
-  updateState(newState);
+  updateState(newState, DUMMY_GAME);
 }
 
 export function getHintPlacement(state: GameState, playerId: number, cardIndex: number): HintPlacement {
@@ -110,34 +263,25 @@ export function giveHint(state: GameState, playerId: number, cardIndex: number):
     placement,
   }
 
-  updateState(newState);
+  updateState(newState, DUMMY_GAME);
+}
+
+export function toggleGoalDone(state: GameState, playerId: number, goalId: number): void {
+  const newState = structuredClone(state);
+  if (!newState.players[playerId].goals?.[goalId]) throw new Error(`Player does not have goal ${goalId}`);
+  newState.players[playerId].goals!![goalId].done = true;
+  updateState(newState, DUMMY_GAME);
 }
 
 export function deal(state: GameState, dealerId: number): void {
-  // if (!getIsGameFinished(state)) {
-  //   throw new Error('Game is in progress');
-  // }
+  if (getIsGameStarted(state) && !getIsGameFinished(state)) {
+    throw new Error('Game is in progress');
+  }
 
   const newState = structuredClone(state);
 
-  const cards = [//@ts-ignore
-    ...[...Array(9).keys()].map(i => ({ number: i + 1, suit: 'blue' })),//@ts-ignore
-    ...[...Array(9).keys()].map(i => ({ number: i + 1, suit: 'green' })),//@ts-ignore
-    ...[...Array(9).keys()].map(i => ({ number: i + 1, suit: 'yellow' })),//@ts-ignore
-    ...[...Array(9).keys()].map(i => ({ number: i + 1, suit: 'pink' })),//@ts-ignore
-    ...[...Array(4).keys()].map(i => ({ number: i + 1, suit: 'black' })),
-  ] as Card[];
-  const suitOrder = {
-    'black': 0,
-    'blue': 1,
-    'green': 2,
-    'yellow': 3,
-    'pink': 4,
-  }
-  for (let i = cards.length - 1; i > 0; i--) {
-    const randomIndex = Math.floor(Math.random() * (i + 1));
-    [cards[i], cards[randomIndex]] = [cards[randomIndex], cards[i]];
-  }
+  const cards = shuffle(createDeck());
+
   const players = newState.players;
   for (const player of players) {
     player.hand = [];
@@ -159,13 +303,14 @@ export function deal(state: GameState, dealerId: number): void {
     player.extraCards = player.hand!!.length - minHandSize;
     player.hand = player.hand!!.sort((a, b) => {
       if (a.suit !== b.suit) {
-        return suitOrder[a.suit] - suitOrder[b.suit];
+        return SUIT_ORDER[a.suit] - SUIT_ORDER[b.suit];
       }
       return b.number - a.number;
     });
   }
 
   newState.tricks = [];
+  newState.timeout = false;
 
-  updateState(newState);
+  updateState(newState, DUMMY_GAME);
 }

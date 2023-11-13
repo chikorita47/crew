@@ -1,4 +1,4 @@
-import { Suit, Card, Trick, Hint, GameState } from './types';
+import { Suit, Card, Trick, Hint, GameState, Player } from './types';
 
 export function getCaptainId(state: GameState): number {
   const captain = state.players.find(player => player.isCaptain);
@@ -16,26 +16,41 @@ export function getPlayerName(state: GameState, playerId: number): string {
   return state.players[playerId].name;
 }
 
+export function getPlayerByName(state: GameState, name: string): Player {
+  const player = state.players.find(player => player.name === name);
+  if (!player) throw new Error('Could not find player from name');
+  return player;
+}
+
 export function getUnassignedGoalsExist(state: GameState): boolean {
-  return !!(state.unassignedGoals ?? []).length;
+  return !!Object.keys(state.unassignedGoals ?? []).length;
+}
+
+export function getAreAllGoalsAssigned(state: GameState): boolean {
+  return !!state.unassignedGoals && !Object.values(state.unassignedGoals).some(goal => !('provisionalPlayerId' in goal));
 }
 
 export function getIsPlayerDealer(state: GameState, playerId: number): boolean {
-  return state.players[playerId].isDealer;
+  return !!state.players[playerId].isDealer;
 }
 
 export function getNumberOfPlayers(state: GameState): number {
   return state.players.length;
 }
 
+export function getIsGameStarted(state: GameState): boolean {
+  return !(state.tricks?.length);
+}
+
 export function getIsGameFinished(state: GameState): boolean {
+  if (state.timeout) return true;
   const numberOfPlayers = getNumberOfPlayers(state);
   const tricksInGame = Math.floor(40 / numberOfPlayers);
   return !!state.tricks && state.tricks.length === tricksInGame && (state.tricks[tricksInGame - 1].cards ?? []).length === numberOfPlayers;
 }
 
 export function getAreAllGoalsDone(state: GameState): boolean {
-  return !state.players.find(player => player.goals && player.goals.find(goal => !goal.done));
+  return !state.players.find(player => player.goals && Object.values(player.goals).find(goal => !goal.done));
 }
 
 export function getCurrentTrickId(state: GameState): number {
