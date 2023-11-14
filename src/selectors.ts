@@ -27,7 +27,7 @@ export function getUnassignedGoalsExist(state: GameState): boolean {
 }
 
 export function getAreAllGoalsAssigned(state: GameState): boolean {
-  return !!state.unassignedGoals && !Object.values(state.unassignedGoals).some(goal => !('provisionalPlayerId' in goal));
+  return !!state.unassignedGoals && !!Object.keys(state.unassignedGoals).length && !Object.values(state.unassignedGoals).some(goal => !('provisionalPlayerId' in goal));
 }
 
 export function getIsPlayerDealer(state: GameState, playerId: number): boolean {

@@ -5,7 +5,7 @@ import styles from './page.module.css'
 
 import db from '../firebase';
 import { ref, set, child, onValue } from "firebase/database";
-import { playCard, giveHint, deal, createGame, joinGame, startGame, claimGoal, dealGoals, beginGame } from '../actions';
+import { playCard, giveHint, deal, createGame, joinGame, startGame, claimGoal, dealGoals, finalizeGoalsAndRuleset } from '../actions';
 import { getStatusText, getCurrentTrick } from '../selectors';
 import { GameState, ProvisionalGame } from '../types';
 
@@ -14,7 +14,8 @@ function resetState() {
   set(gameRef, {
     players: [
       {
-        id: 0, // should match array index
+        id: 0,
+        key: 'AAAA',
         name: 'Nathan',
         hand: [{ number: 9, suit: 'blue' }, { number: 7, suit: 'blue' }],
         hint: { used: true, card: { number: 9, suit: 'blue' }, placement: 'top' },
@@ -24,7 +25,8 @@ function resetState() {
         extraCards: 1,
       },
       {
-        id: 1, // should match array index
+        id: 1,
+        key: 'BBBB',
         name: 'Eric',
         hand: [{ number: 9, suit: 'green' }, { number: 8, suit: 'green' }, { number: 7, suit: 'green' }],
         hint: { used: false },
@@ -34,7 +36,8 @@ function resetState() {
         extraCards: 0,
       },
       {
-        id: 2, // should match array index
+        id: 2,
+        key: 'CCCC',
         name: 'Melora',
         hand: [{ number: 9, suit: 'pink' }, { number: 7, suit: 'yellow' }],
         hint: { used: false },
@@ -62,7 +65,6 @@ function resetState() {
         ],
       },
     ],
-    unassignedGoals: [],
   });
 }
 
@@ -103,7 +105,7 @@ function Host() {
           <a onClick={() => claimGoal(state, 1, goal.id, code!!)}>{goal.id}:{goal.provisionalPlayerId} </a>
         ))}
       </div>
-      <div><a onClick={() => beginGame(state!!, { hintMode: 'default' }, code!!)}>Begin Game</a></div>
+      <div><a onClick={() => finalizeGoalsAndRuleset(state!!, { hintMode: 'default' }, code!!)}>Begin Game</a></div>
     </div>
   )
 }

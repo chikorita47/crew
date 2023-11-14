@@ -102,7 +102,7 @@ export async function startGame(code: string): Promise<GameState> {
   return gameState
 }
 
-export function dealGoals(state: GameState, difficulty: number, code: string): void {
+export function dealGoals(state: GameState, difficulty: number): GameState {
   const numberOfPlayers = getNumberOfPlayers(state);
 
   const allGoals = shuffle(Object.keys(GOALS_DATA)); // TODO: do this elsewhere
@@ -112,7 +112,7 @@ export function dealGoals(state: GameState, difficulty: number, code: string): v
   while (difficultyCounter < difficulty) {
     const newGoalId = allGoals.shift();
     if (!newGoalId) throw new Error('Failed to reach difficulty');
-    const newGoalDifficulty = GOALS_DATA[newGoalId].difficulty[numberOfPlayers - 2];
+    const newGoalDifficulty = GOALS_DATA[newGoalId].difficulty[numberOfPlayers - 3];
     if (difficultyCounter + newGoalDifficulty > difficulty) {
       skippedGoals.push(newGoalId);
     } else {
@@ -132,21 +132,21 @@ export function dealGoals(state: GameState, difficulty: number, code: string): v
     },
   }), {} as UnassignedGoalList);
 
-  updateState(newState, code);
+  return newState;
 }
 
-export function claimGoal(state: GameState, playerId: number, goalId: number, code: string): void {
+export function claimGoal(state: GameState, playerId: number, goalId: number): GameState {
   const newState = structuredClone(state);
   if (!newState.unassignedGoals?.[goalId]) throw new Error('Cannot claim goal that is not in the game');
   newState.unassignedGoals[goalId].provisionalPlayerId = playerId;
-  updateState(newState, code);
+  return newState;
 }
 
-export function kickGoal(state: GameState, goalId: number) {
+export function kickGoal(state: GameState, goalId: number): GameState {
   throw new Error ('Not yet implemented');
 }
 
-export function beginGame(state: GameState, ruleset: Ruleset, code: string) {
+export function finalizeGoalsAndRuleset(state: GameState, ruleset: Ruleset): GameState {
   if (!getUnassignedGoalsExist(state)) {
     throw new Error('Cannot begin a game that has already started, or with no goals');
   }
@@ -169,7 +169,7 @@ export function beginGame(state: GameState, ruleset: Ruleset, code: string) {
 
   newState.ruleset = ruleset;
 
-  updateState(newState, code);
+  return newState;
 }
 
 export function playCard(state: GameState, playerId: number, cardIndex: number): void {
