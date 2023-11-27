@@ -1,64 +1,8 @@
 import * as Actions from '../src/actions';
 import { TASKS_DATA } from '../src/data';
+import { createGameState } from './util';
 
 const sum = (arr) => arr.reduce((acc, num) => acc + num, 0);
-
-function createGameState() {
-  return {
-    players: [
-      {
-        id: 0,
-        key: 'AAAA',
-        name: 'Nathan',
-        hand: [{ number: 4, suit: 'black' }, { number: 9, suit: 'blue' }, { number: 7, suit: 'blue' }],
-        hint: { used: true, card: { number: 9, suit: 'blue' }, placement: 'top' },
-        tasks: { 23: { id: 23, done: false }, 14: { id: 14, done: true } },
-        isCaptain: true,
-        isDealer: false,
-        extraCards: 1,
-      },
-      {
-        id: 1,
-        key: 'BBBB',
-        name: 'Eric',
-        hand: [{ number: 9, suit: 'green' }, { number: 8, suit: 'green' }, { number: 7, suit: 'green' }],
-        hint: { used: false },
-        tasks: {},
-        isCaptain: false,
-        isDealer: false,
-        extraCards: 0,
-      },
-      {
-        id: 2,
-        key: 'CCCC',
-        name: 'Melora',
-        hand: [{ number: 9, suit: 'pink' }, { number: 7, suit: 'yellow' }, { number: 1, suit: 'yellow' }],
-        hint: { used: false },
-        isCaptain: false,
-        isDealer: true,
-        extraCards: 0,
-      }
-    ],
-    tricks: [
-      {
-        winner: 0,
-        leader: 1,
-        cards: [
-          { number: 3, suit: 'green' },
-          { number: 5, suit: 'green' },
-          { number: 9, suit: 'blue' },
-        ],
-      },
-      {
-        winner: null,
-        leader: 0,
-        cards: [
-          { number: 4, suit: 'pink' },
-        ],
-      },
-    ],
-  };
-}
 
 describe('dealTasks', () => {
   it('randomly selects tasks', () => {
@@ -183,5 +127,93 @@ describe('finalizeTasksAndRuleset', () => {
     expect(newState.players[0].tasks).toEqual({ 4: { id: 4, done: false, failed: false }, 7: { id: 7, done: false, failed: false } });
     expect(newState.players[1].tasks).toEqual({ 6: { id: 6, done: false, failed: false } });
     expect(newState.players[2].tasks).toEqual({ 5: { id: 5, done: false, failed: false } });
+  });
+});
+
+describe('computeWinner', () => {
+  it('throws if the trick is not completed', () => {
+    const trick = {
+      leader: 0,
+      cards: [
+        { number: 9, suit: 'blue' },
+      ],
+    };
+    expect(() => Actions.computeWinner(trick, 3)).toThrow(Error);
+  });
+  it('returns the player of the highest card in the led suit, if no black cards', () => {
+    const trick = {
+      leader: 0,
+      cards: [
+        { number: 6, suit: 'blue' },
+        { number: 5, suit: 'blue' },
+        { number: 9, suit: 'green' },
+        { number: 7, suit: 'blue' },
+      ],
+    };
+    expect(Actions.computeWinner(trick, 4)).toEqual(3);
+    trick.leader = 2;
+    expect(Actions.computeWinner(trick, 4)).toEqual(1);
+  });
+  it('returns the player of the highest black card, if any exist', () => {
+    const trick = {
+      leader: 2,
+      cards: [
+        { number: 6, suit: 'blue' },
+        { number: 4, suit: 'black' },
+        { number: 3, suit: 'black' },
+      ],
+    };
+    expect(Actions.computeWinner(trick, 3)).toEqual(0);
+  });
+});
+
+describe('playCard', () => {
+  it('throws if player is out of turn', () => {
+    expect(() => Actions.playCard(createGameState(), 2, 0)).toThrow(Error);
+  });
+  it('throws if card is not legal to play', () => {
+    const state = createGameState();
+    state.players[1].hand[2].suit = 'pink';
+    expect(() => Actions.playCard(state, 1, 0)).toThrow(Error);
+  });
+  it('removes card from player hand', () => {
+    const state = createGameState();
+    const newState = Actions.playCard(state, 1, 1);
+    expect(newState.players[1].hand).toEqual([{ number: 9, suit: 'green' }, { number: 7, suit: 'green' }]);
+  });
+  it('adds a new trick if one is not already in progress', () => {
+    const state = createGameState();
+    state.tricks.pop();
+    const newState = Actions.playCard(state, 0, 0);
+    expect(newState.tricks[1]).toEqual({
+      leader: 0,
+      cards: [
+        { number: 4, suit: 'black' },
+      ],
+    });
+  });
+  it('adds to an existing trick if one is in progress', () => {
+    const state = createGameState();
+    const newState = Actions.playCard(state, 1, 0);
+    expect(newState.tricks[1]).toEqual({
+      leader: 0,
+      cards: [
+        { number: 4, suit: 'pink' },
+        { number: 9, suit: 'green' },
+      ],
+    });
+  });
+  it('computes the winner of a trick if one was just finished', () => {
+    const state = createGameState();
+    const newState = Actions.playCard(Actions.playCard(state, 1, 0), 2, 0);
+    expect(newState.tricks[1]).toEqual({
+      leader: 0,
+      cards: [
+        { number: 4, suit: 'pink' },
+        { number: 9, suit: 'green' },
+        { number: 9, suit: 'pink' },
+      ],
+      winner: 2,
+    });
   });
 });

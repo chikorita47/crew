@@ -6,7 +6,6 @@ import {
   getPlayerName,
   getPlayerCard,
   getIsBetweenTricks,
-  getLedSuitForCurrentTrick,
   getPlayerCardsOfSuit,
   getCurrentTrick,
   getNumberOfPlayers,
@@ -17,8 +16,9 @@ import {
   getIsGameFinished,
   getUnassignedTasksExist,
   getAreAllTasksAssigned,
+  getIsCardLegalToPlay,
 } from './selectors';
-import { Card, HintPlacement, GameState, ProvisionalGame, ProvisionalClientList, Ruleset, UnassignedTaskList } from './types';
+import { HintPlacement, GameState, ProvisionalGame, ProvisionalClientList, Ruleset, UnassignedTaskList, Trick } from './types';
 import { SUIT_ORDER, createDeck, generateCode, shuffle } from './utilities';
 
 const DUMMY_GAME = 'AAAA';
@@ -173,28 +173,43 @@ export function finalizeTasksAndRuleset(state: GameState, ruleset: Ruleset): Gam
   return newState;
 }
 
-export function playCard(state: GameState, playerId: number, cardIndex: number): void {
+export function computeWinner(trick: Trick, numberOfPlayers: number) {
+  if (!trick.cards || (trick.cards.length !== numberOfPlayers)) {
+    throw new Error('Trick is not completed, cannot compute winner');
+  }
+  let highestBlackPos: number | null = null;
+  let highestLedPos = 0;
+  trick.cards.forEach((trickCard, index, cards) => {
+    if (trickCard.suit === 'black' && (highestBlackPos === null || cards[highestBlackPos].number < trickCard.number)) {
+      highestBlackPos = index;
+    }
+    if (highestBlackPos === null && trickCard.suit === cards[0].suit && cards[highestLedPos].number < trickCard.number) {
+      highestLedPos = index;
+    }
+  });
+  const winningPos = highestBlackPos !== null ? highestBlackPos : highestLedPos;
+  return (winningPos + trick.leader) % numberOfPlayers;
+}
+
+export function playCard(state: GameState, playerId: number, cardIndex: number): GameState {
   if (getNextPlayerId(state) !== playerId) {
     throw new Error(`${getPlayerName(state, playerId)} is trying to play out of turn`);
   }
 
   const newState = structuredClone(state);
 
-  const card = getPlayerCard(state, playerId, cardIndex);
-  if (!getIsBetweenTricks(state)) {
-    // check that card is legal to play
-    const ledSuit = getLedSuitForCurrentTrick(state)!!;
-    if (card.suit !== ledSuit && getPlayerCardsOfSuit(state, playerId, ledSuit).length) {
-      throw new Error('You must follow suit');
-    }
+  if (!getIsCardLegalToPlay(state, playerId, cardIndex)) {
+    throw new Error('You must follow suit');
   }
+  const card = getPlayerCard(state, playerId, cardIndex);
   newState.players[playerId].hand!!.splice(cardIndex, 1);
 
   if (!newState.tricks) {
     newState.tricks = [];
   }
   const latestTrick = getCurrentTrick(state);
-  const numberOfPlayers = getNumberOfPlayers(state)
+  const numberOfPlayers = getNumberOfPlayers(state);
+
   if (latestTrick.cards && latestTrick.cards.length === numberOfPlayers) {
     const newTrick = {
       leader: playerId,
@@ -207,25 +222,13 @@ export function playCard(state: GameState, playerId: number, cardIndex: number):
       cards: [...latestTrick.cards || [], card],
     };
     if (updatedTrick.cards.length === numberOfPlayers) {
-      // compute the winner
-      let highestBlackPos: number | null = null;
-      let highestLedPos = 0;
-      updatedTrick.cards.forEach((trickCard, index) => {
-        if (trickCard.suit === 'black' && (highestBlackPos === null || updatedTrick.cards[highestBlackPos].number < trickCard.number)) {
-          highestBlackPos = index;
-        }
-        if (highestBlackPos === null && trickCard.suit === updatedTrick.cards[0].suit && updatedTrick.cards[highestLedPos].number < trickCard.number) {
-          highestLedPos = index;
-        }
-      });
-      const winningPos = highestBlackPos !== null ? highestBlackPos : highestLedPos;
-      updatedTrick.winner = (winningPos + updatedTrick.leader) % numberOfPlayers;
+      updatedTrick.winner = computeWinner(updatedTrick, numberOfPlayers);
       // TODO: compute if any tasks have been completed
     }
     newState.tricks!![getCurrentTrickId(state)] = updatedTrick;
   }
 
-  updateState(newState, DUMMY_GAME);
+  return newState;
 }
 
 export function getHintPlacement(state: GameState, playerId: number, cardIndex: number): HintPlacement {

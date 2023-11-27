@@ -1,61 +1,5 @@
 import * as Selectors from '../src/selectors';
-
-function createGameState() {
-  return {
-    players: [
-      {
-        id: 0,
-        key: 'AAAA',
-        name: 'Nathan',
-        hand: [{ number: 4, suit: 'black' }, { number: 9, suit: 'blue' }, { number: 7, suit: 'blue' }],
-        hint: { used: true, card: { number: 9, suit: 'blue' }, placement: 'top' },
-        tasks: { 23: { id: 23, done: false }, 14: { id: 14, done: true } },
-        isCaptain: true,
-        isDealer: false,
-        extraCards: 1,
-      },
-      {
-        id: 1,
-        key: 'BBBB',
-        name: 'Eric',
-        hand: [{ number: 9, suit: 'green' }, { number: 8, suit: 'green' }, { number: 7, suit: 'green' }],
-        hint: { used: false },
-        tasks: {},
-        isCaptain: false,
-        isDealer: false,
-        extraCards: 0,
-      },
-      {
-        id: 2,
-        key: 'CCCC',
-        name: 'Melora',
-        hand: [{ number: 9, suit: 'pink' }, { number: 7, suit: 'yellow' }, { number: 1, suit: 'yellow' }],
-        hint: { used: false },
-        isCaptain: false,
-        isDealer: true,
-        extraCards: 0,
-      }
-    ],
-    tricks: [
-      {
-        winner: 0,
-        leader: 1,
-        cards: [
-          { number: 3, suit: 'green' },
-          { number: 5, suit: 'green' },
-          { number: 9, suit: 'blue' },
-        ],
-      },
-      {
-        winner: null,
-        leader: 0,
-        cards: [
-          { number: 4, suit: 'pink' },
-        ],
-      },
-    ],
-  };
-}
+import { createGameState } from './util';
 
 describe('getCaptainId', () => {
   it('finds the captain', () => {
@@ -216,6 +160,28 @@ describe('getPlayerCardsOfSuit', () => {
     const state = createGameState();
     expect(Selectors.getPlayerCardsOfSuit(state, 0, 'blue')).toEqual([{ number: 9, suit: 'blue' }, { number: 7, suit: 'blue' }]);
     expect(Selectors.getPlayerCardsOfSuit(state, 0, 'green')).toEqual([]);
+  });
+});
+
+describe('getIsCardLegalToPlay', () => {
+  it('returns true if in between tricks', () => {
+    const state = createGameState();
+    state.tricks.pop();
+    expect(Selectors.getIsCardLegalToPlay(state, 1, 0)).toBe(true);
+  });
+  it('returns true if the card matches the led suit', () => {
+    const state = createGameState();
+    state.players[1].hand[2].suit = 'pink';
+    expect(Selectors.getIsCardLegalToPlay(state, 1, 2)).toBe(true);
+  });
+  it('returns true if player does not have the led suit', () => {
+    const state = createGameState();
+    expect(Selectors.getIsCardLegalToPlay(state, 1, 0)).toBe(true);
+  });
+  it('returns false if not led suit and player has the led suit', () => {
+    const state = createGameState();
+    state.players[1].hand[2].suit = 'pink';
+    expect(Selectors.getIsCardLegalToPlay(state, 1, 0)).toBe(false);
   });
 });
 

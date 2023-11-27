@@ -10,6 +10,8 @@ const createJestConfig = nextJest({
 const config = {
   // Add more setup options before each test is run
   // setupFilesAfterEnv: ['<rootDir>/jest.setup.js'],
+
+  testPathIgnorePatterns: ['<rootDir>/__tests__/util.js'],
  
   // testEnvironment: 'jest-environment-jsdom',
   // TODO: fixme https://github.com/jsdom/jsdom/issues/3363#issuecomment-1467894943

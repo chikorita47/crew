@@ -80,6 +80,7 @@ export function getPlayerHint(state: GameState, playerId: number): Hint {
 
 export function getPlayerCard(state: GameState, playerId: number, cardIndex: number): Card {
   const hand = getPlayerHand(state, playerId);
+  if (cardIndex >= hand.length) throw new Error('Player card out of bounds');
   return hand[cardIndex];
 }
 
@@ -99,6 +100,17 @@ export function getLedSuitForCurrentTrick(state: GameState): Suit | null {
 export function getPlayerCardsOfSuit(state: GameState, playerId: number, suit: Suit): Card[] {
   const hand = getPlayerHand(state, playerId);
   return hand.filter(card => card.suit === suit);
+}
+
+export function getIsCardLegalToPlay(state: GameState, playerId: number, cardIndex: number): boolean {
+  const card = getPlayerCard(state, playerId, cardIndex);
+  if (getIsBetweenTricks(state)) {
+    // TODO: check that no tasks are making the card illegal
+    // e.g. "You can only lead with blue or pink"
+    return true;
+  }
+  const ledSuit = getLedSuitForCurrentTrick(state)!!;
+  return card.suit === ledSuit || getPlayerCardsOfSuit(state, playerId, ledSuit).length === 0;
 }
 
 export function getNextPlayerId(state: GameState): number {
