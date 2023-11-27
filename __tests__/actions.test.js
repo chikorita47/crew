@@ -181,6 +181,12 @@ describe('playCard', () => {
     const newState = Actions.playCard(state, 1, 1);
     expect(newState.players[1].hand).toEqual([{ number: 9, suit: 'green' }, { number: 7, suit: 'green' }]);
   });
+  it('removes a hint that matches the card', () => {
+    const state = createGameState();
+    state.tricks.pop();
+    const newState = Actions.playCard(state, 0, 1);
+    expect(newState.players[0].hint).toEqual({ used: true });
+  });
   it('adds a new trick if one is not already in progress', () => {
     const state = createGameState();
     state.tricks.pop();
@@ -215,5 +221,173 @@ describe('playCard', () => {
       ],
       winner: 2,
     });
+  });
+});
+
+describe('getHintPlacement', () => {
+  it('throws if the hint is invalid', () => {
+    const state = createGameState();
+    expect(() => Actions.getHintPlacement(state, 0, 0)).toThrow(Error);
+    expect(() => Actions.getHintPlacement(state, 1, 1)).toThrow(Error);
+  });
+  it('returns the correct placement of the hint token for a valid hint', () => {
+    const state = createGameState();
+    expect(Actions.getHintPlacement(state, 2, 0)).toEqual('middle');
+    expect(Actions.getHintPlacement(state, 2, 1)).toEqual('top');
+    expect(Actions.getHintPlacement(state, 2, 2)).toEqual('bottom');
+  });
+});
+
+describe('giveHint', () => {
+  it('throws if between tricks', () => {
+    expect(() => Actions.giveHint(createGameState(), 2, 0)).toThrow(Error);
+  });
+  it('throws if player has already given a hint', () => {
+    const state = createGameState();
+    state.tricks.pop();
+    expect(() => Actions.giveHint(state, 0, 1)).toThrow(Error);
+    state.players[2].hint = { used: true };
+    expect(() => Actions.giveHint(state, 2, 0)).toThrow(Error);
+  });
+  it('gives a valid hint', () => {
+    const state = createGameState();
+    state.tricks.pop();
+    const newState = Actions.giveHint(state, 2, 0);
+    expect(newState.players[2].hint).toEqual({ used: true, card: { number: 9, suit: 'pink' }, placement: 'middle' });
+  });
+});
+
+describe('toggleTaskDone', () => {
+  it('throws if player does not have the given task', () => {
+    expect(() => Actions.toggleTaskDone(createGameState(), 0, 0)).toThrow(Error);
+    expect(() => Actions.toggleTaskDone(createGameState(), 1, 24)).toThrow(Error);
+    expect(() => Actions.toggleTaskDone(createGameState(), 2, 0)).toThrow(Error);
+  });
+  it('toggles done state of a task', () => {
+    const state = createGameState();
+    const newState1 = Actions.toggleTaskDone(state, 0, 23);
+    expect(newState1.players[0].tasks['23'].done).toBe(true);
+    const newState2 = Actions.toggleTaskDone(state, 0, 14);
+    expect(newState2.players[0].tasks['14'].done).toBe(false);
+  });
+});
+
+describe('deal', () => {
+  it('throws if the game is in progress', () => {
+    expect(() => Actions.deal(createGameState(), 0)).toThrow(Error);
+  });
+  it('deals players the correct number of cards', () => {
+    const state = {
+      players: [
+        {
+          id: 0,
+          key: 'AAAA',
+          name: 'Nathan',
+        },
+        {
+          id: 1,
+          key: 'BBBB',
+          name: 'Eric',
+        },
+        {
+          id: 2,
+          key: 'CCCC',
+          name: 'Melora',
+        }
+      ],
+    };
+    const newState = Actions.deal(state, 1);
+    expect(newState.players[0].hand.length).toBe(13);
+    expect(newState.players[1].hand.length).toBe(13);
+    expect(newState.players[2].hand.length).toBe(14);
+    expect(newState.players[0].extraCards).toBe(0);
+    expect(newState.players[1].extraCards).toBe(0);
+    expect(newState.players[2].extraCards).toBe(1);
+    expect(newState.players[0].isDealer).toBe(false);
+    expect(newState.players[1].isDealer).toBe(true);
+    expect(newState.players[2].isDealer).toBe(false);
+
+    state.players.push({ id: 3, key: 'DDDD', name: 'Michael' });
+    const newState4P = Actions.deal(state, 3);
+    expect(newState4P.players[0].hand.length).toBe(10);
+    expect(newState4P.players[1].hand.length).toBe(10);
+    expect(newState4P.players[2].hand.length).toBe(10);
+    expect(newState4P.players[3].hand.length).toBe(10);
+    expect(newState4P.players[0].extraCards).toBe(0);
+    expect(newState4P.players[1].extraCards).toBe(0);
+    expect(newState4P.players[2].extraCards).toBe(0);
+    expect(newState4P.players[3].extraCards).toBe(0);
+    expect(newState4P.players[0].isDealer).toBe(false);
+    expect(newState4P.players[1].isDealer).toBe(false);
+    expect(newState4P.players[2].isDealer).toBe(false);
+    expect(newState4P.players[3].isDealer).toBe(true);
+
+    state.players.push({ id: 3, key: 'EEEE', name: 'Rachel' });
+    const newState5P = Actions.deal(state, 0);
+    expect(newState5P.players[0].hand.length).toBe(8);
+    expect(newState5P.players[1].hand.length).toBe(8);
+    expect(newState5P.players[2].hand.length).toBe(8);
+    expect(newState5P.players[3].hand.length).toBe(8);
+    expect(newState5P.players[4].hand.length).toBe(8);
+    expect(newState5P.players[0].extraCards).toBe(0);
+    expect(newState5P.players[1].extraCards).toBe(0);
+    expect(newState5P.players[2].extraCards).toBe(0);
+    expect(newState5P.players[3].extraCards).toBe(0);
+    expect(newState5P.players[4].extraCards).toBe(0);
+    expect(newState5P.players[0].isDealer).toBe(true);
+    expect(newState5P.players[1].isDealer).toBe(false);
+    expect(newState5P.players[2].isDealer).toBe(false);
+    expect(newState5P.players[3].isDealer).toBe(false);
+    expect(newState5P.players[4].isDealer).toBe(false);
+  });
+  it('assigns the captain to exactly one player', () => {
+    const state = {
+      players: [
+        {
+          id: 0,
+          key: 'AAAA',
+          name: 'Nathan',
+        },
+        {
+          id: 1,
+          key: 'BBBB',
+          name: 'Eric',
+        },
+        {
+          id: 2,
+          key: 'CCCC',
+          name: 'Melora',
+        }
+      ],
+    };
+    const newState = Actions.deal(state, 0);
+    expect(newState.players.filter(player => player.isCaptain).length).toBe(1);
+  });
+  it('sets up state objects', () => {
+    const state = {
+      players: [
+        {
+          id: 0,
+          key: 'AAAA',
+          name: 'Nathan',
+        },
+        {
+          id: 1,
+          key: 'BBBB',
+          name: 'Eric',
+        },
+        {
+          id: 2,
+          key: 'CCCC',
+          name: 'Melora',
+        }
+      ],
+    };
+    const newState = Actions.deal(state, 0);
+    newState.players.forEach(player => {
+      expect(player.hint).toEqual({ used: false });
+    });
+    expect(newState.tricks).toEqual([]);
+    expect(newState.timeout).toBe(false);
   });
 });

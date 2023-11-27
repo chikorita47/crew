@@ -39,7 +39,7 @@ export function getNumberOfPlayers(state: GameState): number {
 }
 
 export function getIsGameStarted(state: GameState): boolean {
-  return !(state.tricks?.length);
+  return !!(state.tricks?.length);
 }
 
 export function getIsGameFinished(state: GameState): boolean {

@@ -75,6 +75,19 @@ describe('getAreAllTasksAssigned', () => {
   });
 });
 
+describe('getIsGameStarted', () => {
+  it('returns true if there are tricks in the game', () => {
+    expect(Selectors.getIsGameStarted(createGameState())).toBe(true);
+  });
+  it('returns false if there are no tricks in the game', () => {
+    const state = createGameState();
+    state.tricks = [];
+    expect(Selectors.getIsGameStarted(state)).toBe(false);
+    const { tricks, ...newState } = state;
+    expect(Selectors.getIsGameStarted(newState)).toBe(false);
+  })
+});
+
 describe('getIsGameFinished', () => {
   it('returns false if not enough tricks have been played', () => {
     const state = createGameState();

@@ -201,8 +201,15 @@ export function playCard(state: GameState, playerId: number, cardIndex: number):
   if (!getIsCardLegalToPlay(state, playerId, cardIndex)) {
     throw new Error('You must follow suit');
   }
+
   const card = getPlayerCard(state, playerId, cardIndex);
+  // remove card from hand
   newState.players[playerId].hand!!.splice(cardIndex, 1);
+  // and from hint, if it's there
+  const hint = newState.players[playerId].hint;
+  if (hint && hint.card && hint.card.number === card.number && hint.card.suit == card.suit) {
+    newState.players[playerId].hint = { used: true };
+  }
 
   if (!newState.tricks) {
     newState.tricks = [];
@@ -247,7 +254,7 @@ export function getHintPlacement(state: GameState, playerId: number, cardIndex: 
   throw new Error('Cannot give a hint about this card');
 }
 
-export function giveHint(state: GameState, playerId: number, cardIndex: number): void {
+export function giveHint(state: GameState, playerId: number, cardIndex: number): GameState {
   if (!getIsBetweenTricks(state)) {
     throw new Error('Cannot give a hint during a trick');
   }
@@ -267,17 +274,17 @@ export function giveHint(state: GameState, playerId: number, cardIndex: number):
     placement,
   }
 
-  updateState(newState, DUMMY_GAME);
+  return newState;
 }
 
-export function toggleTaskDone(state: GameState, playerId: number, taskId: number): void {
+export function toggleTaskDone(state: GameState, playerId: number, taskId: number): GameState {
   const newState = structuredClone(state);
   if (!newState.players[playerId].tasks?.[taskId]) throw new Error(`Player does not have task ${taskId}`);
-  newState.players[playerId].tasks!![taskId].done = true;
-  updateState(newState, DUMMY_GAME);
+  newState.players[playerId].tasks!![taskId].done = !newState.players[playerId].tasks!![taskId].done;
+  return newState;
 }
 
-export function deal(state: GameState, dealerId: number): void {
+export function deal(state: GameState, dealerId: number): GameState {
   if (getIsGameStarted(state) && !getIsGameFinished(state)) {
     throw new Error('Game is in progress');
   }
@@ -305,6 +312,7 @@ export function deal(state: GameState, dealerId: number): void {
   const minHandSize = Math.min(...players.map(player => player.hand!!.length));
   for (const player of players) {
     player.extraCards = player.hand!!.length - minHandSize;
+    // sort player's hand
     player.hand = player.hand!!.sort((a, b) => {
       if (a.suit !== b.suit) {
         return SUIT_ORDER[a.suit] - SUIT_ORDER[b.suit];
@@ -316,5 +324,5 @@ export function deal(state: GameState, dealerId: number): void {
   newState.tricks = [];
   newState.timeout = false;
 
-  updateState(newState, DUMMY_GAME);
+  return newState;
 }
