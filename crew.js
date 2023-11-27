@@ -5,7 +5,7 @@ const game = {
       name: 'Nathan',
       hand: [{ number: 9, suit: 'blue'}, { number: 7, suit: 'blue' }],
       hint: { used: true, card: { number: 9, suit: 'blue'}, placement: 'top' },
-      goals: [{ id: 23, done: false }, { id: 14, done: true }],
+      tasks: [{ id: 23, done: false }, { id: 14, done: true }],
       isCaptain: true,
       isDealer: true,
       extraCards: 1,
@@ -15,7 +15,7 @@ const game = {
       name: 'Eric',
       hand: [{ number: 9, suit: 'green'}, { number: 7, suit: 'green' }],
       hint: { used: false },
-      goals: [],
+      tasks: [],
       isCaptain: false,
       isDealer: false,
       extraCards: 0,
@@ -25,7 +25,7 @@ const game = {
       name: 'Melora',
       hand: [{ number: 9, suit: 'pink'}, { number: 7, suit: 'yellow' }],
       hint: { used: false },
-      goals: [],
+      tasks: [],
       isCaptain: false,
       isDealer: false,
       extraCards: 0,
@@ -49,7 +49,7 @@ const game = {
       ],
     },
   ],
-  unassignedGoals: [],
+  unassignedTasks: [],
 };
 
 
@@ -65,8 +65,8 @@ function getPlayerName(state, playerId) {
   return state.players[playerId].name;
 }
 
-function getUnassignedGoalsExist(state) {
-	return !!state.unassignedGoals.length;
+function getUnassignedTasksExist(state) {
+	return !!state.unassignedTasks.length;
 }
 
 function getIsPlayerDealer(state, playerId) {
@@ -84,8 +84,8 @@ function getIsGameFinished(state) {
   return state.tricks.length === tricksInGame && state.tricks[tricksInGame - 1].cards.length === numberOfPlayers;
 }
 
-function getAreAllGoalsDone(state) {
-	return !state.players.find(player => player.goals.find(goal => !goal.done));
+function getAreAllTasksDone(state) {
+	return !state.players.find(player => player.tasks.find(task => !task.done));
 }
 
 function getCurrentTrickId(state) {
@@ -109,15 +109,15 @@ function getNextPlayerId(state) {
 }
 
 function getStatusText(state, playerId) {
-	if (getUnassignedGoalsExist(state)) {
+	if (getUnassignedTasksExist(state)) {
   	if (getIsPlayerDealer(state, playerId)) {
-    	return `Discuss the goal cards with your teammates. Press and hold to claim one.\nOnce all goals are claimed, you may start the game.`;
+    	return `Discuss the tasks with your teammates. Press and hold to claim one.\nOnce all tasks are claimed, you may start the game.`;
     }
-  	return `Discuss the goal cards with your teammates. Press and hold to claim one.\n${getDealerName(state)} will start the game once all goals are claimed.`;
+  	return `Discuss the tasks with your teammates. Press and hold to claim one.\n${getDealerName(state)} will start the game once all tasks are claimed.`;
   }
   
   if (getIsGameFinished(state)) {
-  	if (getAreAllGoalsDone(state)) {
+  	if (getAreAllTasksDone(state)) {
     	return `Game complete. You won!`
     }
     return `Game complete. You lost.`
@@ -166,7 +166,7 @@ function playCard(state, playerId, card) {
       });
       const winningPos = highestBlackPos !== null ? highestBlackPos : highestLedPos;
       updatedTrick.winner = winningPos - updatedTrick.leader % getNumberOfPlayers(state);
-      // TODO: computer if any goals have been completed
+      // TODO: computer if any tasks have been completed
     }
     state.tricks[getCurrentTrickId(state)] = updatedTrick; // TODO: batch instead of mutate
   }

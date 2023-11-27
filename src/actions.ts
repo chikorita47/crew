@@ -1,5 +1,5 @@
 import { ref, set, child, get, push, remove, query, orderByKey } from 'firebase/database';
-import { GOALS_DATA } from './data';
+import { TASKS_DATA } from './data';
 import db from './firebase';
 import {
   getNextPlayerId,
@@ -15,10 +15,10 @@ import {
   getPlayerByName,
   getIsGameStarted,
   getIsGameFinished,
-  getUnassignedGoalsExist,
-  getAreAllGoalsAssigned,
+  getUnassignedTasksExist,
+  getAreAllTasksAssigned,
 } from './selectors';
-import { Card, HintPlacement, GameState, ProvisionalGame, ProvisionalClientList, Ruleset, UnassignedGoalList } from './types';
+import { Card, HintPlacement, GameState, ProvisionalGame, ProvisionalClientList, Ruleset, UnassignedTaskList } from './types';
 import { SUIT_ORDER, createDeck, generateCode, shuffle } from './utilities';
 
 const DUMMY_GAME = 'AAAA';
@@ -102,67 +102,67 @@ export async function startGame(code: string): Promise<GameState> {
   return gameState
 }
 
-export function dealGoals(state: GameState, difficulty: number): GameState {
+export function dealTasks(state: GameState, difficulty: number): GameState {
   const numberOfPlayers = getNumberOfPlayers(state);
 
-  const allGoals = shuffle(Object.keys(GOALS_DATA)); // TODO: do this elsewhere
-  const goalsToUse = [];
-  const skippedGoals = [];
+  const allTasks = shuffle(Object.keys(TASKS_DATA)); // TODO: do this elsewhere
+  const tasksToUse = [];
+  const skippedTasks = [];
   let difficultyCounter = 0;
   while (difficultyCounter < difficulty) {
-    const newGoalId = allGoals.shift();
-    if (!newGoalId) throw new Error('Failed to reach difficulty');
-    const newGoalDifficulty = GOALS_DATA[newGoalId].difficulty[numberOfPlayers - 3];
-    if (difficultyCounter + newGoalDifficulty > difficulty) {
-      skippedGoals.push(newGoalId);
+    const newTaskId = allTasks.shift();
+    if (!newTaskId) throw new Error('Failed to reach difficulty');
+    const newTaskDifficulty = TASKS_DATA[newTaskId].difficulty[numberOfPlayers - 3];
+    if (difficultyCounter + newTaskDifficulty > difficulty) {
+      skippedTasks.push(newTaskId);
     } else {
-      goalsToUse.push(newGoalId);
-      difficultyCounter += newGoalDifficulty;
+      tasksToUse.push(newTaskId);
+      difficultyCounter += newTaskDifficulty;
     }
   }
 
-  const leftoverGoals = skippedGoals.concat(allGoals); // TODO: save this
+  const leftoverTasks = skippedTasks.concat(allTasks); // TODO: save this
 
   const newState = structuredClone(state);
   
-  newState.unassignedGoals = goalsToUse.reduce((acc, goalId) => ({
+  newState.unassignedTasks = tasksToUse.reduce((acc, taskId) => ({
     ...acc,
-    [goalId]: {
-      id: goalId,
+    [taskId]: {
+      id: taskId,
     },
-  }), {} as UnassignedGoalList);
+  }), {} as UnassignedTaskList);
 
   return newState;
 }
 
-export function claimGoal(state: GameState, playerId: number, goalId: number): GameState {
+export function claimTask(state: GameState, playerId: number, taskId: number): GameState {
   const newState = structuredClone(state);
-  if (!newState.unassignedGoals?.[goalId]) throw new Error('Cannot claim goal that is not in the game');
-  newState.unassignedGoals[goalId].provisionalPlayerId = playerId;
+  if (!newState.unassignedTasks?.[taskId]) throw new Error('Cannot claim task that is not in the game');
+  newState.unassignedTasks[taskId].provisionalPlayerId = playerId;
   return newState;
 }
 
-export function kickGoal(state: GameState, goalId: number): GameState {
+export function kickTask(state: GameState, taskId: number): GameState {
   throw new Error ('Not yet implemented');
 }
 
-export function finalizeGoalsAndRuleset(state: GameState, ruleset: Ruleset): GameState {
-  if (!getUnassignedGoalsExist(state)) {
-    throw new Error('Cannot begin a game that has already started, or with no goals');
+export function finalizeTasksAndRuleset(state: GameState, ruleset: Ruleset): GameState {
+  if (!getUnassignedTasksExist(state)) {
+    throw new Error('Cannot begin a game that has already started, or with no tasks');
   }
-  if (!getAreAllGoalsAssigned(state)) {
-    throw new Error('Cannot begin game before all goals are assigned');
+  if (!getAreAllTasksAssigned(state)) {
+    throw new Error('Cannot begin game before all tasks are assigned');
   }
 
-  const { unassignedGoals, ...newState } = structuredClone(state);
-  for (const goal of Object.values(unassignedGoals!!)) {
-    const playerId = goal.provisionalPlayerId;
-    if (!newState.players[playerId]) throw new Error('Cannot assign goal to nonexistent player');
-    if (!newState.players[playerId].goals) {
-      newState.players[playerId].goals = {};
+  const { unassignedTasks, ...newState } = structuredClone(state);
+  for (const task of Object.values(unassignedTasks!!)) {
+    const playerId = task.provisionalPlayerId;
+    if (!newState.players[playerId]) throw new Error('Cannot assign task to nonexistent player');
+    if (!newState.players[playerId].tasks) {
+      newState.players[playerId].tasks = {};
     }
-    newState.players[playerId].goals!![goal.id] = {
-      id: goal.id,
+    newState.players[playerId].tasks!![task.id] = {
+      id: task.id,
       done: false,
       failed: false,
     };
@@ -220,7 +220,7 @@ export function playCard(state: GameState, playerId: number, cardIndex: number):
       });
       const winningPos = highestBlackPos !== null ? highestBlackPos : highestLedPos;
       updatedTrick.winner = (winningPos + updatedTrick.leader) % numberOfPlayers;
-      // TODO: compute if any goals have been completed
+      // TODO: compute if any tasks have been completed
     }
     newState.tricks!![getCurrentTrickId(state)] = updatedTrick;
   }
@@ -267,10 +267,10 @@ export function giveHint(state: GameState, playerId: number, cardIndex: number):
   updateState(newState, DUMMY_GAME);
 }
 
-export function toggleGoalDone(state: GameState, playerId: number, goalId: number): void {
+export function toggleTaskDone(state: GameState, playerId: number, taskId: number): void {
   const newState = structuredClone(state);
-  if (!newState.players[playerId].goals?.[goalId]) throw new Error(`Player does not have goal ${goalId}`);
-  newState.players[playerId].goals!![goalId].done = true;
+  if (!newState.players[playerId].tasks?.[taskId]) throw new Error(`Player does not have task ${taskId}`);
+  newState.players[playerId].tasks!![taskId].done = true;
   updateState(newState, DUMMY_GAME);
 }
 

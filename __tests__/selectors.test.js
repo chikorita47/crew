@@ -9,7 +9,7 @@ function createGameState() {
         name: 'Nathan',
         hand: [{ number: 4, suit: 'black' }, { number: 9, suit: 'blue' }, { number: 7, suit: 'blue' }],
         hint: { used: true, card: { number: 9, suit: 'blue' }, placement: 'top' },
-        goals: { 23: { id: 23, done: false }, 14: { id: 14, done: true } },
+        tasks: { 23: { id: 23, done: false }, 14: { id: 14, done: true } },
         isCaptain: true,
         isDealer: false,
         extraCards: 1,
@@ -20,7 +20,7 @@ function createGameState() {
         name: 'Eric',
         hand: [{ number: 9, suit: 'green' }, { number: 8, suit: 'green' }, { number: 7, suit: 'green' }],
         hint: { used: false },
-        goals: {},
+        tasks: {},
         isCaptain: false,
         isDealer: false,
         extraCards: 0,
@@ -89,45 +89,45 @@ describe('getPlayerByName', () => {
   });
 });
 
-describe('getUnassignedGoalsExist', () => {
-  it('returns true if unassigned goals exist', () => {
+describe('getUnassignedTasksExist', () => {
+  it('returns true if unassigned tasks exist', () => {
     const state = createGameState();
-    state.unassignedGoals = {
+    state.unassignedTasks = {
       '4': { id: 4, provisionalPlayerId: 0 },
       '5': { id: 5 }
     };
-    expect(Selectors.getUnassignedGoalsExist(state)).toBe(true);
+    expect(Selectors.getUnassignedTasksExist(state)).toBe(true);
   });
   it('returns false if not', () => {
     const state = createGameState();
-    expect(Selectors.getUnassignedGoalsExist(state)).toBe(false);
-    state.unassignedGoals = {};
-    expect(Selectors.getUnassignedGoalsExist(state)).toBe(false);
+    expect(Selectors.getUnassignedTasksExist(state)).toBe(false);
+    state.unassignedTasks = {};
+    expect(Selectors.getUnassignedTasksExist(state)).toBe(false);
   });
 });
 
-describe('getAreAllGoalsAssigned', () => {
-  it('returns false if unassigned goals exist', () => {
+describe('getAreAllTasksAssigned', () => {
+  it('returns false if unassigned tasks exist', () => {
     const state = createGameState();
-    state.unassignedGoals = {
+    state.unassignedTasks = {
       '4': { id: 4, provisionalPlayerId: 0 },
       '5': { id: 5 }
     };
-    expect(Selectors.getAreAllGoalsAssigned(state)).toBe(false);
+    expect(Selectors.getAreAllTasksAssigned(state)).toBe(false);
   });
-  it('returns true if all goals are assigned', () => {
+  it('returns true if all tasks are assigned', () => {
     const state = createGameState();
-    state.unassignedGoals = {
+    state.unassignedTasks = {
       '4': { id: 4, provisionalPlayerId: 0 },
       '5': { id: 5, provisionalPlayerId: 1 }
     };
-    expect(Selectors.getAreAllGoalsAssigned(state)).toBe(true);
+    expect(Selectors.getAreAllTasksAssigned(state)).toBe(true);
   });
-  it('returns false if unassignedGoals is empty', () => {
+  it('returns false if unassignedTasks is empty', () => {
     const state = createGameState();
-    expect(Selectors.getAreAllGoalsAssigned(state)).toBe(false);
-    state.unassignedGoals = {};
-    expect(Selectors.getAreAllGoalsAssigned(state)).toBe(false);
+    expect(Selectors.getAreAllTasksAssigned(state)).toBe(false);
+    state.unassignedTasks = {};
+    expect(Selectors.getAreAllTasksAssigned(state)).toBe(false);
   });
 });
 
@@ -166,19 +166,19 @@ describe('getIsGameFinished', () => {
     state.timeout = true;
     expect(Selectors.getIsGameFinished(state)).toBe(true);
   });
-  xit('returns true if a goal has failed', () => {
+  xit('returns true if a task has failed', () => {
     expect(false).toBe(true);
   });
 });
 
-describe('getAreAllGoalsDone', () => {
-  it('returns false if any player has unfinished goals', () => {
-    expect(Selectors.getAreAllGoalsDone(createGameState())).toBe(false);
+describe('getAreAllTasksDone', () => {
+  it('returns false if any player has unfinished tasks', () => {
+    expect(Selectors.getAreAllTasksDone(createGameState())).toBe(false);
   });
-  it('returns true if no player has unfinished goals', () => {
+  it('returns true if no player has unfinished tasks', () => {
     const state = createGameState();
-    state.players[0].goals[23].done = true;
-    expect(Selectors.getAreAllGoalsDone(state)).toBe(true);
+    state.players[0].tasks[23].done = true;
+    expect(Selectors.getAreAllTasksDone(state)).toBe(true);
   });
 });
 

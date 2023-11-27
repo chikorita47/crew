@@ -17,21 +17,21 @@ export type Hint = {
   placement?: HintPlacement;
 };
 
-export type PlayerGoal = {
+export type PlayerTask = {
   id: number;
   done: boolean;
   failed: boolean;
 };
-export type PlayerGoalList = {
-  [key: number]: PlayerGoal;
+export type PlayerTaskList = {
+  [key: number]: PlayerTask;
 };
 
-export type UnassignedGoal = {
+export type UnassignedTask = {
   id: number;
   provisionalPlayerId: number;
 };
-export type UnassignedGoalList = {
-  [key: number]: UnassignedGoal;
+export type UnassignedTaskList = {
+  [key: number]: UnassignedTask;
 };
 
 export type Player = {
@@ -40,7 +40,7 @@ export type Player = {
   name: string;
   hand?: Card[];
   hint?: Hint;
-  goals?: PlayerGoalList;
+  tasks?: PlayerTaskList;
   isCaptain?: boolean;
   isDealer?: boolean;
   extraCards?: number;
@@ -55,7 +55,7 @@ export type Ruleset = {
 export type GameState = {
   players: Player[];
   tricks?: Trick[];
-  unassignedGoals?: UnassignedGoalList;
+  unassignedTasks?: UnassignedTaskList;
   ruleset?: Ruleset;
   timeout?: boolean;
 };
@@ -66,14 +66,14 @@ export type ProvisionalGame = {
   clientList: ProvisionalClientList;
 };
 
-export type GoalsDataEntryDifficulty = [ number, number, number ];
-export type GoalsDataEntry = {
+export type TasksDataEntryDifficulty = [ number, number, number ];
+export type TasksDataEntry = {
   id: number;
   text: string;
   subtext?: string;
-  difficulty: GoalsDataEntryDifficulty;
+  difficulty: TasksDataEntryDifficulty;
 };
 
-export type GoalsData = {
-  [key: string]: GoalsDataEntry;
+export type TasksData = {
+  [key: string]: TasksDataEntry;
 };

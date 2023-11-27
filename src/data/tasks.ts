@@ -1,4 +1,4 @@
-import { GoalsData } from "../types";
+import { TasksData } from "../types";
 
 export default {
   '0': {
@@ -577,4 +577,4 @@ export default {
     subtext: '',
     difficulty: [ 3, 3, 3 ]
   }
-} as GoalsData;
+} as TasksData;

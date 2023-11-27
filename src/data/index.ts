@@ -1,5 +1,5 @@
-import GOALS_DATA from './goals';
+import TASKS_DATA from './tasks';
 
 export {
-  GOALS_DATA
+  TASKS_DATA
 };

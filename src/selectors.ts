@@ -22,12 +22,12 @@ export function getPlayerByName(state: GameState, name: string): Player {
   return player;
 }
 
-export function getUnassignedGoalsExist(state: GameState): boolean {
-  return !!Object.keys(state.unassignedGoals ?? []).length;
+export function getUnassignedTasksExist(state: GameState): boolean {
+  return !!Object.keys(state.unassignedTasks ?? []).length;
 }
 
-export function getAreAllGoalsAssigned(state: GameState): boolean {
-  return !!state.unassignedGoals && !!Object.keys(state.unassignedGoals).length && !Object.values(state.unassignedGoals).some(goal => !('provisionalPlayerId' in goal));
+export function getAreAllTasksAssigned(state: GameState): boolean {
+  return !!state.unassignedTasks && !!Object.keys(state.unassignedTasks).length && !Object.values(state.unassignedTasks).some(task => !('provisionalPlayerId' in task));
 }
 
 export function getIsPlayerDealer(state: GameState, playerId: number): boolean {
@@ -49,8 +49,8 @@ export function getIsGameFinished(state: GameState): boolean {
   return !!state.tricks && state.tricks.length === tricksInGame && (state.tricks[tricksInGame - 1].cards ?? []).length === numberOfPlayers;
 }
 
-export function getAreAllGoalsDone(state: GameState): boolean {
-  return !state.players.find(player => player.goals && Object.values(player.goals).find(goal => !goal.done));
+export function getAreAllTasksDone(state: GameState): boolean {
+  return !state.players.find(player => player.tasks && Object.values(player.tasks).find(task => !task.done));
 }
 
 export function getCurrentTrickId(state: GameState): number {
@@ -115,15 +115,15 @@ export function getNextPlayerId(state: GameState): number {
 }
 
 export function getStatusText(state: GameState, playerId: number): string {
-  if (getUnassignedGoalsExist(state)) {
+  if (getUnassignedTasksExist(state)) {
     if (getIsPlayerDealer(state, playerId)) {
-      return `Discuss the goal cards with your teammates. Press and hold to claim one.\nOnce all goals are claimed, you may start the game.`;
+      return `Discuss the task cards with your teammates. Press and hold to claim one.\nOnce all tasks are claimed, you may start the game.`;
     }
-    return `Discuss the goal cards with your teammates. Press and hold to claim one.\n${getDealerName(state)} will start the game once all goals are claimed.`;
+    return `Discuss the task cards with your teammates. Press and hold to claim one.\n${getDealerName(state)} will start the game once all tasks are claimed.`;
   }
 
   if (getIsGameFinished(state)) {
-    if (getAreAllGoalsDone(state)) {
+    if (getAreAllTasksDone(state)) {
       return `Game complete. You won!`
     }
     return `Game complete. You lost.`

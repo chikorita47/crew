@@ -5,7 +5,7 @@ import styles from './page.module.css'
 
 import db from '../firebase';
 import { ref, set, child, onValue } from "firebase/database";
-import { playCard, giveHint, deal, createGame, joinGame, startGame, claimGoal, dealGoals, finalizeGoalsAndRuleset } from '../actions';
+import { playCard, giveHint, deal, createGame, joinGame, startGame, claimTask, dealTasks, finalizeTasksAndRuleset } from '../actions';
 import { getStatusText, getCurrentTrick } from '../selectors';
 import { GameState, ProvisionalGame } from '../types';
 
@@ -19,7 +19,7 @@ function resetState() {
         name: 'Nathan',
         hand: [{ number: 9, suit: 'blue' }, { number: 7, suit: 'blue' }],
         hint: { used: true, card: { number: 9, suit: 'blue' }, placement: 'top' },
-        goals: { 23: { id: 23, done: false }, 14: { id: 14, done: true } },
+        tasks: { 23: { id: 23, done: false }, 14: { id: 14, done: true } },
         isCaptain: true,
         isDealer: true,
         extraCards: 1,
@@ -30,7 +30,7 @@ function resetState() {
         name: 'Eric',
         hand: [{ number: 9, suit: 'green' }, { number: 8, suit: 'green' }, { number: 7, suit: 'green' }],
         hint: { used: false },
-        goals: {},
+        tasks: {},
         isCaptain: false,
         isDealer: false,
         extraCards: 0,
@@ -41,7 +41,7 @@ function resetState() {
         name: 'Melora',
         hand: [{ number: 9, suit: 'pink' }, { number: 7, suit: 'yellow' }],
         hint: { used: false },
-        goals: {},
+        tasks: {},
         isCaptain: false,
         isDealer: false,
         extraCards: 0,
@@ -98,14 +98,14 @@ function Host() {
       <div><a onClick={async () => {
         if (!code) throw new Error('Cannot start game with no code');
         const state = await startGame(code);
-        dealGoals(state, 10, code);
+        dealTasks(state, 10, code);
       }}>Start Game</a></div>
       <div>
-        {state?.unassignedGoals && Object.values(state.unassignedGoals).map(goal => (
-          <a onClick={() => claimGoal(state, 1, goal.id, code!!)}>{goal.id}:{goal.provisionalPlayerId} </a>
+        {state?.unassignedTasks && Object.values(state.unassignedTasks).map(task => (
+          <a onClick={() => claimTask(state, 1, task.id, code!!)}>{task.id}:{task.provisionalPlayerId} </a>
         ))}
       </div>
-      <div><a onClick={() => finalizeGoalsAndRuleset(state!!, { hintMode: 'default' }, code!!)}>Begin Game</a></div>
+      <div><a onClick={() => finalizeTasksAndRuleset(state!!, { hintMode: 'default' }, code!!)}>Begin Game</a></div>
     </div>
   )
 }
