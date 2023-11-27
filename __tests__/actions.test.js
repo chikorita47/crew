@@ -1,6 +1,8 @@
 import * as Actions from '../src/actions';
 import { GOALS_DATA } from '../src/data';
 
+const sum = (arr) => arr.reduce((acc, num) => acc + num, 0);
+
 function createGameState() {
   return {
     players: [
@@ -59,8 +61,6 @@ function createGameState() {
 }
 
 describe('dealGoals', () => {
-  const sum = (arr) => arr.reduce((acc, num) => acc + num, 0);
-
   it('randomly selects goals', () => {
     const state = createGameState();
     const newState1 = Actions.dealGoals(state, 10);
@@ -104,6 +104,48 @@ describe('claimGoal', () => {
   });
 });
 
+xdescribe('kickGoal', () => {
+  const unassignedGoals = {
+    '4': { id: 4, provisionalPlayerId: 0 },
+    '5': { id: 5, provisionalPlayerId: 2 },
+    '6': { id: 6, provisionalPlayerId: 1 },
+    '7': { id: 7 },
+  };
+
+  it('removes goal from unassignedGoals and replaces the correct amount of difficulty for 3P', () => {
+    const state = createGameState();
+    state.unassignedGoals = unassignedGoals;
+    const newState = Actions.kickGoal(state, 6);
+    expect(newState.unassignedGoals[4]).toEqual({ id: 4, provisionalPlayerId: 0 });
+    expect(newState.unassignedGoals[5]).toEqual({ id: 5, provisionalPlayerId: 2 });
+    expect(newState.unassignedGoals[7]).toEqual({ id: 7 });
+    expect(newState.unassignedGoals[6]).toBeUndefined();
+    expect(Object.keys(newState.unassignedGoals).length).toBeGreaterThan(3);
+
+    const difficulties = Object.keys(newState.unassignedGoals).map(goalId => GOALS_DATA[goalId].difficulty[0]);
+    expect(sum(difficulties)).toEqual(11);
+  });
+  it('replaces the correct amount of difficulty for 4P', () => {
+    const state = createGameState();
+    state.unassignedGoals = unassignedGoals;
+    state.players.push({});
+    const newState = Actions.kickGoal(state, 7);
+    expect(newState.unassignedGoals[7]).toBeUndefined();
+    const difficulties = Object.keys(newState.unassignedGoals).map(goalId => GOALS_DATA[goalId].difficulty[0]);
+    expect(sum(difficulties)).toEqual(12);
+  });
+  it('replaces the correct amount of difficulty for 5P', () => {
+    const state = createGameState();
+    state.unassignedGoals = unassignedGoals;
+    state.players.push({});
+    state.players.push({});
+    const newState = Actions.kickGoal(state, 7);
+    expect(newState.unassignedGoals[7]).toBeUndefined();
+    const difficulties = Object.keys(newState.unassignedGoals).map(goalId => GOALS_DATA[goalId].difficulty[0]);
+    expect(sum(difficulties)).toEqual(14);
+  });
+});
+
 describe('finalizeGoalsAndRuleset', () => {
   const ruleset = { hintMode: 'default' };
 
@@ -138,8 +180,8 @@ describe('finalizeGoalsAndRuleset', () => {
     const newState = Actions.finalizeGoalsAndRuleset(state, ruleset);
     expect(newState.ruleset).toEqual(ruleset);
     expect(newState.unassignedGoals).toBeUndefined();
-    expect(newState.players[0].goals).toEqual({ 4: { id: 4, done: false }, 7: { id: 7, done: false } });
-    expect(newState.players[1].goals).toEqual({ 6: { id: 6, done: false } });
-    expect(newState.players[2].goals).toEqual({ 5: { id: 5, done: false } });
+    expect(newState.players[0].goals).toEqual({ 4: { id: 4, done: false, failed: false }, 7: { id: 7, done: false, failed: false } });
+    expect(newState.players[1].goals).toEqual({ 6: { id: 6, done: false, failed: false } });
+    expect(newState.players[2].goals).toEqual({ 5: { id: 5, done: false, failed: false } });
   });
 });

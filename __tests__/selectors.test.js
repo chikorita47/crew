@@ -166,6 +166,9 @@ describe('getIsGameFinished', () => {
     state.timeout = true;
     expect(Selectors.getIsGameFinished(state)).toBe(true);
   });
+  xit('returns true if a goal has failed', () => {
+    expect(false).toBe(true);
+  });
 });
 
 describe('getAreAllGoalsDone', () => {

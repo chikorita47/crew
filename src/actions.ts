@@ -164,6 +164,7 @@ export function finalizeGoalsAndRuleset(state: GameState, ruleset: Ruleset): Gam
     newState.players[playerId].goals!![goal.id] = {
       id: goal.id,
       done: false,
+      failed: false,
     };
   }
 

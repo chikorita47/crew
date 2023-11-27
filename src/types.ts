@@ -20,6 +20,7 @@ export type Hint = {
 export type PlayerGoal = {
   id: number;
   done: boolean;
+  failed: boolean;
 };
 export type PlayerGoalList = {
   [key: number]: PlayerGoal;
