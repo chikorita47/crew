@@ -1,4 +1,4 @@
-import { Suit, Card, Trick, Hint, GameState, Player, RulesetHintMode } from './types';
+import { Suit, Card, Trick, Hint, GameState, Player, RulesetHintMode, TaskData } from './types';
 
 export function getCaptain(state: GameState): Player {
   const captain = state.players.find(player => player.isCaptain);
@@ -50,6 +50,14 @@ export function getOtherPlayers(state: GameState, playerId: number): Player[] {
   return state.players.filter(player => player.id !== playerId);
 }
 
+export function getTaskDataForPlayer(state: GameState, playerId: number, taskId: number): TaskData {
+  const player = getPlayer(state, playerId);
+  const task = player.tasks?.[taskId];
+  if (!task) throw new Error('Could not get task from player data');
+  if (!task.data) throw new Error('Task missing required extra data');
+  return task.data;
+}
+
 export function getUnassignedTasksExist(state: GameState): boolean {
   return !!Object.keys(state.unassignedTasks ?? []).length;
 }
@@ -58,7 +66,9 @@ export function getAreAllTasksAssigned(state: GameState): boolean {
   return (
     !!state.unassignedTasks &&
     !!Object.keys(state.unassignedTasks).length &&
-    !Object.values(state.unassignedTasks).some(task => !('provisionalPlayerId' in task))
+    Object.values(state.unassignedTasks).every(task => 'provisionalPlayerId' in task) &&
+    (!state.unassignedTasks[94] || !!state.unassignedTasks[94].data) && // TODO: generalize this
+    (!state.unassignedTasks[95] || !!state.unassignedTasks[95].data) // TODO: generalize this
   );
 }
 

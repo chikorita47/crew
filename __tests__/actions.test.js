@@ -39,19 +39,61 @@ describe('dealTasks', () => {
   });
 });
 
-describe('claimTask', () => {
+describe('toggleClaimTask', () => {
   const state = createGameState();
   state.unassignedTasks = {
     5: { id: 5 },
   };
 
   it('assigns provisionalPlayerId to the task', () => {
-    expect(Actions.claimTask(state, 2, 5).unassignedTasks).toEqual({
+    expect(Actions.toggleClaimTask(state, 2, 5).unassignedTasks).toEqual({
       5: { id: 5, provisionalPlayerId: 2 },
     });
   });
   it('throws if taskId is not in unassignedTasks', () => {
-    expect(() => Actions.claimTask(state, 2, 6)).toThrow(Error);
+    expect(() => Actions.toggleClaimTask(state, 2, 6)).toThrow(Error);
+  });
+  it('unclaims the task if playerId is already provisionally assigned', () => {
+    const state = createGameState();
+    state.unassignedTasks = {
+      5: { id: 5, provisionalPlayerId: 2 },
+    };
+    expect(Actions.toggleClaimTask(state, 2, 5).unassignedTasks).toEqual({
+      5: { id: 5 },
+    });
+  });
+  it('erases any extra task data already attached', () => {
+    const state = createGameState();
+    state.unassignedTasks = {
+      5: { id: 5, provisionalPlayerId: 1, data: { n: 3 } },
+    };
+    expect(Actions.toggleClaimTask(state, 2, 5).unassignedTasks).toEqual({
+      5: { id: 5, provisionalPlayerId: 2 },
+    });
+  });
+});
+
+describe('addDataToTask', () => {
+  it('adds data to the task', () => {
+    const state = createGameState();
+    state.unassignedTasks = { 5: { id: 5 }, 94: { id: 94 } };
+    expect(Actions.addDataToTask(state, 0, 94, { n: 1 }).unassignedTasks).toEqual({
+      5: { id: 5 },
+      94: { id: 94, provisionalPlayerId: 0, data: { n: 1 } },
+    });
+  });
+  it('claims the task if another player provisionally owns it', () => {
+    const state = createGameState();
+    state.unassignedTasks = { 5: { id: 5 }, 94: { id: 94, provisionalPlayerId: 1 } };
+    expect(Actions.addDataToTask(state, 0, 94, { n: 1 }).unassignedTasks).toEqual({
+      5: { id: 5 },
+      94: { id: 94, provisionalPlayerId: 0, data: { n: 1 } },
+    });
+  });
+  it('throws if taskId is not in unassignedTasks', () => {
+    const state = createGameState();
+    state.unassignedTasks = { 5: { id: 5 }, 94: { id: 94 } };
+    expect(() => Actions.addDataToTask(state, 0, 6, { n: 1 })).toThrow(Error);
   });
 });
 
@@ -153,6 +195,8 @@ describe('finalizeTasksAndRuleset', () => {
       5: { id: 5, provisionalPlayerId: 2 },
       6: { id: 6, provisionalPlayerId: 1 },
       7: { id: 7, provisionalPlayerId: 0 },
+      94: { id: 94, provisionalPlayerId: 0, data: { n: 0 } },
+      95: { id: 95, provisionalPlayerId: 1, data: { n: 5 } },
     };
     delete state.players[0].tasks;
     delete state.players[1].tasks;
@@ -162,8 +206,12 @@ describe('finalizeTasksAndRuleset', () => {
     expect(newState.players[0].tasks).toEqual({
       4: { id: 4, done: false, failed: false },
       7: { id: 7, done: false, failed: false },
+      94: { id: 94, done: false, failed: false, data: { n: 0 } },
     });
-    expect(newState.players[1].tasks).toEqual({ 6: { id: 6, done: false, failed: false } });
+    expect(newState.players[1].tasks).toEqual({
+      6: { id: 6, done: false, failed: false },
+      95: { id: 95, done: false, failed: false, data: { n: 5 } },
+    });
     expect(newState.players[2].tasks).toEqual({ 5: { id: 5, done: false, failed: false } });
   });
 });

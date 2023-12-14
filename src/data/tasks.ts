@@ -16,7 +16,7 @@ import {
   taskIntersection,
   taskUnion,
 } from './helpers';
-import { getNumberOfPlayers } from '../selectors';
+import { getNumberOfPlayers, getTaskDataForPlayer } from '../selectors';
 import { Comparison, Suit, TasksData, TaskState } from '../types';
 import { isCardEqual } from '../utilities';
 
@@ -779,11 +779,23 @@ export default {
     text: 'I will win X tricks',
     subtext: 'Note your prediction but keep it secret',
     difficulty: [4, 3, 3],
+    requiresExtraData: true,
+    test: (state, owner) => {
+      const { n } = getTaskDataForPlayer(state, owner, 94);
+      if (n === undefined || typeof n !== 'number') throw new Error('Missing required extra data for task');
+      return task_winExactTrickCount(n)(state, owner);
+    },
   },
   '95': {
     id: 95,
     text: 'l will win X tricks',
     subtext: 'Note your prediction and share it with the crew',
     difficulty: [3, 2, 2],
+    requiresExtraData: true,
+    test: (state, owner) => {
+      const { n } = getTaskDataForPlayer(state, owner, 95);
+      if (n === undefined || typeof n !== 'number') throw new Error('Missing required extra data for task');
+      return task_winExactTrickCount(n)(state, owner);
+    },
   },
 } as TasksData;

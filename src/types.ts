@@ -23,10 +23,12 @@ export type Hint = {
   placement?: HintPlacement;
 };
 
+export type TaskData = { [key: string]: string | number };
 export type PlayerTask = {
   id: number;
   done: boolean;
   failed: boolean;
+  data?: TaskData;
 };
 export type PlayerTaskList = {
   [key: number]: PlayerTask;
@@ -35,6 +37,7 @@ export type PlayerTaskList = {
 export type UnassignedTask = {
   id: number;
   provisionalPlayerId?: number;
+  data?: TaskData;
 };
 export type UnassignedTaskList = {
   [key: number]: UnassignedTask;
@@ -81,6 +84,7 @@ export type TasksDataEntry = {
   text: string;
   subtext?: string;
   difficulty: TasksDataEntryDifficulty;
+  requiresExtraData?: boolean;
   test?: TasksDataEntryTest;
 };
 

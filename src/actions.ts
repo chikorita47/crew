@@ -28,6 +28,7 @@ import {
   UnassignedTaskList,
   Trick,
   Suit,
+  TaskData,
 } from './types';
 import { SUIT_ORDER, createDeck, generateCode, shuffle } from './utilities';
 
@@ -157,9 +158,23 @@ export function dealTasks(state: GameState, difficulty: number): GameState {
   return newState;
 }
 
-export function claimTask(state: GameState, playerId: number, taskId: number): GameState {
+export function toggleClaimTask(state: GameState, playerId: number, taskId: number): GameState {
   const newState = structuredClone(state);
   if (!newState.unassignedTasks?.[taskId]) throw new Error('Cannot claim task that is not in the game');
+  const shouldToggleOff = newState.unassignedTasks[taskId].provisionalPlayerId === playerId;
+  newState.unassignedTasks[taskId] = {
+    id: taskId,
+  };
+  if (!shouldToggleOff) {
+    newState.unassignedTasks[taskId].provisionalPlayerId = playerId;
+  }
+  return newState;
+}
+
+export function addDataToTask(state: GameState, playerId: number, taskId: number, data: TaskData): GameState {
+  const newState = structuredClone(state);
+  if (!newState.unassignedTasks?.[taskId]) throw new Error('Cannot add data to task that is not in the game');
+  newState.unassignedTasks[taskId].data = data;
   newState.unassignedTasks[taskId].provisionalPlayerId = playerId;
   return newState;
 }
@@ -212,6 +227,9 @@ export function finalizeTasksAndRuleset(state: GameState, ruleset: Ruleset): Gam
       done: false,
       failed: false,
     };
+    if (task.data) {
+      newState.players[playerId].tasks![task.id].data = task.data;
+    }
   }
 
   newState.ruleset = ruleset;

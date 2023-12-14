@@ -7,7 +7,7 @@ import * as Actions from '../actions';
 import { TASKS_DATA } from '../data';
 import db from '../firebase';
 import * as Selectors from '../selectors';
-import { GameState, Player, ProvisionalGame, Ruleset, RulesetHintMode } from '../types';
+import { GameState, Player, ProvisionalGame, Ruleset, RulesetHintMode, TaskData } from '../types';
 
 type EnterGameViewProps = {
   onEnterGame: (code: string, key: string) => void;
@@ -106,6 +106,38 @@ function SetupGameView(props: SetupGameViewProps) {
   );
 }
 
+type XTricksSelectorViewProps = {
+  onSubmit: (value: number) => void;
+  data?: TaskData;
+};
+function XTricksSelectorView(props: XTricksSelectorViewProps) {
+  const [value, setValue] = useState<number | undefined>();
+  if (props.data) {
+    return <span>{props.data.n}</span>;
+  }
+  return (
+    <>
+      <input
+        type="number"
+        value={value}
+        placeholder="Difficulty"
+        min={1}
+        max={100}
+        onChange={event => setValue(~~event.target.value)}
+      />
+      <input
+        type="button"
+        value="Submit"
+        disabled={value === undefined}
+        onClick={() => {
+          if (value === undefined) throw new Error('Must enter a value for X tricks');
+          props.onSubmit(value);
+        }}
+      />
+    </>
+  );
+}
+
 type AssignTasksViewProps = {
   state: GameState;
   code: string;
@@ -132,13 +164,30 @@ function AssignTasksView(props: AssignTasksViewProps) {
       <div>Tasks:</div>
       {Object.values(props.state.unassignedTasks).map(task => {
         const taskData = TASKS_DATA[task.id];
+        const shouldShowXTricksSelector =
+          taskData.requiresExtraData &&
+          (props.playerId === task.provisionalPlayerId || (task.id === 95 && 'data' in task));
         return (
           <div key={`task-${task.id}`}>
-            <a onClick={() => Actions.updateState(Actions.claimTask(props.state, props.playerId, task.id), props.code)}>
+            <a
+              onClick={() =>
+                Actions.updateState(Actions.toggleClaimTask(props.state, props.playerId, task.id), props.code)
+              }>
               {taskData.difficulty[difficultyIndex]}: {taskData.text}
               {taskData.subtext && `/${taskData.subtext}`}
               {'provisionalPlayerId' in task && ` (${Selectors.getPlayerName(props.state, task.provisionalPlayerId!)})`}
             </a>
+            {shouldShowXTricksSelector && (
+              <XTricksSelectorView
+                data={task.data}
+                onSubmit={value => {
+                  Actions.updateState(
+                    Actions.addDataToTask(props.state, props.playerId, task.id, { n: value }),
+                    props.code,
+                  );
+                }}
+              />
+            )}
             {isHost && (
               <input
                 type="button"
@@ -260,6 +309,7 @@ function OtherPlayerView(props: OtherPlayerViewProps) {
               <div key={`task-${task.id}`} style={task.done ? { textDecoration: 'line-through' } : {}}>
                 {taskData.text}
                 {taskData.subtext && `/${taskData.subtext}`}
+                {task.id === 95 && ` (${task.data!.n})`}
               </div>
             );
           })}
@@ -324,6 +374,7 @@ function GameView(props: GameViewProps) {
                 }>
                 {taskData.text}
                 {taskData.subtext && `/${taskData.subtext}`}
+                {task.data && ` (${task.data.n})`}
               </div>
             );
           })}

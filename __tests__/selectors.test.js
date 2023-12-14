@@ -73,6 +73,24 @@ describe('getAreAllTasksAssigned', () => {
     state.unassignedTasks = {};
     expect(Selectors.getAreAllTasksAssigned(state)).toBe(false);
   });
+  it('returns false if tasks requiring extra data do not have data', () => {
+    const state = createGameState();
+    state.unassignedTasks = {
+      4: { id: 4, provisionalPlayerId: 0 },
+      5: { id: 5, provisionalPlayerId: 1 },
+      94: { id: 94, provisionalPlayerId: 2 },
+    };
+    expect(Selectors.getAreAllTasksAssigned(state)).toBe(false);
+  });
+  it('returns true if all tasks requiring extra data have data', () => {
+    const state = createGameState();
+    state.unassignedTasks = {
+      4: { id: 4, provisionalPlayerId: 0 },
+      5: { id: 5, provisionalPlayerId: 1 },
+      94: { id: 94, provisionalPlayerId: 2, data: { n: 0 } },
+    };
+    expect(Selectors.getAreAllTasksAssigned(state)).toBe(true);
+  });
 });
 
 describe('getIsGameStarted', () => {
