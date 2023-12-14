@@ -157,6 +157,44 @@ describe('getIsBetweenTricks', () => {
   });
 });
 
+describe('getPlayerTricksWon', () => {
+  it('returns the number of tricks a player has won', () => {
+    const state = createGameState();
+    state.tricks = [
+      {
+        winner: 0,
+        leader: 1,
+        cards: [
+          { number: 3, suit: 'green' },
+          { number: 9, suit: 'blue' },
+          { number: 5, suit: 'green' },
+        ],
+      },
+      {
+        winner: 1,
+        leader: 0,
+        cards: [
+          { number: 3, suit: 'green' },
+          { number: 9, suit: 'blue' },
+          { number: 5, suit: 'green' },
+        ],
+      },
+      {
+        winner: 1,
+        leader: 1,
+        cards: [
+          { number: 3, suit: 'green' },
+          { number: 9, suit: 'blue' },
+          { number: 5, suit: 'green' },
+        ],
+      },
+    ];
+    expect(Selectors.getPlayerTricksWon(state, 0)).toEqual(1);
+    expect(Selectors.getPlayerTricksWon(state, 1)).toEqual(2);
+    expect(Selectors.getPlayerTricksWon(state, 2)).toEqual(0);
+  });
+});
+
 describe('getLedSuitForCurrentTrick', () => {
   it('returns the led suit of the current trick', () => {
     expect(Selectors.getLedSuitForCurrentTrick(createGameState())).toBe('pink');

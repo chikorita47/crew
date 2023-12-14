@@ -21,9 +21,7 @@ import {
 import { HintPlacement, GameState, ProvisionalGame, ProvisionalClientList, Ruleset, UnassignedTaskList, Trick } from './types';
 import { SUIT_ORDER, createDeck, generateCode, shuffle } from './utilities';
 
-const DUMMY_GAME = 'AAAA';
-
-function updateState(newState: GameState | ProvisionalGame, code: string) {
+export function updateState(newState: GameState | ProvisionalGame, code: string) {
   const gameRef = child(child(ref(db), 'games'), code);
   set(gameRef, newState);
 }
@@ -98,8 +96,7 @@ export async function startGame(code: string): Promise<GameState> {
       key,
     })),
   }
-  updateState(gameState, code);
-  return gameState
+  return gameState;
 }
 
 export function dealTasks(state: GameState, difficulty: number): GameState {
@@ -284,7 +281,7 @@ export function toggleTaskDone(state: GameState, playerId: number, taskId: numbe
   return newState;
 }
 
-export function deal(state: GameState, dealerId: number): GameState {
+export function dealPlayerHands(state: GameState, dealerId: number): GameState {
   if (getIsGameStarted(state) && !getIsGameFinished(state)) {
     throw new Error('Game is in progress');
   }

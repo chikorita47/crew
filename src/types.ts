@@ -43,6 +43,7 @@ export type Player = {
   tasks?: PlayerTaskList;
   isCaptain?: boolean;
   isDealer?: boolean;
+  isHost?: boolean;
   extraCards?: number;
 };
 

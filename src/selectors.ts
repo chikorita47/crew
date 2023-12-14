@@ -1,15 +1,27 @@
 import { Suit, Card, Trick, Hint, GameState, Player } from './types';
 
-export function getCaptainId(state: GameState): number {
+export function getCaptain(state: GameState): Player {
   const captain = state.players.find(player => player.isCaptain);
   if (!captain) throw new Error('Could not find captain');
-  return captain.id;
+  return captain;
+}
+
+export function getCaptainId(state: GameState): number {
+  return getCaptain(state).id;
+}
+
+export function getDealer(state: GameState): Player {
+  const dealer = state.players.find(player => player.isDealer);
+  if (!dealer) throw new Error('Could not find dealer');
+  return dealer;
+}
+
+export function getDealerId(state: GameState): number {
+  return getDealer(state).id;
 }
 
 export function getDealerName(state: GameState): string {
-  const dealer = state.players.find(player => player.isDealer);
-  if (!dealer) throw new Error('Could not find dealer');
-  return dealer.name;
+  return getDealer(state).name;
 }
 
 export function getPlayerName(state: GameState, playerId: number): string {
@@ -22,12 +34,33 @@ export function getPlayerByName(state: GameState, name: string): Player {
   return player;
 }
 
+export function getPlayerByKey(state: GameState, key: string): Player {
+  const player = state.players.find(player => player.key === key);
+  if (!player) throw new Error('Could not find player from key');
+  return player;
+}
+
+export function getPlayer(state: GameState, playerId: number): Player {
+  const player = state.players[playerId];
+  if (!player) throw new Error('Could not find player by id');
+  return player;
+}
+
+export function getOtherPlayers(state: GameState, playerId: number): Player[] {
+  return state.players.filter(player => player.id !== playerId);
+}
+
 export function getUnassignedTasksExist(state: GameState): boolean {
   return !!Object.keys(state.unassignedTasks ?? []).length;
 }
 
 export function getAreAllTasksAssigned(state: GameState): boolean {
   return !!state.unassignedTasks && !!Object.keys(state.unassignedTasks).length && !Object.values(state.unassignedTasks).some(task => !('provisionalPlayerId' in task));
+}
+
+export function getIsPlayerHost(state: GameState, playerId: number): boolean {
+  // host should always be player 0
+  return playerId === 0;
 }
 
 export function getIsPlayerDealer(state: GameState, playerId: number): boolean {
@@ -72,6 +105,13 @@ export function getIsBetweenTricks(state: GameState): boolean {
   const currentTrick = getCurrentTrick(state);
   const numberOfPlayers = getNumberOfPlayers(state);
   return !currentTrick.cards || currentTrick.cards.length === 0 || currentTrick.cards.length === numberOfPlayers;
+}
+
+export function getPlayerTricksWon(state: GameState, playerId: number): number {
+  if (!state.tricks) {
+    return 0;
+  }
+  return state.tricks.filter(trick => trick.winner === playerId).length;
 }
 
 export function getPlayerHint(state: GameState, playerId: number): Hint {

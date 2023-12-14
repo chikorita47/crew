@@ -272,9 +272,9 @@ describe('toggleTaskDone', () => {
   });
 });
 
-describe('deal', () => {
+describe('dealPlayerHands', () => {
   it('throws if the game is in progress', () => {
-    expect(() => Actions.deal(createGameState(), 0)).toThrow(Error);
+    expect(() => Actions.dealPlayerHands(createGameState(), 0)).toThrow(Error);
   });
   it('deals players the correct number of cards', () => {
     const state = {
@@ -296,7 +296,7 @@ describe('deal', () => {
         }
       ],
     };
-    const newState = Actions.deal(state, 1);
+    const newState = Actions.dealPlayerHands(state, 1);
     expect(newState.players[0].hand.length).toBe(13);
     expect(newState.players[1].hand.length).toBe(13);
     expect(newState.players[2].hand.length).toBe(14);
@@ -308,7 +308,7 @@ describe('deal', () => {
     expect(newState.players[2].isDealer).toBe(false);
 
     state.players.push({ id: 3, key: 'DDDD', name: 'Michael' });
-    const newState4P = Actions.deal(state, 3);
+    const newState4P = Actions.dealPlayerHands(state, 3);
     expect(newState4P.players[0].hand.length).toBe(10);
     expect(newState4P.players[1].hand.length).toBe(10);
     expect(newState4P.players[2].hand.length).toBe(10);
@@ -323,7 +323,7 @@ describe('deal', () => {
     expect(newState4P.players[3].isDealer).toBe(true);
 
     state.players.push({ id: 3, key: 'EEEE', name: 'Rachel' });
-    const newState5P = Actions.deal(state, 0);
+    const newState5P = Actions.dealPlayerHands(state, 0);
     expect(newState5P.players[0].hand.length).toBe(8);
     expect(newState5P.players[1].hand.length).toBe(8);
     expect(newState5P.players[2].hand.length).toBe(8);
@@ -360,7 +360,7 @@ describe('deal', () => {
         }
       ],
     };
-    const newState = Actions.deal(state, 0);
+    const newState = Actions.dealPlayerHands(state, 0);
     expect(newState.players.filter(player => player.isCaptain).length).toBe(1);
   });
   it('sets up state objects', () => {
@@ -383,7 +383,7 @@ describe('deal', () => {
         }
       ],
     };
-    const newState = Actions.deal(state, 0);
+    const newState = Actions.dealPlayerHands(state, 0);
     newState.players.forEach(player => {
       expect(player.hint).toEqual({ used: false });
     });
