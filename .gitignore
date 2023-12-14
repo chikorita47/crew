@@ -2,6 +2,11 @@
 
 /src/firebase/secret.ts
 
+# firebase config
+/.firebase
+.firebaserc
+firebase.json
+
 # dependencies
 /node_modules
 /.pnp
