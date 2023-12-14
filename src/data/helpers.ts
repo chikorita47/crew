@@ -68,8 +68,8 @@ export function task_winConsecutiveTricks(count: number): TasksDataEntryTest {
 }
 
 // I will win at least 2x 7s     (2, 7, false)
-// I will win exactly 7x pink    (7, 'pink', true)
-// I will win no pink            (0, 'pink', true)
+// I will win exactly 7x pink    (7, Suit.PINK, true)
+// I will win no pink            (0, Suit.PINK, true)
 export function task_winCardCountWithProperty(
   count: number,
   property: Suit | number,
@@ -119,8 +119,8 @@ export function task_winTrickPassingCardTest(test: (card: Card) => boolean): Tas
    * @param test A function that is run once for the whole array of Cards in a trick
    * @example // I will win as many pink as green cards in one trick.
      task_winTrickPassingAggregateTest((cards) => {
-        const pink = cards.filter((c) => c.suit === 'pink').length;
-        const green = cards.filter((c) => c.suit === 'green').length;
+        const pink = cards.filter((c) => c.suit === Suit.PINK).length;
+        const green = cards.filter((c) => c.suit === Suit.GREEN).length;
         return pink === green && pink !== 0;
      })
    * 
@@ -214,7 +214,7 @@ export function getRemainingTrickCount(state: GameState) {
 //     return Object.entries(remainingCards)
 //       .filter(([k, v]) => v.filter(n => n === property))
 //       .map(([k, v]) => ({suit: k, number: property}));
-//   if (property === 'black')
+//   if (property === Suit.BLACK)
 //     return remainingCards.black.map(number => ({suit: property, number}));
 //   return remainingCards[property].map(number => ({suit: property, number}));
 // }

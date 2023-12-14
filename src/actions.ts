@@ -27,6 +27,7 @@ import {
   Ruleset,
   UnassignedTaskList,
   Trick,
+  Suit,
 } from './types';
 import { SUIT_ORDER, createDeck, generateCode, shuffle } from './utilities';
 
@@ -225,7 +226,10 @@ export function computeWinner(trick: Trick, numberOfPlayers: number) {
   let highestBlackPos: number | null = null;
   let highestLedPos = 0;
   trick.cards.forEach((trickCard, index, cards) => {
-    if (trickCard.suit === 'black' && (highestBlackPos === null || cards[highestBlackPos].number < trickCard.number)) {
+    if (
+      trickCard.suit === Suit.BLACK &&
+      (highestBlackPos === null || cards[highestBlackPos].number < trickCard.number)
+    ) {
       highestBlackPos = index;
     }
     if (
@@ -289,7 +293,7 @@ export function playCard(state: GameState, playerId: number, cardIndex: number):
 
 export function getHintPlacement(state: GameState, playerId: number, cardIndex: number): HintPlacement {
   const hintCard = getPlayerCard(state, playerId, cardIndex);
-  if (hintCard.suit === 'black') throw new Error('Cannot give a hint about a black card');
+  if (hintCard.suit === Suit.BLACK) throw new Error('Cannot give a hint about a black card');
   const cardsOfHintSuit = getPlayerCardsOfSuit(state, playerId, hintCard.suit).map(card => card.number);
   const highestNumberOfHintSuit = Math.max(...cardsOfHintSuit);
   const lowestNumberOfHintSuit = Math.min(...cardsOfHintSuit);
@@ -358,7 +362,7 @@ export function dealPlayerHands(state: GameState, dealerId: number): GameState {
     const player = (i + dealerId + 1) % numberOfPlayers;
     const card = cards[i];
     players[player].hand!.push(card);
-    if (card.number === 4 && card.suit === 'black') {
+    if (card.number === 4 && card.suit === Suit.BLACK) {
       players[player].isCaptain = true;
     }
   }

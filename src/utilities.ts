@@ -1,4 +1,4 @@
-import { Card } from './types';
+import { Card, Suit } from './types';
 
 export function isCardEqual(from: Card, to: Card): boolean {
   return from.number === to.number && from.suit === to.suit;
@@ -16,15 +16,15 @@ export function generateCode(): string {
 export function createDeck(): Card[] {
   return [
     //@ts-expect-error no flag needed
-    ...[...Array(9).keys()].map(i => ({ number: i + 1, suit: 'blue' })),
+    ...[...Array(9).keys()].map(i => ({ number: i + 1, suit: Suit.BLUE })),
     //@ts-expect-error no flag needed
-    ...[...Array(9).keys()].map(i => ({ number: i + 1, suit: 'green' })),
+    ...[...Array(9).keys()].map(i => ({ number: i + 1, suit: Suit.GREEN })),
     //@ts-expect-error no flag needed
-    ...[...Array(9).keys()].map(i => ({ number: i + 1, suit: 'yellow' })),
+    ...[...Array(9).keys()].map(i => ({ number: i + 1, suit: Suit.YELLOW })),
     //@ts-expect-error no flag needed
-    ...[...Array(9).keys()].map(i => ({ number: i + 1, suit: 'pink' })),
+    ...[...Array(9).keys()].map(i => ({ number: i + 1, suit: Suit.PINK })),
     //@ts-expect-error no flag needed
-    ...[...Array(4).keys()].map(i => ({ number: i + 1, suit: 'black' })),
+    ...[...Array(4).keys()].map(i => ({ number: i + 1, suit: Suit.BLACK })),
   ] as Card[];
 }
 
