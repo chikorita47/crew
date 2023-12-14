@@ -141,14 +141,21 @@ describe('getIsGameFinished', () => {
     state.timeout = true;
     expect(Selectors.getIsGameFinished(state)).toBe(true);
   });
-  xit('returns true if a task has failed', () => {
-    expect(false).toBe(true);
+  it('returns true if a task has failed', () => {
+    const state = createGameState();
+    state.players[0].tasks[23].failed = true;
+    expect(Selectors.getIsGameFinished(state)).toBe(true);
   });
 });
 
 describe('getAreAllTasksDone', () => {
   it('returns false if any player has unfinished tasks', () => {
     expect(Selectors.getAreAllTasksDone(createGameState())).toBe(false);
+  });
+  it('returns false if any player has failed tasks', () => {
+    const state = createGameState();
+    state.players[0].tasks[23].failed = true;
+    expect(Selectors.getAreAllTasksDone(state)).toBe(false);
   });
   it('returns true if no player has unfinished tasks', () => {
     const state = createGameState();

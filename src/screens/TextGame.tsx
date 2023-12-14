@@ -489,6 +489,10 @@ function TextGameScreen() {
     );
   }
 
+  if (Selectors.getIsGameFinished(state)) {
+    return <div>{Selectors.getStatusText(state, playerId)}</div>;
+  }
+
   return (
     <div>
       <GameView state={state} code={code} playerId={playerId} />

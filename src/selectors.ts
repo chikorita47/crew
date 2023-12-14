@@ -91,6 +91,7 @@ export function getIsGameStarted(state: GameState): boolean {
 
 export function getIsGameFinished(state: GameState): boolean {
   if (state.timeout) return true;
+  if (state.players.some(player => player.tasks && Object.values(player.tasks).some(task => task.failed))) return true;
   const numberOfPlayers = getNumberOfPlayers(state);
   const tricksInGame = Math.floor(40 / numberOfPlayers);
   return (
@@ -101,7 +102,9 @@ export function getIsGameFinished(state: GameState): boolean {
 }
 
 export function getAreAllTasksDone(state: GameState): boolean {
-  return !state.players.find(player => player.tasks && Object.values(player.tasks).find(task => !task.done));
+  return state.players.every(
+    player => !player.tasks || Object.values(player.tasks).every(task => task.done && !task.failed),
+  );
 }
 
 export function getHintMode(state: GameState): RulesetHintMode {
