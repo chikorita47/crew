@@ -106,8 +106,11 @@ function AssignTasksView(props: AssignTasksViewProps) {
       {Object.values(props.state.unassignedTasks).map(task => {
         const taskData = TASKS_DATA[task.id];
         return (
-          <div key={`task-${task.id}`} onClick={() => Actions.updateState(Actions.claimTask(props.state, props.playerId, task.id), props.code)}>
-            {taskData.difficulty[difficultyIndex]}: {taskData.text}{taskData.subtext && ` ${taskData.subtext}`}{'provisionalPlayerId' in task && ` (${Selectors.getPlayerName(props.state, task.provisionalPlayerId)})`}
+          <div key={`task-${task.id}`}>
+            <a onClick={() => Actions.updateState(Actions.claimTask(props.state, props.playerId, task.id), props.code)}>
+              {taskData.difficulty[difficultyIndex]}: {taskData.text}{taskData.subtext && `/${taskData.subtext}`}{'provisionalPlayerId' in task && ` (${Selectors.getPlayerName(props.state, task.provisionalPlayerId!!)})`}
+            </a>
+            {isHost && <input type='button' value='Kick Task' onClick={() => Actions.updateState(Actions.kickTask(props.state, task.id), props.code)} />}
           </div>
         );
       })}
@@ -175,7 +178,7 @@ function OtherPlayerView(props: OtherPlayerViewProps) {
             const taskData = TASKS_DATA[task.id];
             return (
               <div key={`task-${task.id}`} style={task.done ? {textDecoration: 'line-through'} : {}}>
-                {taskData.text}{taskData.subtext && ` ${taskData.subtext}`}
+                {taskData.text}{taskData.subtext && `/${taskData.subtext}`}
               </div>
             );
           })}
@@ -224,7 +227,7 @@ function GameView(props: GameViewProps) {
             const taskData = TASKS_DATA[task.id];
             return (
               <div key={`task-${task.id}`} style={task.done ? {textDecoration: 'line-through'} : {}} onClick={() => Actions.updateState(Actions.toggleTaskDone(props.state, props.playerId, task.id), props.code)}>
-                {taskData.text}{taskData.subtext && ` ${taskData.subtext}`}
+                {taskData.text}{taskData.subtext && `/${taskData.subtext}`}
               </div>
             );
           })}

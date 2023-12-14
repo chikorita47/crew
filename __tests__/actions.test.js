@@ -1,5 +1,6 @@
 import * as Actions from '../src/actions';
 import { TASKS_DATA } from '../src/data';
+import { shuffle } from '../src/utilities';
 import { createGameState } from './util';
 
 const sum = (arr) => arr.reduce((acc, num) => acc + num, 0);
@@ -48,46 +49,74 @@ describe('claimTask', () => {
   });
 });
 
-xdescribe('kickTask', () => {
+describe('kickTask', () => {
   const unassignedTasks = {
     '4': { id: 4, provisionalPlayerId: 0 },
     '5': { id: 5, provisionalPlayerId: 2 },
     '6': { id: 6, provisionalPlayerId: 1 },
     '7': { id: 7 },
   };
+  const leftoverTasks = shuffle([...Array(96).keys()].filter(num => num < 4 || num > 7));
 
   it('removes task from unassignedTasks and replaces the correct amount of difficulty for 3P', () => {
     const state = createGameState();
     state.unassignedTasks = unassignedTasks;
-    const newState = Actions.kickTask(state, 6);
+    state.leftoverTasks = leftoverTasks;
+    const newState = Actions.kickTask(state, 5);
     expect(newState.unassignedTasks[4]).toEqual({ id: 4, provisionalPlayerId: 0 });
-    expect(newState.unassignedTasks[5]).toEqual({ id: 5, provisionalPlayerId: 2 });
+    expect(newState.unassignedTasks[6]).toEqual({ id: 6, provisionalPlayerId: 1 });
     expect(newState.unassignedTasks[7]).toEqual({ id: 7 });
-    expect(newState.unassignedTasks[6]).toBeUndefined();
+    expect(newState.unassignedTasks[5]).toBeUndefined();
     expect(Object.keys(newState.unassignedTasks).length).toBeGreaterThan(3);
 
     const difficulties = Object.keys(newState.unassignedTasks).map(taskId => TASKS_DATA[taskId].difficulty[0]);
-    expect(sum(difficulties)).toEqual(11);
+    expect(sum(difficulties)).toEqual(6);
   });
   it('replaces the correct amount of difficulty for 4P', () => {
     const state = createGameState();
     state.unassignedTasks = unassignedTasks;
+    state.leftoverTasks = leftoverTasks;
     state.players.push({});
     const newState = Actions.kickTask(state, 7);
     expect(newState.unassignedTasks[7]).toBeUndefined();
-    const difficulties = Object.keys(newState.unassignedTasks).map(taskId => TASKS_DATA[taskId].difficulty[0]);
-    expect(sum(difficulties)).toEqual(12);
+    const difficulties = Object.keys(newState.unassignedTasks).map(taskId => TASKS_DATA[taskId].difficulty[1]);
+    expect(sum(difficulties)).toEqual(9);
   });
   it('replaces the correct amount of difficulty for 5P', () => {
     const state = createGameState();
     state.unassignedTasks = unassignedTasks;
+    state.leftoverTasks = leftoverTasks;
     state.players.push({});
     state.players.push({});
     const newState = Actions.kickTask(state, 7);
     expect(newState.unassignedTasks[7]).toBeUndefined();
-    const difficulties = Object.keys(newState.unassignedTasks).map(taskId => TASKS_DATA[taskId].difficulty[0]);
-    expect(sum(difficulties)).toEqual(14);
+    const difficulties = Object.keys(newState.unassignedTasks).map(taskId => TASKS_DATA[taskId].difficulty[2]);
+    expect(sum(difficulties)).toEqual(11);
   });
+  it('uses tasks in order from leftoverTasks', () => {
+    const state = createGameState();
+    state.unassignedTasks = unassignedTasks;
+    state.players.push({});
+    state.players.push({});
+
+    state.leftoverTasks = [70, 71, 72, 74, 77];
+    const newState1 = Actions.kickTask(state, 7);
+    expect(newState1.unassignedTasks[7]).toBeUndefined();
+    expect(newState1.unassignedTasks[70]).toBeDefined();
+    expect(newState1.unassignedTasks[71]).toBeDefined();
+    expect(newState1.unassignedTasks[72]).toBeUndefined();
+    expect(newState1.unassignedTasks[74]).toBeUndefined();
+    expect(newState1.unassignedTasks[77]).toBeDefined();
+    expect(Object.keys(newState1.unassignedTasks).length).toEqual(6);
+
+    state.leftoverTasks = [72, 73, 74];
+    const newState2 = Actions.kickTask(state, 7);
+    expect(newState2.unassignedTasks[7]).toBeUndefined();
+    expect(newState2.unassignedTasks[72]).toBeDefined();
+    expect(newState2.unassignedTasks[73]).toBeUndefined();
+    expect(newState2.unassignedTasks[74]).toBeUndefined();
+    expect(Object.keys(newState2.unassignedTasks).length).toEqual(4);
+  })
 });
 
 describe('finalizeTasksAndRuleset', () => {

@@ -28,7 +28,7 @@ export type PlayerTaskList = {
 
 export type UnassignedTask = {
   id: number;
-  provisionalPlayerId: number;
+  provisionalPlayerId?: number;
 };
 export type UnassignedTaskList = {
   [key: number]: UnassignedTask;
@@ -57,6 +57,7 @@ export type GameState = {
   players: Player[];
   tricks?: Trick[];
   unassignedTasks?: UnassignedTaskList;
+  leftoverTasks?: number[];
   ruleset?: Ruleset;
   timeout?: boolean;
 };

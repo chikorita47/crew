@@ -99,17 +99,18 @@ export async function startGame(code: string): Promise<GameState> {
   return gameState;
 }
 
-export function dealTasks(state: GameState, difficulty: number): GameState {
-  const numberOfPlayers = getNumberOfPlayers(state);
-
-  const allTasks = shuffle(Object.keys(TASKS_DATA)); // TODO: do this elsewhere
+function getTasksForDifficulty(pool: number[], difficulty: number, difficultyIndex: number): {
+  tasksToUse: number[];
+  skippedTasks: number[];
+  remainingTasks: number[];
+} {
   const tasksToUse = [];
   const skippedTasks = [];
   let difficultyCounter = 0;
   while (difficultyCounter < difficulty) {
-    const newTaskId = allTasks.shift();
-    if (!newTaskId) throw new Error('Failed to reach difficulty');
-    const newTaskDifficulty = TASKS_DATA[newTaskId].difficulty[numberOfPlayers - 3];
+    const newTaskId = pool.shift();
+    if (newTaskId === undefined) throw new Error('Failed to reach difficulty');
+    const newTaskDifficulty = TASKS_DATA[newTaskId].difficulty[difficultyIndex];
     if (difficultyCounter + newTaskDifficulty > difficulty) {
       skippedTasks.push(newTaskId);
     } else {
@@ -117,8 +118,14 @@ export function dealTasks(state: GameState, difficulty: number): GameState {
       difficultyCounter += newTaskDifficulty;
     }
   }
+  return { tasksToUse, skippedTasks, remainingTasks: pool };
+}
 
-  const leftoverTasks = skippedTasks.concat(allTasks); // TODO: save this
+export function dealTasks(state: GameState, difficulty: number): GameState {
+  const numberOfPlayers = getNumberOfPlayers(state);
+
+  const allTasks = shuffle(Object.keys(TASKS_DATA).map(taskIdString => ~~taskIdString)); // TODO: do this elsewhere
+  const { tasksToUse, skippedTasks, remainingTasks } = getTasksForDifficulty(allTasks, difficulty, numberOfPlayers - 3);
 
   const newState = structuredClone(state);
   
@@ -128,6 +135,7 @@ export function dealTasks(state: GameState, difficulty: number): GameState {
       id: taskId,
     },
   }), {} as UnassignedTaskList);
+  newState.leftoverTasks = skippedTasks.concat(remainingTasks);
 
   return newState;
 }
@@ -140,7 +148,27 @@ export function claimTask(state: GameState, playerId: number, taskId: number): G
 }
 
 export function kickTask(state: GameState, taskId: number): GameState {
-  throw new Error ('Not yet implemented');
+  if (!state.leftoverTasks) {
+    throw new Error('Could not kick task, there are no other tasks left');
+  }
+  if (!state.unassignedTasks) {
+    throw new Error('Could not kick tasks, assignments have already been finalized');
+  }
+
+  const difficultyIndex = getNumberOfPlayers(state) - 3;
+  const difficulty = TASKS_DATA[taskId].difficulty[difficultyIndex];
+
+  const { tasksToUse, skippedTasks, remainingTasks } = getTasksForDifficulty([...state.leftoverTasks], difficulty, difficultyIndex);
+
+  const newState = structuredClone(state);
+
+  delete newState.unassignedTasks!![taskId];
+  tasksToUse.forEach(taskId => {
+    newState.unassignedTasks!![taskId] = { id: taskId };
+  });
+  newState.leftoverTasks = skippedTasks.concat(remainingTasks);
+
+  return newState;
 }
 
 export function finalizeTasksAndRuleset(state: GameState, ruleset: Ruleset): GameState {
@@ -153,7 +181,7 @@ export function finalizeTasksAndRuleset(state: GameState, ruleset: Ruleset): Gam
 
   const { unassignedTasks, ...newState } = structuredClone(state);
   for (const task of Object.values(unassignedTasks!!)) {
-    const playerId = task.provisionalPlayerId;
+    const playerId = task.provisionalPlayerId!!;
     if (!newState.players[playerId]) throw new Error('Cannot assign task to nonexistent player');
     if (!newState.players[playerId].tasks) {
       newState.players[playerId].tasks = {};
