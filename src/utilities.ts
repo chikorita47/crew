@@ -1,4 +1,8 @@
-import { Card } from "./types";
+import { Card } from './types';
+
+export function isCardEqual(from: Card, to: Card): boolean {
+  return from.number === to.number && from.suit === to.suit;
+}
 
 export function generateCode(): string {
   const letters = 'ABCDEFGHJKLMNPQRSTUVWXYZ';

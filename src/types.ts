@@ -1,4 +1,10 @@
-export type Suit = 'blue' | 'green' | 'yellow' | 'pink' | 'black';
+export enum Suit {
+  BLUE = 'blue',
+  GREEN = 'green',
+  YELLOW = 'yellow',
+  PINK = 'pink',
+  BLACK = 'black',
+};
 export type Card = {
   number: number;
   suit: Suit;
@@ -69,12 +75,13 @@ export type ProvisionalGame = {
 };
 
 export type TasksDataEntryDifficulty = [number, number, number];
+export type TasksDataEntryTest = (state: GameState, owner: number) => TaskState;
 export type TasksDataEntry = {
   id: number;
   text: string;
   subtext?: string;
   difficulty: TasksDataEntryDifficulty;
-  test?: (state: GameState, owner: number) => TaskState;
+  test?: TasksDataEntryTest;
 };
 
 export type TasksData = {
