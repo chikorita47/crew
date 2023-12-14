@@ -1,7 +1,7 @@
-'use client'
+'use client';
 
 import { child, onValue, ref } from 'firebase/database';
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 
 import * as Actions from '../actions';
 import { TASKS_DATA } from '../data';
@@ -18,25 +18,35 @@ function EnterGameView(props: EnterGameViewProps) {
 
   return (
     <>
-      <input type='text' value={name} placeholder='Name' onChange={event => setName(event.target.value)} />
-      <input type='text' value={code} placeholder='Code' onChange={event => setCode(event.target.value)} />
+      <input type="text" value={name} placeholder="Name" onChange={event => setName(event.target.value)} />
+      <input type="text" value={code} placeholder="Code" onChange={event => setCode(event.target.value)} />
       <div>
-        <input type='button' onClick={async () => {
-          if (!name) {
-            throw new Error('Must enter name');
-          }
-          const { code, key } = await Actions.createGame(name);
-          props.onEnterGame(code, key);
-        }} value='Create New Game' disabled={!name} />
+        <input
+          type="button"
+          onClick={async () => {
+            if (!name) {
+              throw new Error('Must enter name');
+            }
+            const { code, key } = await Actions.createGame(name);
+            props.onEnterGame(code, key);
+          }}
+          value="Create New Game"
+          disabled={!name}
+        />
       </div>
       <div>
-        <input type='button' onClick={async () => {
-          if (!name || !code) {
-            throw new Error('Must enter name and code');
-          }
-          const key = await Actions.joinGame(name, code);
-          props.onEnterGame(code, key);
-        }} value='Join Game' disabled={!name || !code} />
+        <input
+          type="button"
+          onClick={async () => {
+            if (!name || !code) {
+              throw new Error('Must enter name and code');
+            }
+            const key = await Actions.joinGame(name, code);
+            props.onEnterGame(code, key);
+          }}
+          value="Join Game"
+          disabled={!name || !code}
+        />
       </div>
     </>
   );
@@ -63,18 +73,35 @@ function SetupGameView(props: SetupGameViewProps) {
     <>
       <div>Code: {props.code}</div>
       <div>Players:</div>
-      {Object.entries(props.state.clientList).map(([key, playerName]) => <div key={key} onClick={() => setDealer(key)}>{playerName}{key === dealer && ' (Dealer)'}</div>)}
-      <input type='number' value={difficulty} placeholder='Difficulty' min={1} max={100} onChange={event => setDifficulty(~~event.target.value)} />
-      <input type='button' onClick={async () => {
-        if (!difficulty) {
-          throw new Error('Must enter valid difficulty');
-        }
-        const initialState = await Actions.startGame(props.code);
-        const dealerId = Selectors.getPlayerByKey(initialState, dealer).id;
-        const stateWithDealFinished = Actions.dealPlayerHands(Actions.dealTasks(initialState, difficulty), dealerId);
-        Actions.updateState(stateWithDealFinished, props.code);
-        props.onStartGame(stateWithDealFinished);
-      }} value='Start Game' disabled={!canStart || !difficulty} />
+      {Object.entries(props.state.clientList).map(([key, playerName]) => (
+        <div key={key} onClick={() => setDealer(key)}>
+          {playerName}
+          {key === dealer && ' (Dealer)'}
+        </div>
+      ))}
+      <input
+        type="number"
+        value={difficulty}
+        placeholder="Difficulty"
+        min={1}
+        max={100}
+        onChange={event => setDifficulty(~~event.target.value)}
+      />
+      <input
+        type="button"
+        onClick={async () => {
+          if (!difficulty) {
+            throw new Error('Must enter valid difficulty');
+          }
+          const initialState = await Actions.startGame(props.code);
+          const dealerId = Selectors.getPlayerByKey(initialState, dealer).id;
+          const stateWithDealFinished = Actions.dealPlayerHands(Actions.dealTasks(initialState, difficulty), dealerId);
+          Actions.updateState(stateWithDealFinished, props.code);
+          props.onStartGame(stateWithDealFinished);
+        }}
+        value="Start Game"
+        disabled={!canStart || !difficulty}
+      />
     </>
   );
 }
@@ -108,35 +135,86 @@ function AssignTasksView(props: AssignTasksViewProps) {
         return (
           <div key={`task-${task.id}`}>
             <a onClick={() => Actions.updateState(Actions.claimTask(props.state, props.playerId, task.id), props.code)}>
-              {taskData.difficulty[difficultyIndex]}: {taskData.text}{taskData.subtext && `/${taskData.subtext}`}{'provisionalPlayerId' in task && ` (${Selectors.getPlayerName(props.state, task.provisionalPlayerId!!)})`}
+              {taskData.difficulty[difficultyIndex]}: {taskData.text}
+              {taskData.subtext && `/${taskData.subtext}`}
+              {'provisionalPlayerId' in task && ` (${Selectors.getPlayerName(props.state, task.provisionalPlayerId!)})`}
             </a>
-            {isHost && <input type='button' value='Kick Task' onClick={() => Actions.updateState(Actions.kickTask(props.state, task.id), props.code)} />}
+            {isHost && (
+              <input
+                type="button"
+                value="Kick Task"
+                onClick={() => Actions.updateState(Actions.kickTask(props.state, task.id), props.code)}
+              />
+            )}
           </div>
         );
       })}
       {isHost && (
         <>
-          <input type='button' onClick={() => Actions.updateState(Actions.dealPlayerHands(props.state, Selectors.getDealerId(props.state)), props.code)} value='Re-deal' />
+          <input
+            type="button"
+            onClick={() =>
+              Actions.updateState(Actions.dealPlayerHands(props.state, Selectors.getDealerId(props.state)), props.code)
+            }
+            value="Re-deal"
+          />
           <div>Ruleset:</div>
           <div>
             Hints:
-            <input type='radio' id='hintModeDefault' name='hintMode' value='default' checked={hintMode === 'default'} onClick={() => setHintMode('default')} />
-            <label htmlFor='hintModeDefault'>Default</label>
-            <input type='radio' id='hintModeFewer' name='hintMode' value='fewer' checked={hintMode === 'fewer'} onClick={() => setHintMode('fewer')} />
-            <label htmlFor='hintModeFewer'>2 Fewer</label>
-            <input type='radio' id='hintModeNoTokens' name='hintMode' value='noTokens' checked={hintMode === 'noTokens'} onClick={() => setHintMode('noTokens')} />
-            <label htmlFor='hintModeNoTokens'>No Tokens</label>
+            <input
+              type="radio"
+              id="hintModeDefault"
+              name="hintMode"
+              value="default"
+              checked={hintMode === 'default'}
+              onClick={() => setHintMode('default')}
+            />
+            <label htmlFor="hintModeDefault">Default</label>
+            <input
+              type="radio"
+              id="hintModeFewer"
+              name="hintMode"
+              value="fewer"
+              checked={hintMode === 'fewer'}
+              onClick={() => setHintMode('fewer')}
+            />
+            <label htmlFor="hintModeFewer">2 Fewer</label>
+            <input
+              type="radio"
+              id="hintModeNoTokens"
+              name="hintMode"
+              value="noTokens"
+              checked={hintMode === 'noTokens'}
+              onClick={() => setHintMode('noTokens')}
+            />
+            <label htmlFor="hintModeNoTokens">No Tokens</label>
           </div>
-          <input type='number' value={timeInSeconds} placeholder='Timer Length (seconds)' min={0} max={300} onChange={event => setTimeInSeconds(~~event.target.value)} />
-          <input type='button' onClick={() => {
-            const newState = Actions.finalizeTasksAndRuleset(props.state, ruleset);
-            Actions.updateState(newState, props.code);
-            props.onFinalizeTasks(newState);
-          }} value='Start Game' disabled={!Selectors.getAreAllTasksAssigned(props.state)} />
+          <input
+            type="number"
+            value={timeInSeconds}
+            placeholder="Timer Length (seconds)"
+            min={0}
+            max={300}
+            onChange={event => setTimeInSeconds(~~event.target.value)}
+          />
+          <input
+            type="button"
+            onClick={() => {
+              const newState = Actions.finalizeTasksAndRuleset(props.state, ruleset);
+              Actions.updateState(newState, props.code);
+              props.onFinalizeTasks(newState);
+            }}
+            value="Start Game"
+            disabled={!Selectors.getAreAllTasksAssigned(props.state)}
+          />
         </>
       )}
       <div>Your Hand:</div>
-      {playerHand.map((card, index) => <div key={`hand-${index}`}>{card.number} {card.suit}</div>)}
+      {playerHand.map((card, index) => (
+        <div key={`hand-${index}`}>
+          {card.number} {card.suit}
+        </div>
+      ))}
     </>
   );
 }
@@ -179,22 +257,23 @@ function OtherPlayerView(props: OtherPlayerViewProps) {
           {Object.values(props.data.tasks).map(task => {
             const taskData = TASKS_DATA[task.id];
             return (
-              <div key={`task-${task.id}`} style={task.done ? {textDecoration: 'line-through'} : {}}>
-                {taskData.text}{taskData.subtext && `/${taskData.subtext}`}
+              <div key={`task-${task.id}`} style={task.done ? { textDecoration: 'line-through' } : {}}>
+                {taskData.text}
+                {taskData.subtext && `/${taskData.subtext}`}
               </div>
             );
           })}
         </>
       )}
     </>
-  )
+  );
 }
 
 type GameViewProps = {
   state: GameState;
   code: string;
   playerId: number;
-}
+};
 function GameView(props: GameViewProps) {
   const [selectedCardIndex, setSelectedCardIndex] = useState<number | undefined>();
   const player = Selectors.getPlayer(props.state, props.playerId);
@@ -206,54 +285,88 @@ function GameView(props: GameViewProps) {
   const hintString = getHintString(player, Selectors.getHintMode(props.state));
 
   const isAnyCardSelected = selectedCardIndex || selectedCardIndex === 0;
-  const isSelectedCardLegalToPlay = isAnyCardSelected && Selectors.getIsCardLegalToPlay(props.state, props.playerId, selectedCardIndex);
+  const isSelectedCardLegalToPlay =
+    isAnyCardSelected && Selectors.getIsCardLegalToPlay(props.state, props.playerId, selectedCardIndex);
   return (
     <>
       <div>Status: {Selectors.getStatusText(props.state, props.playerId)}</div>
       <div>Current Trick:</div>
-      {currentTrick.cards && currentTrick.cards.map((card, index) => (
-        <div key={`trick-${index}`}>{Selectors.getPlayerName(props.state, (currentTrick.leader + index) % numberOfPlayers)}: {card.number} {card.suit}</div>
-      ))}
+      {currentTrick.cards &&
+        currentTrick.cards.map((card, index) => (
+          <div key={`trick-${index}`}>
+            {Selectors.getPlayerName(props.state, (currentTrick.leader + index) % numberOfPlayers)}: {card.number}{' '}
+            {card.suit}
+          </div>
+        ))}
       {player.isCaptain && <div>You are the captain</div>}
       {!!player.extraCards && <div>You have the extra card</div>}
       {hintString && <div>Your Hint: {hintString}</div>}
       <div>You have won {Selectors.getPlayerTricksWon(props.state, props.playerId)} tricks.</div>
       <div>Your Hand:</div>
-      {player.hand && Object.values(player.hand).map((card, index) => (
-        <div key={`hand-${index}`} onClick={() => setSelectedCardIndex(index)}>{card.number} {card.suit}{index === selectedCardIndex && ' *'}</div>
-      ))}
+      {player.hand &&
+        Object.values(player.hand).map((card, index) => (
+          <div key={`hand-${index}`} onClick={() => setSelectedCardIndex(index)}>
+            {card.number} {card.suit}
+            {index === selectedCardIndex && ' *'}
+          </div>
+        ))}
       {player.tasks && (
         <>
           <div>Your Tasks:</div>
           {Object.values(player.tasks).map(task => {
             const taskData = TASKS_DATA[task.id];
             return (
-              <div key={`task-${task.id}`} style={task.done ? {textDecoration: 'line-through'} : {}} onClick={() => Actions.updateState(Actions.toggleTaskDone(props.state, props.playerId, task.id), props.code)}>
-                {taskData.text}{taskData.subtext && `/${taskData.subtext}`}
+              <div
+                key={`task-${task.id}`}
+                style={task.done ? { textDecoration: 'line-through' } : {}}
+                onClick={() =>
+                  Actions.updateState(Actions.toggleTaskDone(props.state, props.playerId, task.id), props.code)
+                }>
+                {taskData.text}
+                {taskData.subtext && `/${taskData.subtext}`}
               </div>
             );
           })}
         </>
       )}
-      <input type='button' onClick={() => {
-        if (!isAnyCardSelected) {
-          throw new Error('Clicked Play Card when no card was selected');
+      <input
+        type="button"
+        onClick={() => {
+          if (!isAnyCardSelected) {
+            throw new Error('Clicked Play Card when no card was selected');
+          }
+          const index = selectedCardIndex;
+          setSelectedCardIndex(undefined);
+          Actions.updateState(Actions.playCard(props.state, props.playerId, index), props.code);
+        }}
+        value="Play Card"
+        disabled={nextPlayerId !== props.playerId || !isSelectedCardLegalToPlay}
+      />
+      <input
+        type="button"
+        onClick={() => {
+          if (!isAnyCardSelected) {
+            throw new Error('Clicked Place Hint when no card was selected');
+          }
+          const index = selectedCardIndex;
+          setSelectedCardIndex(undefined);
+          Actions.updateState(Actions.giveHint(props.state, props.playerId, index), props.code);
+        }}
+        value="Place Hint"
+        disabled={
+          !isBetweenTricks || player.hint?.used || !isAnyCardSelected || Selectors.getAreAllHintsUsed(props.state)
         }
-        const index = selectedCardIndex;
-        setSelectedCardIndex(undefined);
-        Actions.updateState(Actions.playCard(props.state, props.playerId, index), props.code);
-      }} value='Play Card' disabled={nextPlayerId !== props.playerId || !isSelectedCardLegalToPlay} />
-      <input type='button' onClick={() => {
-        if (!isAnyCardSelected) {
-          throw new Error('Clicked Place Hint when no card was selected');
-        }
-        const index = selectedCardIndex;
-        setSelectedCardIndex(undefined);
-        Actions.updateState(Actions.giveHint(props.state, props.playerId, selectedCardIndex), props.code);
-      }} value='Place Hint' disabled={!isBetweenTricks || player.hint?.used || !isAnyCardSelected || Selectors.getAreAllHintsUsed(props.state)} />
-      {Selectors.getOtherPlayers(props.state, props.playerId).map(otherPlayer => <OtherPlayerView key={`other-player-${otherPlayer.id}`} data={otherPlayer} tricksWon={Selectors.getPlayerTricksWon(props.state, otherPlayer.id)} hintMode={Selectors.getHintMode(props.state)} />)}
+      />
+      {Selectors.getOtherPlayers(props.state, props.playerId).map(otherPlayer => (
+        <OtherPlayerView
+          key={`other-player-${otherPlayer.id}`}
+          data={otherPlayer}
+          tricksWon={Selectors.getPlayerTricksWon(props.state, otherPlayer.id)}
+          hintMode={Selectors.getHintMode(props.state)}
+        />
+      ))}
     </>
-  )
+  );
 }
 
 function TextGameScreen() {
@@ -275,12 +388,14 @@ function TextGameScreen() {
   if (!code || !key) {
     return (
       <div>
-        <EnterGameView onEnterGame={(code, key) => {
-          setCode(code);
-          setKey(key);
-        }} />
+        <EnterGameView
+          onEnterGame={(code, key) => {
+            setCode(code);
+            setKey(key);
+          }}
+        />
       </div>
-    )
+    );
   }
 
   if (!state) {
@@ -290,12 +405,17 @@ function TextGameScreen() {
   if ('host' in state) {
     return (
       <div>
-        <SetupGameView state={state} code={code} playerKey={key} onStartGame={newState => {
-          setPlayerId(Selectors.getPlayerByKey(newState, key).id);
-          setState(newState);
-        }} />
+        <SetupGameView
+          state={state}
+          code={code}
+          playerKey={key}
+          onStartGame={newState => {
+            setPlayerId(Selectors.getPlayerByKey(newState, key).id);
+            setState(newState);
+          }}
+        />
       </div>
-    )
+    );
   }
 
   if (playerId === undefined) {
@@ -306,18 +426,23 @@ function TextGameScreen() {
   if (Selectors.getUnassignedTasksExist(state)) {
     return (
       <div>
-        <AssignTasksView state={state} code={code} playerId={playerId} onFinalizeTasks={newState => {
-          setState(newState);
-        }} />
+        <AssignTasksView
+          state={state}
+          code={code}
+          playerId={playerId}
+          onFinalizeTasks={newState => {
+            setState(newState);
+          }}
+        />
       </div>
-    )
+    );
   }
 
   return (
     <div>
       <GameView state={state} code={code} playerId={playerId} />
     </div>
-  )
+  );
 }
 
 export default TextGameScreen;

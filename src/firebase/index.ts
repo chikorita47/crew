@@ -1,5 +1,5 @@
-import firebase from "firebase/compat/app";
-import { getDatabase } from "firebase/database";
+import firebase from 'firebase/compat/app';
+import { getDatabase } from 'firebase/database';
 import firebaseConfig from './secret';
 
 const app = firebase.initializeApp(firebaseConfig);

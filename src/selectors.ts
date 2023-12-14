@@ -55,7 +55,11 @@ export function getUnassignedTasksExist(state: GameState): boolean {
 }
 
 export function getAreAllTasksAssigned(state: GameState): boolean {
-  return !!state.unassignedTasks && !!Object.keys(state.unassignedTasks).length && !Object.values(state.unassignedTasks).some(task => !('provisionalPlayerId' in task));
+  return (
+    !!state.unassignedTasks &&
+    !!Object.keys(state.unassignedTasks).length &&
+    !Object.values(state.unassignedTasks).some(task => !('provisionalPlayerId' in task))
+  );
 }
 
 export function getIsPlayerHost(state: GameState, playerId: number): boolean {
@@ -72,14 +76,18 @@ export function getNumberOfPlayers(state: GameState): number {
 }
 
 export function getIsGameStarted(state: GameState): boolean {
-  return !!(state.tricks?.length);
+  return !!state.tricks?.length;
 }
 
 export function getIsGameFinished(state: GameState): boolean {
   if (state.timeout) return true;
   const numberOfPlayers = getNumberOfPlayers(state);
   const tricksInGame = Math.floor(40 / numberOfPlayers);
-  return !!state.tricks && state.tricks.length === tricksInGame && (state.tricks[tricksInGame - 1].cards ?? []).length === numberOfPlayers;
+  return (
+    !!state.tricks &&
+    state.tricks.length === tricksInGame &&
+    (state.tricks[tricksInGame - 1].cards ?? []).length === numberOfPlayers
+  );
 }
 
 export function getAreAllTasksDone(state: GameState): boolean {
@@ -145,7 +153,7 @@ export function getLedSuitForCurrentTrick(state: GameState): Suit | null {
   if (getIsBetweenTricks(state)) {
     return null;
   }
-  return getCurrentTrick(state).cards!![0].suit;
+  return getCurrentTrick(state).cards![0].suit;
 }
 
 export function getPlayerCardsOfSuit(state: GameState, playerId: number, suit: Suit): Card[] {
@@ -160,7 +168,7 @@ export function getIsCardLegalToPlay(state: GameState, playerId: number, cardInd
     // e.g. "You can only lead with blue or pink"
     return true;
   }
-  const ledSuit = getLedSuitForCurrentTrick(state)!!;
+  const ledSuit = getLedSuitForCurrentTrick(state)!;
   return card.suit === ledSuit || getPlayerCardsOfSuit(state, playerId, ledSuit).length === 0;
 }
 
@@ -180,21 +188,23 @@ export function getNextPlayerId(state: GameState): number {
 export function getStatusText(state: GameState, playerId: number): string {
   if (getUnassignedTasksExist(state)) {
     if (getIsPlayerDealer(state, playerId)) {
-      return `Discuss the task cards with your teammates. Press and hold to claim one.\nOnce all tasks are claimed, you may start the game.`;
+      return 'Discuss the task cards with your teammates. Press and hold to claim one.\nOnce all tasks are claimed, you may start the game.';
     }
-    return `Discuss the task cards with your teammates. Press and hold to claim one.\n${getDealerName(state)} will start the game once all tasks are claimed.`;
+    return `Discuss the task cards with your teammates. Press and hold to claim one.\n${getDealerName(
+      state,
+    )} will start the game once all tasks are claimed.`;
   }
 
   if (getIsGameFinished(state)) {
     if (getAreAllTasksDone(state)) {
-      return `Game complete. You won!`
+      return 'Game complete. You won!';
     }
-    return `Game complete. You lost.`
+    return 'Game complete. You lost.';
   }
 
   const nextPlayerId = getNextPlayerId(state);
   if (nextPlayerId === playerId) {
-    return `Choose a card to play`;
+    return 'Choose a card to play';
   }
   return `Waiting for ${getPlayerName(state, nextPlayerId)} to play a card`;
 }

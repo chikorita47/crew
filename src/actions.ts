@@ -19,7 +19,15 @@ import {
   getIsCardLegalToPlay,
   getAreAllHintsUsed,
 } from './selectors';
-import { HintPlacement, GameState, ProvisionalGame, ProvisionalClientList, Ruleset, UnassignedTaskList, Trick } from './types';
+import {
+  HintPlacement,
+  GameState,
+  ProvisionalGame,
+  ProvisionalClientList,
+  Ruleset,
+  UnassignedTaskList,
+  Trick,
+} from './types';
 import { SUIT_ORDER, createDeck, generateCode, shuffle } from './utilities';
 
 export function updateState(newState: GameState | ProvisionalGame, code: string) {
@@ -27,9 +35,9 @@ export function updateState(newState: GameState | ProvisionalGame, code: string)
   set(gameRef, newState);
 }
 
-export async function createGame(playerName: string): Promise<{ code: string, key: string }> {
+export async function createGame(playerName: string): Promise<{ code: string; key: string }> {
   let codeIsValid = false;
-  let code = generateCode();;
+  let code = generateCode();
 
   while (!codeIsValid) {
     const gameRef = child(child(ref(db), 'games'), code);
@@ -96,11 +104,15 @@ export async function startGame(code: string): Promise<GameState> {
       name,
       key,
     })),
-  }
+  };
   return gameState;
 }
 
-function getTasksForDifficulty(pool: number[], difficulty: number, difficultyIndex: number): {
+function getTasksForDifficulty(
+  pool: number[],
+  difficulty: number,
+  difficultyIndex: number,
+): {
   tasksToUse: number[];
   skippedTasks: number[];
   remainingTasks: number[];
@@ -129,13 +141,16 @@ export function dealTasks(state: GameState, difficulty: number): GameState {
   const { tasksToUse, skippedTasks, remainingTasks } = getTasksForDifficulty(allTasks, difficulty, numberOfPlayers - 3);
 
   const newState = structuredClone(state);
-  
-  newState.unassignedTasks = tasksToUse.reduce((acc, taskId) => ({
-    ...acc,
-    [taskId]: {
-      id: taskId,
-    },
-  }), {} as UnassignedTaskList);
+
+  newState.unassignedTasks = tasksToUse.reduce(
+    (acc, taskId) => ({
+      ...acc,
+      [taskId]: {
+        id: taskId,
+      },
+    }),
+    {} as UnassignedTaskList,
+  );
   newState.leftoverTasks = skippedTasks.concat(remainingTasks);
 
   return newState;
@@ -159,13 +174,17 @@ export function kickTask(state: GameState, taskId: number): GameState {
   const difficultyIndex = getNumberOfPlayers(state) - 3;
   const difficulty = TASKS_DATA[taskId].difficulty[difficultyIndex];
 
-  const { tasksToUse, skippedTasks, remainingTasks } = getTasksForDifficulty([...state.leftoverTasks], difficulty, difficultyIndex);
+  const { tasksToUse, skippedTasks, remainingTasks } = getTasksForDifficulty(
+    [...state.leftoverTasks],
+    difficulty,
+    difficultyIndex,
+  );
 
   const newState = structuredClone(state);
 
-  delete newState.unassignedTasks!![taskId];
+  delete newState.unassignedTasks![taskId];
   tasksToUse.forEach(taskId => {
-    newState.unassignedTasks!![taskId] = { id: taskId };
+    newState.unassignedTasks![taskId] = { id: taskId };
   });
   newState.leftoverTasks = skippedTasks.concat(remainingTasks);
 
@@ -181,13 +200,13 @@ export function finalizeTasksAndRuleset(state: GameState, ruleset: Ruleset): Gam
   }
 
   const { unassignedTasks, ...newState } = structuredClone(state);
-  for (const task of Object.values(unassignedTasks!!)) {
-    const playerId = task.provisionalPlayerId!!;
+  for (const task of Object.values(unassignedTasks!)) {
+    const playerId = task.provisionalPlayerId!;
     if (!newState.players[playerId]) throw new Error('Cannot assign task to nonexistent player');
     if (!newState.players[playerId].tasks) {
       newState.players[playerId].tasks = {};
     }
-    newState.players[playerId].tasks!![task.id] = {
+    newState.players[playerId].tasks![task.id] = {
       id: task.id,
       done: false,
       failed: false,
@@ -200,7 +219,7 @@ export function finalizeTasksAndRuleset(state: GameState, ruleset: Ruleset): Gam
 }
 
 export function computeWinner(trick: Trick, numberOfPlayers: number) {
-  if (!trick.cards || (trick.cards.length !== numberOfPlayers)) {
+  if (!trick.cards || trick.cards.length !== numberOfPlayers) {
     throw new Error('Trick is not completed, cannot compute winner');
   }
   let highestBlackPos: number | null = null;
@@ -209,7 +228,11 @@ export function computeWinner(trick: Trick, numberOfPlayers: number) {
     if (trickCard.suit === 'black' && (highestBlackPos === null || cards[highestBlackPos].number < trickCard.number)) {
       highestBlackPos = index;
     }
-    if (highestBlackPos === null && trickCard.suit === cards[0].suit && cards[highestLedPos].number < trickCard.number) {
+    if (
+      highestBlackPos === null &&
+      trickCard.suit === cards[0].suit &&
+      cards[highestLedPos].number < trickCard.number
+    ) {
       highestLedPos = index;
     }
   });
@@ -230,7 +253,7 @@ export function playCard(state: GameState, playerId: number, cardIndex: number):
 
   const card = getPlayerCard(state, playerId, cardIndex);
   // remove card from hand
-  newState.players[playerId].hand!!.splice(cardIndex, 1);
+  newState.players[playerId].hand!.splice(cardIndex, 1);
   // and from hint, if it's there
   const hint = newState.players[playerId].hint;
   if (hint && hint.card && hint.card.number === card.number && hint.card.suit == card.suit) {
@@ -248,17 +271,17 @@ export function playCard(state: GameState, playerId: number, cardIndex: number):
       leader: playerId,
       cards: [card],
     };
-    newState.tricks!!.push(newTrick);
+    newState.tricks!.push(newTrick);
   } else {
     const updatedTrick = {
       ...latestTrick,
-      cards: [...latestTrick.cards || [], card],
+      cards: [...(latestTrick.cards || []), card],
     };
     if (updatedTrick.cards.length === numberOfPlayers) {
       updatedTrick.winner = computeWinner(updatedTrick, numberOfPlayers);
       // TODO: compute if any tasks have been completed
     }
-    newState.tricks!![getCurrentTrickId(state)] = updatedTrick;
+    newState.tricks![getCurrentTrickId(state)] = updatedTrick;
   }
 
   return newState;
@@ -302,7 +325,7 @@ export function giveHint(state: GameState, playerId: number, cardIndex: number):
     used: true,
     card,
     placement,
-  }
+  };
 
   return newState;
 }
@@ -310,7 +333,7 @@ export function giveHint(state: GameState, playerId: number, cardIndex: number):
 export function toggleTaskDone(state: GameState, playerId: number, taskId: number): GameState {
   const newState = structuredClone(state);
   if (!newState.players[playerId].tasks?.[taskId]) throw new Error(`Player does not have task ${taskId}`);
-  newState.players[playerId].tasks!![taskId].done = !newState.players[playerId].tasks!![taskId].done;
+  newState.players[playerId].tasks![taskId].done = !newState.players[playerId].tasks![taskId].done;
   return newState;
 }
 
@@ -334,16 +357,16 @@ export function dealPlayerHands(state: GameState, dealerId: number): GameState {
   for (let i = 0; i < cards.length; i++) {
     const player = (i + dealerId + 1) % numberOfPlayers;
     const card = cards[i];
-    players[player].hand!!.push(card);
+    players[player].hand!.push(card);
     if (card.number === 4 && card.suit === 'black') {
       players[player].isCaptain = true;
     }
   }
-  const minHandSize = Math.min(...players.map(player => player.hand!!.length));
+  const minHandSize = Math.min(...players.map(player => player.hand!.length));
   for (const player of players) {
-    player.extraCards = player.hand!!.length - minHandSize;
+    player.extraCards = player.hand!.length - minHandSize;
     // sort player's hand
-    player.hand = player.hand!!.sort((a, b) => {
+    player.hand = player.hand!.sort((a, b) => {
       if (a.suit !== b.suit) {
         return SUIT_ORDER[a.suit] - SUIT_ORDER[b.suit];
       }

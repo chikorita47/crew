@@ -14,16 +14,16 @@ export function generateCode(): string {
 }
 
 export function createDeck(): Card[] {
-  return[
-    //@ts-ignore
+  return [
+    //@ts-expect-error no flag needed
     ...[...Array(9).keys()].map(i => ({ number: i + 1, suit: 'blue' })),
-    //@ts-ignore
+    //@ts-expect-error no flag needed
     ...[...Array(9).keys()].map(i => ({ number: i + 1, suit: 'green' })),
-    //@ts-ignore
+    //@ts-expect-error no flag needed
     ...[...Array(9).keys()].map(i => ({ number: i + 1, suit: 'yellow' })),
-    //@ts-ignore
+    //@ts-expect-error no flag needed
     ...[...Array(9).keys()].map(i => ({ number: i + 1, suit: 'pink' })),
-    //@ts-ignore
+    //@ts-expect-error no flag needed
     ...[...Array(4).keys()].map(i => ({ number: i + 1, suit: 'black' })),
   ] as Card[];
 }
@@ -37,9 +37,9 @@ export function shuffle<T>(arr: T[]): T[] {
 }
 
 export const SUIT_ORDER = {
-  'black': 0,
-  'blue': 1,
-  'green': 2,
-  'yellow': 3,
-  'pink': 4,
-}
+  black: 0,
+  blue: 1,
+  green: 2,
+  yellow: 3,
+  pink: 4,
+};

@@ -1,7 +1,7 @@
 import { getCaptainId } from '../selectors';
 import {
   Card,
-  CardTally,
+  // CardTally,
   Comparison,
   GameState,
   Suit,
@@ -15,13 +15,8 @@ export const LAST_TRICK = 'LAST_TRICK';
 export const CAPTAIN = 'CAPTAIN';
 
 // I will win the {card}
-export function task_winSpecificCard(
-  card: Card,
-): TasksDataEntryTest {
-  return (
-    state: GameState,
-    owner: number,
-  ): TaskState => {
+export function task_winSpecificCard(card: Card): TasksDataEntryTest {
+  return (state: GameState, owner: number): TaskState => {
     const trick = getMostRecentTrick(state);
     if (trick?.cards?.some(trickCard => isCardEqual(card, trickCard))) {
       return trick?.winner === owner ? TaskState.SUCCESS : TaskState.FAILURE;
@@ -31,13 +26,8 @@ export function task_winSpecificCard(
 }
 
 //  I will win exactly {count} tricks
-export function task_winExactTrickCount(
-  count: number,
-): TasksDataEntryTest {
-  return (
-    state: GameState,
-    owner: number,
-  ): TaskState => {
+export function task_winExactTrickCount(count: number): TasksDataEntryTest {
+  return (state: GameState, owner: number): TaskState => {
     const numTricksWonByOwner = getNumTricksWonByPlayer(owner, state);
     if (numTricksWonByOwner > count) return TaskState.FAILURE;
     if (!getIsGameOver(state)) return TaskState.PENDING;
@@ -51,10 +41,7 @@ export function task_winComparativeTrickCount(
   comparison: Comparison,
   player: number | typeof CAPTAIN,
 ): TasksDataEntryTest {
-  return (
-    state: GameState,
-    owner: number,
-  ): TaskState => {
+  return (state: GameState, owner: number): TaskState => {
     if (player === CAPTAIN) {
       player = getCaptainId(state);
     }
@@ -62,11 +49,7 @@ export function task_winComparativeTrickCount(
     const numTricksWonByOwner = getNumTricksWonByPlayer(owner, state);
     const numTricksWonByTarget = getNumTricksWonByPlayer(player, state);
 
-    const comparisonMet = compare(
-      numTricksWonByOwner,
-      comparison,
-      numTricksWonByTarget,
-    );
+    const comparisonMet = compare(numTricksWonByOwner, comparison, numTricksWonByTarget);
 
     if (comparisonMet) return TaskState.SUCCESS;
     return TaskState.PENDING;
@@ -74,13 +57,8 @@ export function task_winComparativeTrickCount(
 }
 
 // I will win {count} tricks in a row
-export function task_winConsecutiveTricks(
-  count: number,
-): TasksDataEntryTest {
-  return (
-    state: GameState,
-    owner: number,
-  ): TaskState => {
+export function task_winConsecutiveTricks(count: number): TasksDataEntryTest {
+  return (state: GameState, owner: number): TaskState => {
     const consecutiveTricks = getNumConsecutiveTricksWonByPlayer(owner, state);
     const remainingTricks = getRemainingTrickCount(state);
     if (consecutiveTricks >= count) return TaskState.SUCCESS;
@@ -97,13 +75,8 @@ export function task_winCardCountWithProperty(
   property: Suit | number,
   exact: boolean,
 ): TasksDataEntryTest {
-  return (
-    state: GameState,
-    owner: number,
-  ): TaskState => {
-    const cardsWon = getCardsWonByPlayer(owner, state).filter(
-      c => c.number === property || c.suit === property,
-    );
+  return (state: GameState, owner: number): TaskState => {
+    const cardsWon = getCardsWonByPlayer(owner, state).filter(c => c.number === property || c.suit === property);
     // TODO: add logic if cards needed have been won by other players?
 
     if (exact && cardsWon.length > count) return TaskState.FAILURE;
@@ -114,19 +87,12 @@ export function task_winCardCountWithProperty(
 }
 
 // I will win a trick with a total value {greater than / less than / of} {value}
-export function task_winTrickWithValueComparison(
-  value: number,
-  comparison: Comparison,
-): TasksDataEntryTest {
-  return (
-    state: GameState,
-    owner: number,
-  ): TaskState => {
+export function task_winTrickWithValueComparison(value: number, comparison: Comparison): TasksDataEntryTest {
+  return (state: GameState, owner: number): TaskState => {
     const trick = getMostRecentTrick(state);
     if (trick?.winner !== owner) return TaskState.PENDING;
 
-    const trickValue =
-      trick?.cards?.reduce((acc, trick) => acc + trick.number, 0) || 0;
+    const trickValue = trick?.cards?.reduce((acc, trick) => acc + trick.number, 0) || 0;
     const comparisonMet = compare(trickValue, comparison, value);
     if (comparisonMet) return TaskState.SUCCESS;
     return TaskState.PENDING;
@@ -139,13 +105,8 @@ export function task_winTrickWithValueComparison(
  * @example // I will win a trick that contains only even-numbered cards
  * task_winTrickPassingCardTest((c) => c.number % 2 === 0)
  */
-export function task_winTrickPassingCardTest(
-  test: (card: Card) => boolean,
-): TasksDataEntryTest {
-  return (
-    state: GameState,
-    owner: number,
-  ): TaskState => {
+export function task_winTrickPassingCardTest(test: (card: Card) => boolean): TasksDataEntryTest {
+  return (state: GameState, owner: number): TaskState => {
     const trick = getMostRecentTrick(state);
     if (trick?.winner !== owner) return TaskState.PENDING;
     if (trick.cards?.every(c => test(c))) return TaskState.SUCCESS;
@@ -164,13 +125,8 @@ export function task_winTrickPassingCardTest(
      })
    * 
   */
-export function task_winTrickPassingAggregateTest(
-  test: (cards: Card[]) => boolean,
-): TasksDataEntryTest {
-  return (
-    state: GameState,
-    owner: number,
-  ): TaskState => {
+export function task_winTrickPassingAggregateTest(test: (cards: Card[]) => boolean): TasksDataEntryTest {
+  return (state: GameState, owner: number): TaskState => {
     const trick = getMostRecentTrick(state);
     if (trick?.winner !== owner || !trick.cards) return TaskState.PENDING;
     if (test(trick.cards)) return TaskState.SUCCESS;
@@ -184,10 +140,7 @@ export function task_winNthTrick(
   n: number | typeof LAST_TRICK,
   condition: (trick: Trick) => boolean = () => true,
 ): TasksDataEntryTest {
-  return (
-    state: GameState,
-    owner: number,
-  ): TaskState => {
+  return (state: GameState, owner: number): TaskState => {
     if (n === LAST_TRICK) {
       n = getMaxTrickCount(state);
     }
@@ -201,13 +154,8 @@ export function task_winNthTrick(
 
 // these tasks must be evaluated after every card play, instead of after every trick
 // some tasks like this one should be marked as WON if still pending at the end of the game?
-export function task_notOpenTrickWithCardProperty(
-  property: Suit | number,
-): TasksDataEntryTest {
-  return (
-    state: GameState,
-    owner: number,
-  ): TaskState => {
+export function task_notOpenTrickWithCardProperty(property: Suit | number): TasksDataEntryTest {
+  return (state: GameState, owner: number): TaskState => {
     const trick = getMostRecentTrick(state);
     if (!trick) return TaskState.PENDING;
     if (owner !== trick.leader || (trick.cards?.length || 0) > 1) {
@@ -218,18 +166,11 @@ export function task_notOpenTrickWithCardProperty(
     }
 
     // owner leads with a card with given property
-    if (
-      trick.cards?.length === 1 &&
-      (trick.cards[0].number === property || trick.cards[0].suit === property)
-    )
+    if (trick.cards?.length === 1 && (trick.cards[0].number === property || trick.cards[0].suit === property))
       return TaskState.FAILURE;
 
     // owner's hand only contains cards with the given property
-    if (
-      state.players[0].hand?.every(
-        card => card.number === property || card.suit === property,
-      )
-    )
+    if (state.players[0].hand?.every(card => card.number === property || card.suit === property))
       return TaskState.FAILURE;
 
     if (state.tricks?.length === getMaxTrickCount(state)) {
@@ -280,34 +221,20 @@ export function getRemainingTrickCount(state: GameState) {
 export function getNumTricksWonByPlayer(player: number, state: GameState) {
   return state.tricks?.filter(t => t.winner === player).length || 0;
 }
-export function getNumConsecutiveTricksWonByPlayer(
-  player: number,
-  state: GameState,
-) {
-  return (
-    state.tricks?.reduce(
-      (acc, trick) => (trick.winner === player ? acc + 1 : 0),
-      0,
-    ) || 0
-  );
+export function getNumConsecutiveTricksWonByPlayer(player: number, state: GameState) {
+  return state.tricks?.reduce((acc, trick) => (trick.winner === player ? acc + 1 : 0), 0) || 0;
 }
 
 // Task Util Functions
 export function taskIntersection(...tests: TasksDataEntryTest[]): TasksDataEntryTest {
-  return (
-    state: GameState,
-    owner: number,
-  ): TaskState => {
+  return (state: GameState, owner: number): TaskState => {
     if (tests.every(t => t(state, owner) === TaskState.SUCCESS)) return TaskState.SUCCESS;
     if (tests.some(t => t(state, owner) === TaskState.FAILURE)) return TaskState.FAILURE;
     return TaskState.PENDING;
   };
 }
 export function taskUnion(...tests: TasksDataEntryTest[]): TasksDataEntryTest {
-  return (
-    state: GameState,
-    owner: number,
-  ): TaskState => {
+  return (state: GameState, owner: number): TaskState => {
     if (tests.some(t => t(state, owner) === TaskState.SUCCESS)) return TaskState.SUCCESS;
     if (tests.every(t => t(state, owner) === TaskState.FAILURE)) return TaskState.FAILURE;
     return TaskState.PENDING;

@@ -1,4 +1,21 @@
-import { CAPTAIN, getMaxTrickCount, getMostRecentTrick, LAST_TRICK, task_notOpenTrickWithCardProperty, task_winCardCountWithProperty, task_winComparativeTrickCount, task_winConsecutiveTricks, task_winExactTrickCount, task_winNthTrick, task_winSpecificCard, task_winTrickPassingAggregateTest, task_winTrickPassingCardTest, task_winTrickWithValueComparison, taskIntersection, taskUnion } from './helpers';
+import {
+  CAPTAIN,
+  getMaxTrickCount,
+  getMostRecentTrick,
+  LAST_TRICK,
+  task_notOpenTrickWithCardProperty,
+  task_winCardCountWithProperty,
+  task_winComparativeTrickCount,
+  task_winConsecutiveTricks,
+  task_winExactTrickCount,
+  task_winNthTrick,
+  task_winSpecificCard,
+  task_winTrickPassingAggregateTest,
+  task_winTrickPassingCardTest,
+  task_winTrickWithValueComparison,
+  taskIntersection,
+  taskUnion,
+} from './helpers';
 import { getNumberOfPlayers } from '../selectors';
 import { Comparison, Suit, TasksData, TaskState } from '../types';
 import { isCardEqual } from '../utilities';
@@ -21,7 +38,7 @@ export default {
         return TaskState.SUCCESS;
       }
       return TaskState.PENDING;
-    }
+    },
   },
   '1': {
     id: 1,
@@ -35,7 +52,11 @@ export default {
     text: 'I will not open a trick with pink, yellow, or blue',
     subtext: '',
     difficulty: [4, 3, 3],
-    test: taskIntersection(task_notOpenTrickWithCardProperty(Suit.PINK), task_notOpenTrickWithCardProperty(Suit.YELLOW), task_notOpenTrickWithCardProperty(Suit.BLUE)),
+    test: taskIntersection(
+      task_notOpenTrickWithCardProperty(Suit.PINK),
+      task_notOpenTrickWithCardProperty(Suit.YELLOW),
+      task_notOpenTrickWithCardProperty(Suit.BLUE),
+    ),
   },
   '3': {
     id: 3,
@@ -81,14 +102,14 @@ export default {
     text: 'I will win a trick that contains only even-numbered cards',
     subtext: '',
     difficulty: [2, 5, 6],
-    test: task_winTrickPassingCardTest((c) => c.number % 2 === 0),
+    test: task_winTrickPassingCardTest(c => c.number % 2 === 0),
   },
   '10': {
     id: 10,
     text: 'I will win a trick that contains only odd-numbered cards',
     subtext: '',
     difficulty: [2, 4, 5],
-    test: task_winTrickPassingCardTest((c) => c.number % 2 === 1),
+    test: task_winTrickPassingCardTest(c => c.number % 2 === 1),
   },
   '11': {
     id: 11,
@@ -119,14 +140,14 @@ export default {
     text: 'I will win a trick of which the card values are all greater than 5',
     subtext: '',
     difficulty: [2, 3, 4],
-    test: task_winTrickPassingCardTest((c) => c.number > 5),
+    test: task_winTrickPassingCardTest(c => c.number > 5),
   },
   '16': {
     id: 16,
     text: 'I will win a trick of which the card values are all less than 7',
     subtext: 'Submarines are not allowed in the trick',
     difficulty: [2, 3, 3],
-    test: task_winTrickPassingCardTest((c) => c.number < 7 && c.suit !== Suit.BLACK),
+    test: task_winTrickPassingCardTest(c => c.number < 7 && c.suit !== Suit.BLACK),
   },
   '17': {
     id: 17,
@@ -142,7 +163,7 @@ export default {
       };
       return taskIntersection(
         task_winTrickWithValueComparison(valueByNumberOfPlayers[numberOfPlayers], Comparison.MORE_THAN),
-        task_winTrickPassingCardTest((c) => c.suit !== Suit.BLACK)
+        task_winTrickPassingCardTest(c => c.suit !== Suit.BLACK),
       )(state, owner);
     },
   },
@@ -160,7 +181,7 @@ export default {
       };
       return taskIntersection(
         task_winTrickWithValueComparison(valueByNumberOfPlayers[numberOfPlayers], Comparison.FEWER_THAN),
-        task_winTrickPassingCardTest((c) => c.suit !== Suit.BLACK)
+        task_winTrickPassingCardTest(c => c.suit !== Suit.BLACK),
       )(state, owner);
     },
   },
@@ -170,8 +191,11 @@ export default {
     subtext: 'Submarines are not allowed in the trick',
     difficulty: [3, 3, 4],
     test: taskIntersection(
-      taskUnion(task_winTrickWithValueComparison(22, Comparison.EQUAL_TO), task_winTrickWithValueComparison(23, Comparison.EQUAL_TO)),
-      task_winTrickPassingCardTest((c) => c.suit !== Suit.BLACK)
+      taskUnion(
+        task_winTrickWithValueComparison(22, Comparison.EQUAL_TO),
+        task_winTrickWithValueComparison(23, Comparison.EQUAL_TO),
+      ),
+      task_winTrickPassingCardTest(c => c.suit !== Suit.BLACK),
     ),
   },
   '20': {
@@ -179,22 +203,22 @@ export default {
     text: 'I will win as many green as yellow cards in one trick',
     subtext: '0 green/yellow cards is not allowed',
     difficulty: [2, 3, 3],
-    test: task_winTrickPassingAggregateTest((cards) => {
-      const green = cards.filter((c) => c.suit === Suit.GREEN).length;
-      const yellow = cards.filter((c) => c.suit === Suit.YELLOW).length;
+    test: task_winTrickPassingAggregateTest(cards => {
+      const green = cards.filter(c => c.suit === Suit.GREEN).length;
+      const yellow = cards.filter(c => c.suit === Suit.YELLOW).length;
       return green === yellow && green !== 0;
-   }),
+    }),
   },
   '21': {
     id: 21,
     text: 'I will win as many pink as blue cards in one trick',
     subtext: '0 pink/blue cards is not allowed',
     difficulty: [2, 3, 3],
-    test: task_winTrickPassingAggregateTest((cards) => {
-      const pink = cards.filter((c) => c.suit === Suit.PINK).length;
-      const blue = cards.filter((c) => c.suit === Suit.BLUE).length;
+    test: task_winTrickPassingAggregateTest(cards => {
+      const pink = cards.filter(c => c.suit === Suit.PINK).length;
+      const blue = cards.filter(c => c.suit === Suit.BLUE).length;
       return pink === blue && pink !== 0;
-   }),
+    }),
   },
   '22': {
     id: 22,
@@ -313,20 +337,14 @@ export default {
     text: 'I will win exactly 2 tricks and they will be in a row',
     subtext: '',
     difficulty: [3, 3, 3],
-    test: taskIntersection(
-      task_winExactTrickCount(2),
-      task_winConsecutiveTricks(2),
-    ),
+    test: taskIntersection(task_winExactTrickCount(2), task_winConsecutiveTricks(2)),
   },
   '38': {
     id: 38,
     text: 'I will win exactly 3 tricks and they will be in a row',
     subtext: '',
     difficulty: [3, 3, 4],
-    test: taskIntersection(
-      task_winExactTrickCount(3),
-      task_winConsecutiveTricks(3),
-    ),
+    test: taskIntersection(task_winExactTrickCount(3), task_winConsecutiveTricks(3)),
   },
   '39': {
     id: 39,
@@ -362,24 +380,21 @@ export default {
   '43': {
     id: 43,
     text: 'I will win exactly 1x black',
-    subtext:
-      'If submarine cards 1,2,3,4 are in one hand, re-deal the playing cards',
+    subtext: 'If submarine cards 1,2,3,4 are in one hand, re-deal the playing cards',
     difficulty: [3, 3, 3],
     test: task_winCardCountWithProperty(1, Suit.BLACK, true),
   },
   '44': {
     id: 44,
     text: 'I will win exactly 2x black',
-    subtext:
-      'If submarine cards 2,3,4 are in one hand, re-deal the playing cards',
+    subtext: 'If submarine cards 2,3,4 are in one hand, re-deal the playing cards',
     difficulty: [3, 3, 4],
     test: task_winCardCountWithProperty(2, Suit.BLACK, true),
   },
   '45': {
     id: 45,
     text: 'I will win exactly 3x black',
-    subtext:
-      'If submarine cards 1,2,3,4 are in one hand, re-deal the playing cards',
+    subtext: 'If submarine cards 1,2,3,4 are in one hand, re-deal the playing cards',
     difficulty: [3, 4, 4],
     test: task_winCardCountWithProperty(3, Suit.BLACK, true),
   },
@@ -466,10 +481,7 @@ export default {
     text: 'I will win no 8s and no 9s',
     subtext: '',
     difficulty: [3, 3, 2],
-    test: taskIntersection(
-      task_winCardCountWithProperty(0, 8, true),
-      task_winCardCountWithProperty(0, 9, true),
-    ),
+    test: taskIntersection(task_winCardCountWithProperty(0, 8, true), task_winCardCountWithProperty(0, 9, true)),
   },
   '58': {
     id: 58,
@@ -549,20 +561,14 @@ export default {
     text: 'I will win only the first trick',
     subtext: '',
     difficulty: [4, 3, 3],
-    test: taskIntersection(
-      task_winNthTrick(1),
-      task_winExactTrickCount(1),
-    ),
+    test: taskIntersection(task_winNthTrick(1), task_winExactTrickCount(1)),
   },
   '69': {
     id: 69,
     text: 'I will win only the last trick',
     subtext: '',
     difficulty: [4, 4, 4],
-    test: taskIntersection(
-      task_winNthTrick(LAST_TRICK),
-      task_winExactTrickCount(1),
-    ),
+    test: taskIntersection(task_winNthTrick(LAST_TRICK), task_winExactTrickCount(1)),
   },
   '70': {
     id: 70,
@@ -576,31 +582,21 @@ export default {
     text: 'I will win the first 2 tricks',
     subtext: '',
     difficulty: [1, 1, 2],
-    test: taskIntersection(
-      task_winNthTrick(1),
-      task_winNthTrick(2),
-    ),
+    test: taskIntersection(task_winNthTrick(1), task_winNthTrick(2)),
   },
   '72': {
     id: 72,
     text: 'I will win the first 3 tricks',
     subtext: '',
     difficulty: [2, 3, 4],
-    test: taskIntersection(
-      task_winNthTrick(1),
-      task_winNthTrick(2),
-      task_winNthTrick(3),
-    ),
+    test: taskIntersection(task_winNthTrick(1), task_winNthTrick(2), task_winNthTrick(3)),
   },
   '73': {
     id: 73,
     text: 'I will win the first and the last trick',
     subtext: '',
     difficulty: [3, 4, 4],
-    test: taskIntersection(
-      task_winNthTrick(1),
-      task_winNthTrick(LAST_TRICK),
-    ),
+    test: taskIntersection(task_winNthTrick(1), task_winNthTrick(LAST_TRICK)),
   },
   '74': {
     id: 74,
@@ -612,8 +608,7 @@ export default {
   '75': {
     id: 75,
     text: 'I will win the black 1 and no other submarine',
-    subtext:
-      'If submarine cards 1 and 4 or 1,2,3 are in one hand, redeal the playing cards',
+    subtext: 'If submarine cards 1 and 4 or 1,2,3 are in one hand, redeal the playing cards',
     difficulty: [3, 3, 3],
     test: taskIntersection(
       task_winSpecificCard({ number: 1, suit: Suit.BLACK }),
@@ -623,8 +618,7 @@ export default {
   '76': {
     id: 76,
     text: 'I will win the black 2 and no other submarines',
-    subtext:
-      'If submarine cards 2 and 4 or 1,2,3 are in one hand, re-deal the playing cards',
+    subtext: 'If submarine cards 2 and 4 or 1,2,3 are in one hand, re-deal the playing cards',
     difficulty: [3, 3, 3],
     test: taskIntersection(
       task_winSpecificCard({ number: 2, suit: Suit.BLACK }),
@@ -775,7 +769,10 @@ export default {
     text: 'I will win the green 2 in the final trick of the game',
     subtext: '',
     difficulty: [3, 4, 5],
-    test: task_winNthTrick(LAST_TRICK, (trick) => !!trick.cards?.some(card => isCardEqual(card, { number: 2, suit: Suit.GREEN }))),
+    test: task_winNthTrick(
+      LAST_TRICK,
+      trick => !!trick.cards?.some(card => isCardEqual(card, { number: 2, suit: Suit.GREEN })),
+    ),
   },
   '94': {
     id: 94,

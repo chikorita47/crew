@@ -4,7 +4,7 @@ export enum Suit {
   YELLOW = 'yellow',
   PINK = 'pink',
   BLACK = 'black',
-};
+}
 export type Card = {
   number: number;
   suit: Suit;
@@ -68,7 +68,7 @@ export type GameState = {
   timeout?: boolean;
 };
 
-export type ProvisionalClientList = {[key: string]: string};
+export type ProvisionalClientList = { [key: string]: string };
 export type ProvisionalGame = {
   host: string;
   clientList: ProvisionalClientList;
@@ -88,23 +88,15 @@ export type TasksData = {
   [key: string]: TasksDataEntry;
 };
 
-type Enumerate<
-  N extends number,
-  Acc extends number[] = [],
-> = Acc['length'] extends N
+type Enumerate<N extends number, Acc extends number[] = []> = Acc['length'] extends N
   ? Acc[number]
   : Enumerate<N, [...Acc, Acc['length']]>;
 
-type IntRange<F extends number, T extends number> = Exclude<
-  Enumerate<T>,
-  Enumerate<F>
->;
+type IntRange<F extends number, T extends number> = Exclude<Enumerate<T>, Enumerate<F>>;
 
 // This type assumes that as cards are played, they are added to
 export type CardTally = {
-  [key in Suit]: key extends 'black'
-    ? Array<IntRange<1, 5>>
-    : Array<IntRange<1, 10>>;
+  [key in Suit]: key extends 'black' ? Array<IntRange<1, 5>> : Array<IntRange<1, 10>>;
 };
 
 export enum Comparison {

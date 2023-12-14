@@ -37,8 +37,8 @@ describe('getUnassignedTasksExist', () => {
   it('returns true if unassigned tasks exist', () => {
     const state = createGameState();
     state.unassignedTasks = {
-      '4': { id: 4, provisionalPlayerId: 0 },
-      '5': { id: 5 }
+      4: { id: 4, provisionalPlayerId: 0 },
+      5: { id: 5 },
     };
     expect(Selectors.getUnassignedTasksExist(state)).toBe(true);
   });
@@ -54,16 +54,16 @@ describe('getAreAllTasksAssigned', () => {
   it('returns false if unassigned tasks exist', () => {
     const state = createGameState();
     state.unassignedTasks = {
-      '4': { id: 4, provisionalPlayerId: 0 },
-      '5': { id: 5 }
+      4: { id: 4, provisionalPlayerId: 0 },
+      5: { id: 5 },
     };
     expect(Selectors.getAreAllTasksAssigned(state)).toBe(false);
   });
   it('returns true if all tasks are assigned', () => {
     const state = createGameState();
     state.unassignedTasks = {
-      '4': { id: 4, provisionalPlayerId: 0 },
-      '5': { id: 5, provisionalPlayerId: 1 }
+      4: { id: 4, provisionalPlayerId: 0 },
+      5: { id: 5, provisionalPlayerId: 1 },
     };
     expect(Selectors.getAreAllTasksAssigned(state)).toBe(true);
   });
@@ -85,7 +85,7 @@ describe('getIsGameStarted', () => {
     expect(Selectors.getIsGameStarted(state)).toBe(false);
     const { tricks, ...newState } = state;
     expect(Selectors.getIsGameStarted(newState)).toBe(false);
-  })
+  });
 });
 
 describe('getIsGameFinished', () => {
@@ -230,7 +230,10 @@ describe('getLedSuitForCurrentTrick', () => {
 describe('getPlayerCardsOfSuit', () => {
   it('returns only cards of a specific suit', () => {
     const state = createGameState();
-    expect(Selectors.getPlayerCardsOfSuit(state, 0, 'blue')).toEqual([{ number: 9, suit: 'blue' }, { number: 7, suit: 'blue' }]);
+    expect(Selectors.getPlayerCardsOfSuit(state, 0, 'blue')).toEqual([
+      { number: 9, suit: 'blue' },
+      { number: 7, suit: 'blue' },
+    ]);
     expect(Selectors.getPlayerCardsOfSuit(state, 0, 'green')).toEqual([]);
   });
 });
