@@ -6,7 +6,9 @@ import {
   Suit,
   TaskState,
   Trick,
-} from '@/types';
+} from '../types';
+
+export const LAST_TRICK = 'LAST_TRICK';
 
 // I will win the {card}
 export function task_winSpecificCard(
@@ -15,8 +17,9 @@ export function task_winSpecificCard(
   owner: number,
 ): TaskState {
   const trick = getMostRecentTrick(state);
-  if (trick?.winner !== owner) return TaskState.PENDING;
-  if (trick?.cards?.includes(card)) return TaskState.SUCCESS;
+  if (trick?.cards?.includes(card)) {
+    return trick?.winner === owner ? TaskState.SUCCESS : TaskState.FAILURE;
+  }
   return TaskState.PENDING;
 }
 
@@ -125,7 +128,7 @@ export function task_winTrickPassingCardTest(
    * Generic task helper. Use for tasks where cards in a trick are tested against other cards in the trick.
    * @param test A function that is run once for the whole array of Cards in a trick
    * @example // I will win as many pink as green cards in one trick.
-     task_winTrickWithAggregateTest((cards) => {
+     task_winTrickPassingAggregateTest((cards) => {
         const pink = cards.filter((c) => c.suit === 'pink');
         const green = cards.filter((c) => c.suit === 'green');
         return pink === green;
@@ -146,14 +149,17 @@ export function task_winTrickPassingAggregateTest(
 // I will win the {ordinal} trick
 // I will win the green 2 in the last trick of the game
 export function task_winNthTrick(
-  n: number,
+  n: number | typeof LAST_TRICK,
   state: GameState,
   owner: number,
   condition: (trick: Trick) => boolean = () => true,
 ): TaskState {
+  if (n === LAST_TRICK) {
+    n = getMaxTrickCount(state);
+  }
   if (n !== state.tricks?.length) return TaskState.PENDING;
-  if (state.tricks[n].winner === owner) {
-    return condition(state.tricks[n]) ? TaskState.SUCCESS : TaskState.FAILURE;
+  if (state.tricks[n - 1].winner === owner) {
+    return condition(state.tricks[n - 1]) ? TaskState.SUCCESS : TaskState.FAILURE;
   }
   return TaskState.FAILURE;
 }
@@ -165,10 +171,15 @@ export function task_notOpenTrickWithCardProperty(
   state: GameState,
   owner: number,
 ) {
-  const trick = state.tricks?.[state.tricks.length];
+  const trick = getMostRecentTrick(state);
   if (!trick) return TaskState.PENDING;
-  if (owner !== trick.leader || (trick.cards?.length || 0) > 1)
-    return TaskState.PENDING;
+  if (owner !== trick.leader || (trick.cards?.length || 0) > 1) {
+    if (state.tricks?.length === getMaxTrickCount(state)) {
+      return TaskState.SUCCESS;
+    } else {
+      return TaskState.PENDING;
+    }
+  }
 
   // owner leads with a card with given property
   if (
@@ -184,8 +195,7 @@ export function task_notOpenTrickWithCardProperty(
     )
   )
     return TaskState.FAILURE;
-  if (state.tricks?.length === getMaxTrickCount(state))
-    return TaskState.SUCCESS;
+
   return TaskState.PENDING;
 }
 

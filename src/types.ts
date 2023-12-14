@@ -74,6 +74,7 @@ export type TasksDataEntry = {
   text: string;
   subtext?: string;
   difficulty: TasksDataEntryDifficulty;
+  test?: (state: GameState, owner: number) => TaskState;
 };
 
 export type TasksData = {
