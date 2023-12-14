@@ -1,4 +1,4 @@
-import { Suit, Card, Trick, Hint, GameState, Player } from './types';
+import { Suit, Card, Trick, Hint, GameState, Player, RulesetHintMode } from './types';
 
 export function getCaptain(state: GameState): Player {
   const captain = state.players.find(player => player.isCaptain);
@@ -84,6 +84,17 @@ export function getIsGameFinished(state: GameState): boolean {
 
 export function getAreAllTasksDone(state: GameState): boolean {
   return !state.players.find(player => player.tasks && Object.values(player.tasks).find(task => !task.done));
+}
+
+export function getHintMode(state: GameState): RulesetHintMode {
+  return state.ruleset?.hintMode || 'default';
+}
+
+export function getAreAllHintsUsed(state: GameState): boolean {
+  const hintMode = getHintMode(state);
+  const numberOfPlayers = getNumberOfPlayers(state);
+  const numberOfHintsUsed = state.players.filter(player => player.hint?.used).length;
+  return hintMode === 'fewer' ? numberOfHintsUsed + 2 >= numberOfPlayers : numberOfHintsUsed >= numberOfPlayers;
 }
 
 export function getCurrentTrickId(state: GameState): number {

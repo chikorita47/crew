@@ -141,8 +141,7 @@ function AssignTasksView(props: AssignTasksViewProps) {
   );
 }
 
-function getHintString(player: Player): string | null {
-  let hintString = null;
+function getHintString(player: Player, hintMode: RulesetHintMode): string | null {
   if (player.hint && player.hint.used) {
     const placementString = {
       top: 'highest',
@@ -150,20 +149,23 @@ function getHintString(player: Player): string | null {
       bottom: 'lowest',
     };
     if (player.hint.card && player.hint.placement) {
-      hintString = `${player.hint.card.number} is my ${placementString[player.hint.placement]} ${player.hint.card.suit}`
-    } else {
-      hintString = 'already used';
+      if (hintMode === 'noTokens') {
+        return `${player.hint.card.number} ${player.hint.card.suit} (no token)`;
+      }
+      return `${player.hint.card.number} is my ${placementString[player.hint.placement]} ${player.hint.card.suit}`;
     }
+    return 'already used';
   }
-  return hintString;
+  return null;
 }
 
 type OtherPlayerViewProps = {
   data: Player;
   tricksWon: number;
+  hintMode: RulesetHintMode;
 };
 function OtherPlayerView(props: OtherPlayerViewProps) {
-  const hintString = getHintString(props.data);
+  const hintString = getHintString(props.data, props.hintMode);
   return (
     <>
       <div>{props.data.name}:</div>
@@ -201,7 +203,7 @@ function GameView(props: GameViewProps) {
   const isBetweenTricks = Selectors.getIsBetweenTricks(props.state);
   const numberOfPlayers = Selectors.getNumberOfPlayers(props.state);
 
-  const hintString = getHintString(player);
+  const hintString = getHintString(player, Selectors.getHintMode(props.state));
 
   const isAnyCardSelected = selectedCardIndex || selectedCardIndex === 0;
   const isSelectedCardLegalToPlay = isAnyCardSelected && Selectors.getIsCardLegalToPlay(props.state, props.playerId, selectedCardIndex);
@@ -248,8 +250,8 @@ function GameView(props: GameViewProps) {
         const index = selectedCardIndex;
         setSelectedCardIndex(undefined);
         Actions.updateState(Actions.giveHint(props.state, props.playerId, selectedCardIndex), props.code);
-      }} value='Place Hint' disabled={!isBetweenTricks || player.hint?.used || !isAnyCardSelected} />
-      {Selectors.getOtherPlayers(props.state, props.playerId).map(otherPlayer => <OtherPlayerView key={`other-player-${otherPlayer.id}`} data={otherPlayer} tricksWon={Selectors.getPlayerTricksWon(props.state, otherPlayer.id)} />)}
+      }} value='Place Hint' disabled={!isBetweenTricks || player.hint?.used || !isAnyCardSelected || Selectors.getAreAllHintsUsed(props.state)} />
+      {Selectors.getOtherPlayers(props.state, props.playerId).map(otherPlayer => <OtherPlayerView key={`other-player-${otherPlayer.id}`} data={otherPlayer} tricksWon={Selectors.getPlayerTricksWon(props.state, otherPlayer.id)} hintMode={Selectors.getHintMode(props.state)} />)}
     </>
   )
 }

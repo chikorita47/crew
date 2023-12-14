@@ -17,6 +17,7 @@ import {
   getUnassignedTasksExist,
   getAreAllTasksAssigned,
   getIsCardLegalToPlay,
+  getAreAllHintsUsed,
 } from './selectors';
 import { HintPlacement, GameState, ProvisionalGame, ProvisionalClientList, Ruleset, UnassignedTaskList, Trick } from './types';
 import { SUIT_ORDER, createDeck, generateCode, shuffle } from './utilities';
@@ -287,6 +288,10 @@ export function giveHint(state: GameState, playerId: number, cardIndex: number):
   const playerHint = getPlayerHint(state, playerId);
   if (playerHint.used) {
     throw new Error('Cannot give multiple hints in one game');
+  }
+
+  if (getAreAllHintsUsed(state)) {
+    throw new Error('All hints have been used');
   }
 
   const card = getPlayerCard(state, playerId, cardIndex);

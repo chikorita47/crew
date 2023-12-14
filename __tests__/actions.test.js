@@ -284,6 +284,12 @@ describe('giveHint', () => {
     const newState = Actions.giveHint(state, 2, 0);
     expect(newState.players[2].hint).toEqual({ used: true, card: { number: 9, suit: 'pink' }, placement: 'middle' });
   });
+  it('throws if there are not enough hints remaining in the game', () => {
+    const state = createGameState();
+    state.tricks.pop();
+    state.ruleset = { hintMode: 'fewer' };
+    expect(() => Actions.giveHint(state, 2, 0)).toThrow(Error);
+  });
 });
 
 describe('toggleTaskDone', () => {

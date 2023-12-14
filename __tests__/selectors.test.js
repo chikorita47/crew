@@ -139,6 +139,27 @@ describe('getAreAllTasksDone', () => {
   });
 });
 
+describe('getAreAllHintsUsed', () => {
+  it('returns false if there are hints remaining', () => {
+    const state = createGameState();
+    expect(Selectors.getAreAllHintsUsed(state)).toBe(false);
+    state.ruleset = { hintMode: 'fewer' };
+    state.players[0].hint = { used: false };
+    expect(Selectors.getAreAllHintsUsed(state)).toBe(false);
+  });
+  it('returns true if there are no hints remaining', () => {
+    const state = createGameState();
+    state.ruleset = { hintMode: 'fewer' };
+    expect(Selectors.getAreAllHintsUsed(state)).toBe(true);
+    state.ruleset = { hintMode: 'default' };
+    state.players[1].hint = { used: true };
+    state.players[2].hint = { used: true };
+    expect(Selectors.getAreAllHintsUsed(state)).toBe(true);
+    state.ruleset = { hintMode: 'noTokens' };
+    expect(Selectors.getAreAllHintsUsed(state)).toBe(true);
+  });
+});
+
 describe('getIsBetweenTricks', () => {
   it('returns false if in the middle of a trick', () => {
     expect(Selectors.getIsBetweenTricks(createGameState())).toBe(false);
