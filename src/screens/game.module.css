@@ -1,0 +1,353 @@
+.gameContainer {
+  width: 100%;
+  height: 100%;
+  user-select: none;
+}
+
+.upperGameContainer {
+  position: absolute;
+  top: 0;
+  width: 100%;
+}
+
+.trickContainer {
+  height: 85%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.lowerGameContainer {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  /* overflow: hidden; */
+  clip: rect(-100vw, auto, auto, auto);
+}
+
+.hand {
+  margin: 1vw 3vw -5vw 0;
+  max-height: 30vh;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(10px, max-content));
+}
+
+.statusContainer {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  background-color: rgba(255, 255, 255, 0.75);
+  text-align: center;
+  padding: 1vw;
+}
+
+.playButton {
+  position: absolute;
+  bottom: calc(min(30vh, 45vw) + 18vw);
+  left: 50%;
+  transform: translate(-50%, 0);
+  background-color: #b6e4ff;
+  border: 1vw solid #004aad;
+  border-radius: 2vw;
+  padding: 2vw;
+  font-size: 12vw;
+  box-shadow: 0 0 2vw 0.9vw rgba(0, 0, 0, 0.2);
+}
+
+.leftButton {
+  position: absolute;
+  bottom: calc(min(30vh, 45vw) + 11vw);
+  left: 2vw;
+  font-size: 24vw;
+}
+
+.rightButton {
+  position: absolute;
+  bottom: calc(min(30vh, 45vw) + 11vw);
+  right: 2vw;
+  font-size: 24vw;
+}
+
+.card {
+  position: relative;
+  padding: 0.5vw 1.25vw;
+  width: 31.25vw;
+  height: 45vw;
+  border: 0.7vw solid white;
+  border-radius: 2.25vw;
+  color: white;
+  font-size: 8vw;
+}
+
+.blue {
+  background-color: #38b6ff;
+}
+
+.green {
+  background-color: #64d433;
+}
+
+.yellow {
+  background-color: #e6c43d;
+}
+
+.pink {
+  background-color: #ff66c4;
+}
+
+.black {
+  background-color: rgb(46, 46, 46);
+}
+
+.selected {
+  bottom: 15vw;
+  padding-left: 2vw;
+}
+
+.trick {
+  position: relative;
+  width: 100%;
+  min-height: 65vw;
+}
+
+.trickCard {
+  position: absolute;
+  border: 0.7vw solid white;
+  border-radius: 2.25vw;
+  color: white;
+  font-size: 15vw;
+  text-align: center;
+  padding: 3.4vw;
+}
+
+.trickCard0 {
+  width: 25vw;
+  height: 35vw;
+  left: 40vw;
+  bottom: 0;
+  padding-top: 16vw;
+}
+
+.trickCard1 {
+  width: 35vw;
+  height: 25vw;
+  left: 17.5vw;
+  bottom: 17.5vw;
+  padding-right: 18vw;
+}
+
+.trickCard2 {
+  width: 25vw;
+  height: 35vw;
+  left: 35vw;
+  bottom: 30vw;
+  padding-top: 1vw;
+}
+
+.trickCard3 {
+  width: 35vw;
+  height: 25vw;
+  left: 47.5vw;
+  bottom: 22.5vw;
+  padding-left: 19vw;
+}
+
+.trick5Card0 {
+  width: 25vw;
+  height: 35vw;
+  left: 40vw;
+  bottom: 0;
+  padding-top: 16vw;
+}
+
+.trick5Card1 {
+  width: 35vw;
+  height: 25vw;
+  left: 10vw;
+  bottom: 17.5vw;
+  padding-right: 18vw;
+}
+
+.trick5Card2 {
+  width: 25vw;
+  height: 35vw;
+  left: 27.5vw;
+  bottom: 26vw;
+  padding-top: 1vw;
+}
+
+.trick5Card3 {
+  width: 25vw;
+  height: 35vw;
+  left: 47.5vw;
+  bottom: 30vw;
+  padding-top: 1vw;
+}
+
+.trick5Card4 {
+  width: 35vw;
+  height: 25vw;
+  left: 55vw;
+  bottom: 22.5vw;
+  padding-left: 19vw;
+}
+
+.trickWinner {
+  color: rgb(255, 204, 0);
+  border-color: rgb(255, 204, 0);
+}
+
+.trickWinner.yellow {
+  color: rgb(247, 82, 82);
+  border-color: rgb(247, 82, 82);
+}
+
+.playerContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.playerNameContainer {
+  display: flex;
+  align-items: center;
+}
+
+.playerStateContainer {
+  display: flex;
+  align-items: center;
+}
+
+.captain {
+  background-color: black;
+  color: white;
+  border-radius: 3.5vw;
+  font-size: 4.5vw;
+  text-align: center;
+  margin: 0.5vw 0 0.5vw 0.5vw;
+  padding-top: 0.75vw;
+  width: 7vw;
+  height: 7vw;
+}
+
+.extraCards {
+  background-color: white;
+  color: black;
+  border: 0.5vw solid black;
+  border-radius: 3.5vw;
+  font-size: 4.5vw;
+  text-align: center;
+  margin: 0.5vw 0 0.5vw 0.5vw;
+  padding-top: 0.25vw;
+  width: 7vw;
+  height: 7vw;
+}
+
+.tasks {
+  position: relative;
+  background-color: #b6e4ff;
+  border: 0.6vw solid #004aad;
+  border-radius: 2vw;
+  font-size: 4vw;
+  text-align: center;
+  padding-top: 1.5vw;
+  width: 12vw;
+  height: 9vw;
+}
+
+.tasksBg {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: #004aad;
+  font-size: 7vw;
+  opacity: 25%;
+}
+
+.tricksWon {
+  background-color: #004aad;
+  border-radius: 2vw;
+  color: white;
+  font-size: 6vw;
+  text-align: center;
+  margin-left: 0.5vw;
+  padding-top: 1.25vw;
+  width: 7.5vw;
+  height: 10.5vw;
+}
+
+.selfDataContainer {
+  display: flex;
+  align-items: center;
+  padding: 0 1vw 0 1vw;
+  justify-content: space-between;
+}
+
+.players5Container {
+  display: grid;
+  align-items: center;
+  padding: 1vw;
+  grid-template-columns: repeat(5, 1fr);
+  row-gap: 5vw;
+}
+
+.players5Container1 {
+  grid-column: 1 / 2;
+  grid-row: 2 / 3;
+}
+
+.players5Container2 {
+  grid-column: 2 / 3;
+  grid-row: 1 / 2;
+}
+
+.players5Container3 {
+  grid-column: 4 / 5;
+  grid-row: 1 / 2;
+}
+
+.players5Container4 {
+  grid-column: 5 / 6;
+  grid-row: 2 / 3;
+}
+
+.players4Container {
+  display: grid;
+  align-items: center;
+  padding: 1vw;
+  grid-template-columns: repeat(3, 1fr);
+  row-gap: 5vw;
+}
+
+.players4Container1 {
+  grid-column: 1 / 2;
+  grid-row: 2 / 3;
+}
+
+.players4Container2 {
+  grid-column: 2 / 3;
+  grid-row: 1 / 2;
+}
+
+.players4Container3 {
+  grid-column: 3 / 4;
+  grid-row: 2 / 3;
+}
+
+.players3Container {
+  display: grid;
+  align-items: center;
+  padding: 1vw;
+  grid-template-columns: repeat(2, 1fr);
+}
+
+.players3Container1 {
+  grid-column: 1 / 2;
+  grid-row: 1 / 2;
+}
+
+.players3Container2 {
+  grid-column: 2 / 3;
+  grid-row: 1 / 2;
+}
