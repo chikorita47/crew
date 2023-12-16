@@ -5,7 +5,13 @@ import React from 'react';
 import './globals.css';
 
 // const roboto = Roboto({ subsets: ['latin'], weight: '400' });
-const firaSans = localFont({ src: '../fonts/FiraSans-Regular.ttf', display: 'swap' });
+const firaSans = localFont({
+  src: [
+    { path: '../fonts/FiraSans-Regular.ttf', weight: '400' },
+    { path: '../fonts/FiraSans-Bold.ttf', weight: '700' },
+  ],
+  display: 'swap',
+});
 
 export const metadata: Metadata = {
   title: 'The Crew 2',
