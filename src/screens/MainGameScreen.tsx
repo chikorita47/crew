@@ -174,6 +174,20 @@ function MainGameScreen() {
                   {!!player.extraCards && <div className={styles.extraCards}>+1</div>}
                 </div>
                 <div className={styles.playerStateContainer}>
+                  {player.hint?.card ? (
+                    <div
+                      className={[
+                        styles.hint,
+                        styles.given,
+                        cityMedium.className,
+                        suitToStyle[player.hint.card.suit],
+                      ].join(' ')}>
+                      {player.hint.card.number}
+                      <div className={[styles.token, styles[player.hint.placement]].join(' ')} />
+                    </div>
+                  ) : (
+                    <div className={[styles.hint, player.hint?.used ? styles.used : styles.unused].join(' ')} />
+                  )}
                   <div className={styles.tasks}>
                     <div className={styles.tasksBg}>✓</div>15/15
                   </div>
@@ -213,6 +227,17 @@ function MainGameScreen() {
             {!!self.extraCards && <div className={styles.extraCards}>+1</div>}
           </div>
           <div className={styles.playerStateContainer}>
+            {self.hint?.card ? (
+              <div
+                className={[styles.hint, styles.given, cityMedium.className, suitToStyle[self.hint.card.suit]].join(
+                  ' ',
+                )}>
+                {self.hint.card.number}
+                <div className={[styles.token, styles[self.hint.placement]].join(' ')} />
+              </div>
+            ) : (
+              <div className={[styles.hint, self.hint?.used ? styles.used : styles.unused].join(' ')} />
+            )}
             <div className={styles.tasks}>
               <div className={styles.tasksBg}>✓</div>15/15
             </div>
@@ -239,7 +264,12 @@ function MainGameScreen() {
         </div>
         <div className={styles.statusContainer}>Waiting for Michael to play...</div>
       </div>
-      {selectedCardIndex !== undefined && <div className={styles.playButton}>PLAY</div>}
+      {selectedCardIndex !== undefined && (
+        <div className={styles.textButtonContainer}>
+          <div className={styles.textButton}>PLAY</div>
+          <div className={styles.textButton}>HINT</div>
+        </div>
+      )}
       {selectedCardIndex !== undefined && selectedCardIndex !== 0 && (
         <div className={styles.leftButton} onClick={() => setSelectedCardIndex(selectedCardIndex - 1)}>
           ⟨
