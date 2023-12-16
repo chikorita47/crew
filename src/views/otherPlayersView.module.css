@@ -1,0 +1,70 @@
+.players5Container {
+  display: grid;
+  align-items: center;
+  padding: 1vw;
+  padding-left: 2vw;
+  grid-template-columns: repeat(7, 1fr);
+  row-gap: 5vw;
+}
+
+.players5Container1 {
+  grid-column: 1 / 3;
+  grid-row: 2 / 3;
+}
+.players5Container2 {
+  grid-column: 2 / 4;
+  grid-row: 1 / 2;
+}
+.players5Container3 {
+  grid-column: 5 / 7;
+  grid-row: 1 / 2;
+}
+.players5Container4 {
+  grid-column: 6 / 8;
+  grid-row: 2 / 3;
+}
+
+.players4Container {
+  display: grid;
+  align-items: center;
+  padding: 1vw;
+  padding-left: 2vw;
+  grid-template-columns: repeat(3, 1fr);
+  row-gap: 5vw;
+}
+
+.players4Container1 {
+  grid-column: 1 / 2;
+  grid-row: 2 / 3;
+}
+.players4Container2 {
+  grid-column: 2 / 3;
+  grid-row: 1 / 2;
+}
+.players4Container3 {
+  grid-column: 3 / 4;
+  grid-row: 2 / 3;
+}
+
+.players3Container {
+  display: grid;
+  align-items: center;
+  padding: 1vw;
+  padding-left: 2vw;
+  grid-template-columns: repeat(2, 1fr);
+}
+
+.players3Container1 {
+  grid-column: 1 / 2;
+  grid-row: 1 / 2;
+}
+.players3Container2 {
+  grid-column: 2 / 3;
+  grid-row: 1 / 2;
+}
+
+.playerContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}

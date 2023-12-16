@@ -1,0 +1,22 @@
+.hand {
+  margin: 1vw 3vw -5vw 0;
+  max-height: 30vh;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(10px, max-content));
+}
+
+.card {
+  position: relative;
+  padding: 0.5vw 1.25vw;
+  width: 31.25vw;
+  height: 45vw;
+  border: 0.7vw solid white;
+  border-radius: 2.25vw;
+  color: white;
+  font-size: 8vw;
+}
+
+.selected {
+  bottom: 15vw;
+  padding-left: 2vw;
+}

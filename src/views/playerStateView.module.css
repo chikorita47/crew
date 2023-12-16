@@ -1,0 +1,90 @@
+.container {
+  display: flex;
+  align-items: center;
+}
+
+.tasks {
+  position: relative;
+  background-color: #b6e4ff;
+  border: 0.4vw solid #004aad;
+  border-radius: 1vw;
+  font-size: 4vw;
+  text-align: center;
+  padding-top: 1.5vw;
+  width: 12vw;
+  height: 9vw;
+}
+
+.tasksBg {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: #004aad;
+  font-size: 7vw;
+  opacity: 25%;
+}
+
+.tricksWon {
+  background-color: #004aad;
+  border-radius: 1vw;
+  color: white;
+  font-size: 6vw;
+  text-align: center;
+  margin-left: 0.5vw;
+  padding-top: 1.25vw;
+  width: 7.5vw;
+  height: 10.5vw;
+}
+
+.hint {
+  position: relative;
+  border-radius: 1vw;
+  margin-right: 0.5vw;
+  width: 7.5vw;
+  height: 10.5vw;
+}
+
+.hint.unused {
+  border: 0.4vw dashed black;
+}
+
+.hint.given {
+  border: 0.4vw solid white;
+  color: white;
+  font-size: 7vw;
+  text-align: center;
+  padding-top: 1.15vw;
+  width: 8vw;
+  height: 11vw;
+}
+
+.hint.used {
+  border: 0.4vw solid black;
+  background-color: grey;
+  opacity: 50%;
+}
+
+.token {
+  position: absolute;
+  left: 0;
+  background-color: #004aad;
+  border-radius: 2vw;
+  width: 4vw;
+  height: 4vw;
+}
+
+.token.top {
+  top: 0;
+  transform: translate(-40%, -40%);
+}
+
+.token.middle {
+  top: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.token.bottom {
+  bottom: 0;
+  transform: translate(-40%, 40%);
+}

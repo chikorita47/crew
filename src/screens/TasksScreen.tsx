@@ -17,8 +17,8 @@ function TasksScreen() {
       <div className={styles.header}>
         <div>Nathan&apos;s Tasks</div>
         <div className={styles.hint}>
-          Hint: <span className={[styles.hintCard, styles.green, cityMedium.className].join(' ')}>3</span> is my{' '}
-          <b>only</b> green
+          Hint: <span className={[styles.hintCard, 'green', cityMedium.className].join(' ')}>3</span> is my <b>only</b>{' '}
+          green
         </div>
         <div className={styles.closeButton}>✕</div>
       </div>

@@ -87,6 +87,26 @@ body {
   background-color: rgb(211, 224, 237);
 }
 
+.blue {
+  background-color: #38b6ff;
+}
+
+.green {
+  background-color: #64d433;
+}
+
+.yellow {
+  background-color: #e6c43d;
+}
+
+.pink {
+  background-color: #ff66c4;
+}
+
+.black {
+  background-color: rgb(46, 46, 46);
+}
+
 /* body {
   color: rgb(var(--foreground-rgb));
   background: linear-gradient(

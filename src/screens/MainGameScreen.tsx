@@ -1,10 +1,12 @@
 'use client';
 
-import localFont from 'next/font/local';
 import React, { useState } from 'react';
 import styles from './game.module.css';
-
-const cityMedium = localFont({ src: '../fonts/City Medium.ttf', display: 'swap' });
+import { Card, Player, Trick } from '../types';
+import OtherPlayersView from '../views/OtherPlayersView';
+import TrickView from '../views/TrickView';
+import SelfView from '../views/SelfView';
+import HandView from '../views/HandView';
 
 const hand = [
   {
@@ -66,7 +68,7 @@ const hand = [
 ];
 
 const trick = {
-  winner: 3,
+  winner: 2,
   leader: 0,
   cards: [
     { number: 3, suit: 'green' },
@@ -127,25 +129,6 @@ const players = [
   },
 ];
 
-function trickCardStyle(index: number, playerId: number, numberOfPlayers: number) {
-  const styleIndex = (index - playerId + numberOfPlayers) % numberOfPlayers;
-  if (numberOfPlayers === 5) {
-    return styles[`trick5Card${styleIndex}`];
-  }
-  if (numberOfPlayers === 3 && styleIndex === 2) {
-    return styles.trickCard3;
-  }
-  return styles[`trickCard${styleIndex}`];
-}
-
-const suitToStyle: { [key: string]: string } = {
-  blue: styles.blue,
-  green: styles.green,
-  yellow: styles.yellow,
-  pink: styles.pink,
-  black: styles.black,
-};
-
 function getOtherPlayersOrder(playerId: number, numberOfPlayers: number): number[] {
   const order: number[] = [];
   for (let i = (playerId + 1) % numberOfPlayers; i !== playerId; i = (i + 1) % numberOfPlayers) {
@@ -163,105 +146,18 @@ function MainGameScreen() {
   return (
     <div className={styles.gameContainer}>
       <div className={styles.upperGameContainer}>
-        <div className={styles[`players${numberOfPlayers}Container`]}>
-          {otherPlayers.map((player, index) => {
-            const containerStyle = styles[`players${numberOfPlayers}Container${index + 1}`];
-            return (
-              <div key={`player-${player.id}`} className={[styles.playerContainer, containerStyle].join(' ')}>
-                <div className={styles.playerNameContainer}>
-                  <div>{player.name}</div>
-                  {player.isCaptain && <div className={styles.captain}>C</div>}
-                  {!!player.extraCards && <div className={styles.extraCards}>+1</div>}
-                </div>
-                <div className={styles.playerStateContainer}>
-                  {player.hint?.card ? (
-                    <div
-                      className={[
-                        styles.hint,
-                        styles.given,
-                        cityMedium.className,
-                        suitToStyle[player.hint.card.suit],
-                      ].join(' ')}>
-                      {player.hint.card.number}
-                      <div className={[styles.token, styles[player.hint.placement]].join(' ')} />
-                    </div>
-                  ) : (
-                    <div className={[styles.hint, player.hint?.used ? styles.used : styles.unused].join(' ')} />
-                  )}
-                  <div className={styles.tasks}>
-                    <div className={styles.tasksBg}>✓</div>15/15
-                  </div>
-                  <div className={styles.tricksWon}>2</div>
-                </div>
-              </div>
-            );
-          })}
-        </div>
+        <OtherPlayersView players={otherPlayers as Player[]} />
       </div>
       <div className={styles.trickContainer}>
-        <div className={[styles.trick, cityMedium.className].join(' ')}>
-          {trick.cards.map((card, index) => {
-            const player = (index + trick.leader) % numberOfPlayers;
-            return (
-              <div
-                key={`trick-${index}`}
-                className={[
-                  styles.trickCard,
-                  trickCardStyle(player, playerId, trick.cards.length),
-                  suitToStyle[card.suit],
-                  player === trick.winner ? styles.trickWinner : null,
-                ]
-                  .filter(v => v)
-                  .join(' ')}>
-                {card.number}
-              </div>
-            );
-          })}
-        </div>
+        <TrickView trick={trick as Trick} numberOfPlayers={numberOfPlayers} playerId={playerId} />
       </div>
       <div className={styles.lowerGameContainer}>
-        <div className={styles.selfDataContainer}>
-          <div className={styles.playerNameContainer}>
-            <div>{self.name}</div>
-            {self.isCaptain && <div className={styles.captain}>C</div>}
-            {!!self.extraCards && <div className={styles.extraCards}>+1</div>}
-          </div>
-          <div className={styles.playerStateContainer}>
-            {self.hint?.card ? (
-              <div
-                className={[styles.hint, styles.given, cityMedium.className, suitToStyle[self.hint.card.suit]].join(
-                  ' ',
-                )}>
-                {self.hint.card.number}
-                <div className={[styles.token, styles[self.hint.placement]].join(' ')} />
-              </div>
-            ) : (
-              <div className={[styles.hint, self.hint?.used ? styles.used : styles.unused].join(' ')} />
-            )}
-            <div className={styles.tasks}>
-              <div className={styles.tasksBg}>✓</div>15/15
-            </div>
-            <div className={styles.tricksWon}>2</div>
-          </div>
-        </div>
-        <div className={[styles.hand, cityMedium.className].join(' ')}>
-          {hand.map((card, index) => (
-            <div
-              key={`hand-${index}`}
-              className={[styles.card, suitToStyle[card.suit], selectedCardIndex === index ? styles.selected : null]
-                .filter(v => v)
-                .join(' ')}
-              // style={selectedCardIndex === index ? { right: '20vw' } : {}}
-              onClick={() => {
-                if (selectedCardIndex === index) {
-                  return setSelectedCardIndex(undefined);
-                }
-                setSelectedCardIndex(index);
-              }}>
-              {card.number}
-            </div>
-          ))}
-        </div>
+        <SelfView player={self as Player} />
+        <HandView
+          hand={hand as Card[]}
+          selectedCardIndex={selectedCardIndex}
+          onSelectCard={index => setSelectedCardIndex(index)}
+        />
         <div className={styles.statusContainer}>Waiting for Michael to play...</div>
       </div>
       {selectedCardIndex !== undefined && (

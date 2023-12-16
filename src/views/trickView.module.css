@@ -1,0 +1,89 @@
+.trick {
+  position: relative;
+  width: 100%;
+  min-height: 70vw;
+}
+
+.trickCard {
+  position: absolute;
+  border: 0.7vw solid white;
+  border-radius: 2.25vw;
+  color: white;
+  font-size: 15vw;
+  text-align: center;
+  padding: 3.4vw;
+}
+
+.trickCard0 {
+  width: 25vw;
+  height: 35vw;
+  left: 40vw;
+  bottom: 0;
+  padding-top: 16vw;
+}
+.trickCard1 {
+  width: 35vw;
+  height: 25vw;
+  left: 17.5vw;
+  bottom: 17.5vw;
+  padding-right: 18vw;
+}
+.trickCard2 {
+  width: 25vw;
+  height: 35vw;
+  left: 35vw;
+  bottom: 30vw;
+  padding-top: 1vw;
+}
+.trickCard3 {
+  width: 35vw;
+  height: 25vw;
+  left: 47.5vw;
+  bottom: 22.5vw;
+  padding-left: 19vw;
+}
+
+.trick5Card0 {
+  width: 25vw;
+  height: 35vw;
+  left: 40vw;
+  bottom: 0;
+  padding-top: 16vw;
+}
+.trick5Card1 {
+  width: 35vw;
+  height: 25vw;
+  left: 10vw;
+  bottom: 17.5vw;
+  padding-right: 18vw;
+}
+.trick5Card2 {
+  width: 25vw;
+  height: 35vw;
+  left: 27.5vw;
+  bottom: 26vw;
+  padding-top: 1vw;
+}
+.trick5Card3 {
+  width: 25vw;
+  height: 35vw;
+  left: 47.5vw;
+  bottom: 30vw;
+  padding-top: 1vw;
+}
+.trick5Card4 {
+  width: 35vw;
+  height: 25vw;
+  left: 55vw;
+  bottom: 22.5vw;
+  padding-left: 19vw;
+}
+
+.trickWinner {
+  color: rgb(255, 204, 0);
+  border-color: rgb(255, 204, 0);
+}
+.trickWinner:global(.yellow) {
+  color: rgb(247, 82, 82);
+  border-color: rgb(247, 82, 82);
+}
