@@ -59,16 +59,16 @@ export function getTaskDataForPlayer(state: GameState, playerId: number, taskId:
 }
 
 export function getUnassignedTasksExist(state: GameState): boolean {
-  return !!Object.keys(state.unassignedTasks ?? []).length;
+  return !!Object.keys(state.unassignedTasks?.tasks ?? []).length;
 }
 
 export function getAreAllTasksAssigned(state: GameState): boolean {
   return (
-    !!state.unassignedTasks &&
-    !!Object.keys(state.unassignedTasks).length &&
-    Object.values(state.unassignedTasks).every(task => 'provisionalPlayerId' in task) &&
-    (!state.unassignedTasks[94] || !!state.unassignedTasks[94].data) && // TODO: generalize this
-    (!state.unassignedTasks[95] || !!state.unassignedTasks[95].data) // TODO: generalize this
+    !!state.unassignedTasks?.tasks &&
+    !!Object.keys(state.unassignedTasks.tasks).length &&
+    Object.values(state.unassignedTasks.tasks).every(task => 'provisionalPlayerId' in task) &&
+    (!state.unassignedTasks.tasks[94] || !!state.unassignedTasks.tasks[94].data) && // TODO: generalize this
+    (!state.unassignedTasks.tasks[95] || !!state.unassignedTasks.tasks[95].data) // TODO: generalize this
   );
 }
 

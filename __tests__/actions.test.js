@@ -10,29 +10,42 @@ describe('dealTasks', () => {
     const state = createGameState();
     const newState1 = Actions.dealTasks(state, 10);
     const newState2 = Actions.dealTasks(state, 10);
-    expect(newState1.unassignedTasks).not.toEqual(newState2.unassignedTasks);
+    expect(newState1.unassignedTasks.tasks).not.toEqual(newState2.unassignedTasks.tasks);
+    expect(newState1.unassignedTasks.order).not.toEqual(newState2.unassignedTasks.order);
   });
   it('selects tasks that add up to the correct difficulty', () => {
     const state = createGameState();
     const newState3Players = Actions.dealTasks(state, 10);
-    const difficulties3Players = Object.keys(newState3Players.unassignedTasks).map(
+    const difficulties3Players = Object.keys(newState3Players.unassignedTasks.tasks).map(
       taskId => TASKS_DATA[taskId].difficulty[0],
     );
     expect(sum(difficulties3Players)).toEqual(10);
 
     state.players.push({});
     const newState4Players = Actions.dealTasks(state, 10);
-    const difficulties4Players = Object.keys(newState4Players.unassignedTasks).map(
+    const difficulties4Players = Object.keys(newState4Players.unassignedTasks.tasks).map(
       taskId => TASKS_DATA[taskId].difficulty[1],
     );
     expect(sum(difficulties4Players)).toEqual(10);
 
     state.players.push({});
     const newState5Players = Actions.dealTasks(state, 30);
-    const difficulties5Players = Object.keys(newState5Players.unassignedTasks).map(
+    const difficulties5Players = Object.keys(newState5Players.unassignedTasks.tasks).map(
       taskId => TASKS_DATA[taskId].difficulty[2],
     );
     expect(sum(difficulties5Players)).toEqual(30);
+  });
+  it('saves the order the tasks were dealt', () => {
+    const state = createGameState();
+    const newState = Actions.dealTasks(state, 30);
+    const tasksInListMissingFromOrder = Object.keys(newState.unassignedTasks.tasks).filter(
+      taskId => !newState.unassignedTasks.order.includes(~~taskId),
+    );
+    const tasksInOrderMissingFromList = newState.unassignedTasks.order.filter(
+      taskId => !newState.unassignedTasks.tasks[taskId],
+    );
+    expect(tasksInListMissingFromOrder.length).toEqual(0);
+    expect(tasksInOrderMissingFromList.length).toEqual(0);
   });
   it('throws if given too high a difficulty', () => {
     expect(() => Actions.dealTasks(createGameState(), 1000)).toThrow(Error);
@@ -42,11 +55,14 @@ describe('dealTasks', () => {
 describe('toggleClaimTask', () => {
   const state = createGameState();
   state.unassignedTasks = {
-    5: { id: 5 },
+    order: [5],
+    tasks: {
+      5: { id: 5 },
+    },
   };
 
   it('assigns provisionalPlayerId to the task', () => {
-    expect(Actions.toggleClaimTask(state, 2, 5).unassignedTasks).toEqual({
+    expect(Actions.toggleClaimTask(state, 2, 5).unassignedTasks.tasks).toEqual({
       5: { id: 5, provisionalPlayerId: 2 },
     });
   });
@@ -56,18 +72,24 @@ describe('toggleClaimTask', () => {
   it('unclaims the task if playerId is already provisionally assigned', () => {
     const state = createGameState();
     state.unassignedTasks = {
-      5: { id: 5, provisionalPlayerId: 2 },
+      order: [5],
+      tasks: {
+        5: { id: 5, provisionalPlayerId: 2 },
+      },
     };
-    expect(Actions.toggleClaimTask(state, 2, 5).unassignedTasks).toEqual({
+    expect(Actions.toggleClaimTask(state, 2, 5).unassignedTasks.tasks).toEqual({
       5: { id: 5 },
     });
   });
   it('erases any extra task data already attached', () => {
     const state = createGameState();
     state.unassignedTasks = {
-      5: { id: 5, provisionalPlayerId: 1, data: { n: 3 } },
+      order: [5],
+      tasks: {
+        5: { id: 5, provisionalPlayerId: 1, data: { n: 3 } },
+      },
     };
-    expect(Actions.toggleClaimTask(state, 2, 5).unassignedTasks).toEqual({
+    expect(Actions.toggleClaimTask(state, 2, 5).unassignedTasks.tasks).toEqual({
       5: { id: 5, provisionalPlayerId: 2 },
     });
   });
@@ -76,33 +98,45 @@ describe('toggleClaimTask', () => {
 describe('addDataToTask', () => {
   it('adds data to the task', () => {
     const state = createGameState();
-    state.unassignedTasks = { 5: { id: 5 }, 94: { id: 94 } };
-    expect(Actions.addDataToTask(state, 0, 94, { n: 1 }).unassignedTasks).toEqual({
+    state.unassignedTasks = {
+      order: [5, 94],
+      tasks: { 5: { id: 5 }, 94: { id: 94 } },
+    };
+    expect(Actions.addDataToTask(state, 0, 94, { n: 1 }).unassignedTasks.tasks).toEqual({
       5: { id: 5 },
       94: { id: 94, provisionalPlayerId: 0, data: { n: 1 } },
     });
   });
   it('claims the task if another player provisionally owns it', () => {
     const state = createGameState();
-    state.unassignedTasks = { 5: { id: 5 }, 94: { id: 94, provisionalPlayerId: 1 } };
-    expect(Actions.addDataToTask(state, 0, 94, { n: 1 }).unassignedTasks).toEqual({
+    state.unassignedTasks = {
+      order: [5, 94],
+      tasks: { 5: { id: 5 }, 94: { id: 94, provisionalPlayerId: 1 } },
+    };
+    expect(Actions.addDataToTask(state, 0, 94, { n: 1 }).unassignedTasks.tasks).toEqual({
       5: { id: 5 },
       94: { id: 94, provisionalPlayerId: 0, data: { n: 1 } },
     });
   });
   it('throws if taskId is not in unassignedTasks', () => {
     const state = createGameState();
-    state.unassignedTasks = { 5: { id: 5 }, 94: { id: 94 } };
+    state.unassignedTasks = {
+      order: [5, 94],
+      tasks: { 5: { id: 5 }, 94: { id: 94 } },
+    };
     expect(() => Actions.addDataToTask(state, 0, 6, { n: 1 })).toThrow(Error);
   });
 });
 
 describe('kickTask', () => {
   const unassignedTasks = {
-    4: { id: 4, provisionalPlayerId: 0 },
-    5: { id: 5, provisionalPlayerId: 2 },
-    6: { id: 6, provisionalPlayerId: 1 },
-    7: { id: 7 },
+    order: [7, 5, 6, 4],
+    tasks: {
+      4: { id: 4, provisionalPlayerId: 0 },
+      5: { id: 5, provisionalPlayerId: 2 },
+      6: { id: 6, provisionalPlayerId: 1 },
+      7: { id: 7 },
+    },
   };
   const leftoverTasks = shuffle([...Array(96).keys()].filter(num => num < 4 || num > 7));
 
@@ -111,13 +145,16 @@ describe('kickTask', () => {
     state.unassignedTasks = unassignedTasks;
     state.leftoverTasks = leftoverTasks;
     const newState = Actions.kickTask(state, 5);
-    expect(newState.unassignedTasks[4]).toEqual({ id: 4, provisionalPlayerId: 0 });
-    expect(newState.unassignedTasks[6]).toEqual({ id: 6, provisionalPlayerId: 1 });
-    expect(newState.unassignedTasks[7]).toEqual({ id: 7 });
-    expect(newState.unassignedTasks[5]).toBeUndefined();
-    expect(Object.keys(newState.unassignedTasks).length).toBeGreaterThan(3);
+    expect(newState.unassignedTasks.tasks[4]).toEqual({ id: 4, provisionalPlayerId: 0 });
+    expect(newState.unassignedTasks.tasks[6]).toEqual({ id: 6, provisionalPlayerId: 1 });
+    expect(newState.unassignedTasks.tasks[7]).toEqual({ id: 7 });
+    expect(newState.unassignedTasks.tasks[5]).toBeUndefined();
+    expect(newState.unassignedTasks.order[0]).toEqual(7);
+    expect(newState.unassignedTasks.order[1]).toEqual(6);
+    expect(newState.unassignedTasks.order[2]).toEqual(4);
+    expect(Object.keys(newState.unassignedTasks.tasks).length).toBeGreaterThan(3);
 
-    const difficulties = Object.keys(newState.unassignedTasks).map(taskId => TASKS_DATA[taskId].difficulty[0]);
+    const difficulties = Object.keys(newState.unassignedTasks.tasks).map(taskId => TASKS_DATA[taskId].difficulty[0]);
     expect(sum(difficulties)).toEqual(6);
   });
   it('replaces the correct amount of difficulty for 4P', () => {
@@ -126,8 +163,9 @@ describe('kickTask', () => {
     state.leftoverTasks = leftoverTasks;
     state.players.push({});
     const newState = Actions.kickTask(state, 7);
-    expect(newState.unassignedTasks[7]).toBeUndefined();
-    const difficulties = Object.keys(newState.unassignedTasks).map(taskId => TASKS_DATA[taskId].difficulty[1]);
+    expect(newState.unassignedTasks.tasks[7]).toBeUndefined();
+    expect(newState.unassignedTasks.order[0]).toEqual(5);
+    const difficulties = Object.keys(newState.unassignedTasks.tasks).map(taskId => TASKS_DATA[taskId].difficulty[1]);
     expect(sum(difficulties)).toEqual(9);
   });
   it('replaces the correct amount of difficulty for 5P', () => {
@@ -137,8 +175,9 @@ describe('kickTask', () => {
     state.players.push({});
     state.players.push({});
     const newState = Actions.kickTask(state, 7);
-    expect(newState.unassignedTasks[7]).toBeUndefined();
-    const difficulties = Object.keys(newState.unassignedTasks).map(taskId => TASKS_DATA[taskId].difficulty[2]);
+    expect(newState.unassignedTasks.tasks[7]).toBeUndefined();
+    expect(newState.unassignedTasks.order[0]).toEqual(5);
+    const difficulties = Object.keys(newState.unassignedTasks.tasks).map(taskId => TASKS_DATA[taskId].difficulty[2]);
     expect(sum(difficulties)).toEqual(11);
   });
   it('uses tasks in order from leftoverTasks', () => {
@@ -149,21 +188,23 @@ describe('kickTask', () => {
 
     state.leftoverTasks = [70, 71, 72, 74, 77];
     const newState1 = Actions.kickTask(state, 7);
-    expect(newState1.unassignedTasks[7]).toBeUndefined();
-    expect(newState1.unassignedTasks[70]).toBeDefined();
-    expect(newState1.unassignedTasks[71]).toBeDefined();
-    expect(newState1.unassignedTasks[72]).toBeUndefined();
-    expect(newState1.unassignedTasks[74]).toBeUndefined();
-    expect(newState1.unassignedTasks[77]).toBeDefined();
-    expect(Object.keys(newState1.unassignedTasks).length).toEqual(6);
+    expect(newState1.unassignedTasks.tasks[7]).toBeUndefined();
+    expect(newState1.unassignedTasks.tasks[70]).toBeDefined();
+    expect(newState1.unassignedTasks.tasks[71]).toBeDefined();
+    expect(newState1.unassignedTasks.tasks[72]).toBeUndefined();
+    expect(newState1.unassignedTasks.tasks[74]).toBeUndefined();
+    expect(newState1.unassignedTasks.tasks[77]).toBeDefined();
+    expect(newState1.unassignedTasks.order).toEqual([5, 6, 4, 70, 71, 77]);
+    expect(Object.keys(newState1.unassignedTasks.tasks).length).toEqual(6);
 
     state.leftoverTasks = [72, 73, 74];
     const newState2 = Actions.kickTask(state, 7);
-    expect(newState2.unassignedTasks[7]).toBeUndefined();
-    expect(newState2.unassignedTasks[72]).toBeDefined();
-    expect(newState2.unassignedTasks[73]).toBeUndefined();
-    expect(newState2.unassignedTasks[74]).toBeUndefined();
-    expect(Object.keys(newState2.unassignedTasks).length).toEqual(4);
+    expect(newState2.unassignedTasks.tasks[7]).toBeUndefined();
+    expect(newState2.unassignedTasks.tasks[72]).toBeDefined();
+    expect(newState2.unassignedTasks.tasks[73]).toBeUndefined();
+    expect(newState2.unassignedTasks.tasks[74]).toBeUndefined();
+    expect(newState2.unassignedTasks.order).toEqual([5, 6, 4, 72]);
+    expect(Object.keys(newState2.unassignedTasks.tasks).length).toEqual(4);
   });
 });
 
@@ -176,27 +217,36 @@ describe('finalizeTasksAndRuleset', () => {
   it('throws if any task has no provisionalPlayerId', () => {
     const state = createGameState();
     state.unassignedTasks = {
-      4: { id: 4, provisionalPlayerId: 0 },
-      5: { id: 5 },
+      order: [4, 5],
+      tasks: {
+        4: { id: 4, provisionalPlayerId: 0 },
+        5: { id: 5 },
+      },
     };
     expect(() => Actions.finalizeTasksAndRuleset(state, ruleset)).toThrow(Error);
   });
   it('throws if a task is assigned to a nonexistent player', () => {
     const state = createGameState();
     state.unassignedTasks = {
-      4: { id: 4, provisionalPlayerId: 3 },
+      order: [4],
+      tasks: {
+        4: { id: 4, provisionalPlayerId: 3 },
+      },
     };
     expect(() => Actions.finalizeTasksAndRuleset(state, ruleset)).toThrow(Error);
   });
   it('moves tasks to player data and saves ruleset', () => {
     const state = createGameState();
     state.unassignedTasks = {
-      4: { id: 4, provisionalPlayerId: 0 },
-      5: { id: 5, provisionalPlayerId: 2 },
-      6: { id: 6, provisionalPlayerId: 1 },
-      7: { id: 7, provisionalPlayerId: 0 },
-      94: { id: 94, provisionalPlayerId: 0, data: { n: 0 } },
-      95: { id: 95, provisionalPlayerId: 1, data: { n: 5 } },
+      order: [4, 5, 6, 7, 94, 95],
+      tasks: {
+        4: { id: 4, provisionalPlayerId: 0 },
+        5: { id: 5, provisionalPlayerId: 2 },
+        6: { id: 6, provisionalPlayerId: 1 },
+        7: { id: 7, provisionalPlayerId: 0 },
+        94: { id: 94, provisionalPlayerId: 0, data: { n: 0 } },
+        95: { id: 95, provisionalPlayerId: 1, data: { n: 5 } },
+      },
     };
     delete state.players[0].tasks;
     delete state.players[1].tasks;

@@ -144,15 +144,18 @@ export function dealTasks(state: GameState, difficulty: number): GameState {
 
   const newState = structuredClone(state);
 
-  newState.unassignedTasks = tasksToUse.reduce(
-    (acc, taskId) => ({
-      ...acc,
-      [taskId]: {
-        id: taskId,
-      },
-    }),
-    {} as UnassignedTaskList,
-  );
+  newState.unassignedTasks = {
+    order: tasksToUse,
+    tasks: tasksToUse.reduce(
+      (acc, taskId) => ({
+        ...acc,
+        [taskId]: {
+          id: taskId,
+        },
+      }),
+      {} as UnassignedTaskList,
+    ),
+  };
   newState.leftoverTasks = skippedTasks.concat(remainingTasks);
 
   return newState;
@@ -160,22 +163,22 @@ export function dealTasks(state: GameState, difficulty: number): GameState {
 
 export function toggleClaimTask(state: GameState, playerId: number, taskId: number): GameState {
   const newState = structuredClone(state);
-  if (!newState.unassignedTasks?.[taskId]) throw new Error('Cannot claim task that is not in the game');
-  const shouldToggleOff = newState.unassignedTasks[taskId].provisionalPlayerId === playerId;
-  newState.unassignedTasks[taskId] = {
+  if (!newState.unassignedTasks?.tasks[taskId]) throw new Error('Cannot claim task that is not in the game');
+  const shouldToggleOff = newState.unassignedTasks.tasks[taskId].provisionalPlayerId === playerId;
+  newState.unassignedTasks.tasks[taskId] = {
     id: taskId,
   };
   if (!shouldToggleOff) {
-    newState.unassignedTasks[taskId].provisionalPlayerId = playerId;
+    newState.unassignedTasks.tasks[taskId].provisionalPlayerId = playerId;
   }
   return newState;
 }
 
 export function addDataToTask(state: GameState, playerId: number, taskId: number, data: TaskData): GameState {
   const newState = structuredClone(state);
-  if (!newState.unassignedTasks?.[taskId]) throw new Error('Cannot add data to task that is not in the game');
-  newState.unassignedTasks[taskId].data = data;
-  newState.unassignedTasks[taskId].provisionalPlayerId = playerId;
+  if (!newState.unassignedTasks?.tasks[taskId]) throw new Error('Cannot add data to task that is not in the game');
+  newState.unassignedTasks.tasks[taskId].data = data;
+  newState.unassignedTasks.tasks[taskId].provisionalPlayerId = playerId;
   return newState;
 }
 
@@ -198,9 +201,13 @@ export function kickTask(state: GameState, taskId: number): GameState {
 
   const newState = structuredClone(state);
 
-  delete newState.unassignedTasks![taskId];
+  const orderPos = newState.unassignedTasks!.order.indexOf(taskId);
+  newState.unassignedTasks!.order.splice(orderPos, 1);
+  delete newState.unassignedTasks!.tasks[taskId];
+
   tasksToUse.forEach(taskId => {
-    newState.unassignedTasks![taskId] = { id: taskId };
+    newState.unassignedTasks!.order.push(taskId);
+    newState.unassignedTasks!.tasks[taskId] = { id: taskId };
   });
   newState.leftoverTasks = skippedTasks.concat(remainingTasks);
 
@@ -216,7 +223,7 @@ export function finalizeTasksAndRuleset(state: GameState, ruleset: Ruleset): Gam
   }
 
   const { unassignedTasks, ...newState } = structuredClone(state);
-  for (const task of Object.values(unassignedTasks!)) {
+  for (const task of Object.values(unassignedTasks!.tasks)) {
     const playerId = task.provisionalPlayerId!;
     if (!newState.players[playerId]) throw new Error('Cannot assign task to nonexistent player');
     if (!newState.players[playerId].tasks) {

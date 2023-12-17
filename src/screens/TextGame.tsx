@@ -162,8 +162,9 @@ function AssignTasksView(props: AssignTasksViewProps) {
   return (
     <>
       <div>Tasks:</div>
-      {Object.values(props.state.unassignedTasks).map(task => {
-        const taskData = TASKS_DATA[task.id];
+      {props.state.unassignedTasks.order.map(taskId => {
+        const task = props.state.unassignedTasks!.tasks[taskId];
+        const taskData = TASKS_DATA[taskId];
         const shouldShowXTricksSelector =
           taskData.requiresExtraData &&
           (props.playerId === task.provisionalPlayerId || (task.id === 95 && 'data' in task));
