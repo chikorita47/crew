@@ -1,0 +1,74 @@
+.container {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  padding: 10vw;
+  column-gap: 10vw;
+  row-gap: 10vw;
+}
+
+.taskCardContainer {
+  position: relative;
+}
+
+.taskCard {
+  background-color: #b6e4ff;
+  border: 0.6vw solid #004aad;
+  border-radius: 2vw;
+  padding: 4vw;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  aspect-ratio: 7/10;
+}
+
+.taskCard.finished {
+  opacity: 30%;
+}
+
+.taskText {
+  font-size: 5vw;
+}
+
+.taskSubtext {
+  margin-top: 4vw;
+  font-size: 3vw;
+}
+
+.difficulty {
+  position: absolute;
+  top: 0;
+  left: 0;
+  transform: translate(-40%, -40%);
+  background-color: #004aad;
+  color: white;
+  border-radius: 5vw;
+  font-size: 6vw;
+  text-align: center;
+  padding-top: 0.25vw;
+  padding-left: 0.25vw;
+  width: 8vw;
+  height: 8vw;
+}
+
+.status {
+  position: absolute;
+  top: 0;
+  right: 0;
+  transform: translate(25%, -25%);
+  color: white;
+  border-radius: 6vw;
+  font-size: 10vw;
+  text-align: center;
+  width: 12vw;
+  height: 12vw;
+}
+
+.status.success {
+  background-color: green;
+  padding-top: 0.25vw;
+}
+
+.status.fail {
+  background-color: brown;
+}

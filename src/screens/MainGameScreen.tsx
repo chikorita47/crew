@@ -143,6 +143,7 @@ function MainGameScreen() {
   const playerId = 0;
   const self = players[playerId];
   const otherPlayers = getOtherPlayersOrder(playerId, numberOfPlayers).map(id => players[id]);
+  const code = 'GHSF';
   return (
     <div className={styles.gameContainer}>
       <div className={styles.upperGameContainer}>
@@ -158,12 +159,15 @@ function MainGameScreen() {
           selectedCardIndex={selectedCardIndex}
           onSelectCard={index => setSelectedCardIndex(index)}
         />
-        <div className={styles.statusContainer}>Waiting for Michael to play...</div>
+        <div className={styles.bottomOverlay}>
+          <div className={styles.statusContainer}>Waiting for Michael to play...</div>
+          <div className={styles.codeContainer}>{code}</div>
+        </div>
       </div>
       {selectedCardIndex !== undefined && (
         <div className={styles.textButtonContainer}>
           <div className={styles.textButton}>PLAY</div>
-          <div className={styles.textButton}>HINT</div>
+          <div className={[styles.textButton, styles.disabled].join(' ')}>HINT</div>
         </div>
       )}
       {selectedCardIndex !== undefined && selectedCardIndex !== 0 && (
