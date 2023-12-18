@@ -1,135 +1,16 @@
 'use client';
 
 import React, { useState } from 'react';
+import * as Actions from '../actions';
 import Button from '../components/Button';
 import styles from './game.module.css';
-import { Card, Player, Trick } from '../types';
+import { GameState } from '../types';
+import * as Selectors from '../selectors';
 import BottomOverlay from '../views/BottomOverlay';
 import OtherPlayersView from '../views/OtherPlayersView';
 import TrickView from '../views/TrickView';
 import SelfView from '../views/SelfView';
 import HandView from '../views/HandView';
-
-const hand = [
-  {
-    number: 3,
-    suit: 'black',
-  },
-  {
-    number: 2,
-    suit: 'black',
-  },
-  {
-    number: 1,
-    suit: 'black',
-  },
-  {
-    number: 6,
-    suit: 'blue',
-  },
-  {
-    number: 5,
-    suit: 'blue',
-  },
-  {
-    number: 2,
-    suit: 'blue',
-  },
-  {
-    number: 7,
-    suit: 'green',
-  },
-  {
-    number: 2,
-    suit: 'green',
-  },
-  {
-    number: 7,
-    suit: 'yellow',
-  },
-  {
-    number: 4,
-    suit: 'yellow',
-  },
-  {
-    number: 1,
-    suit: 'yellow',
-  },
-  {
-    number: 9,
-    suit: 'pink',
-  },
-  {
-    number: 2,
-    suit: 'pink',
-  },
-  {
-    number: 1,
-    suit: 'pink',
-  },
-];
-
-const trick = {
-  winner: 2,
-  leader: 0,
-  cards: [
-    { number: 3, suit: 'green' },
-    { number: 9, suit: 'blue' },
-    { number: 5, suit: 'yellow' },
-    { number: 5, suit: 'pink' },
-    { number: 1, suit: 'black' },
-  ],
-};
-
-const players = [
-  {
-    id: 0,
-    key: 'AAAA',
-    name: 'Nathan',
-    hint: { used: true, card: { number: 9, suit: 'blue' }, placement: 'top' },
-    tasks: { 23: { id: 23, done: false }, 14: { id: 14, done: true } },
-    isCaptain: true,
-    isDealer: false,
-    extraCards: 1,
-  },
-  {
-    id: 1,
-    key: 'BBBB',
-    name: 'Eric',
-    hint: { used: true },
-    tasks: {},
-    isCaptain: false,
-    isDealer: false,
-    extraCards: 0,
-  },
-  {
-    id: 2,
-    key: 'CCCC',
-    name: 'Melora',
-    hint: { used: false },
-    isCaptain: false,
-    isDealer: false,
-    extraCards: 0,
-  },
-  {
-    id: 3,
-    key: 'DDDD',
-    name: 'Michael',
-    hint: { used: false },
-    isCaptain: false,
-    isDealer: true,
-    extraCards: 0,
-  },
-  {
-    id: 4,
-    key: 'EEEE',
-    name: 'Rachel',
-    hint: { used: false },
-    isCaptain: false,
-    isDealer: false,
-    extraCards: 0,
-  },
-];
 
 function getOtherPlayersOrder(playerId: number, numberOfPlayers: number): number[] {
   const order: number[] = [];
@@ -139,34 +20,84 @@ function getOtherPlayersOrder(playerId: number, numberOfPlayers: number): number
   return order;
 }
 
-function MainGameScreen() {
+type MainGameScreenProps = {
+  state: GameState;
+  code: string;
+  playerId: number;
+  onPressPlayer: (playerId: number) => void;
+};
+function MainGameScreen({ state, code, playerId, onPressPlayer }: MainGameScreenProps) {
   const [selectedCardIndex, setSelectedCardIndex] = useState<number | undefined>();
-  const numberOfPlayers = trick.cards.length;
-  const playerId = 0;
-  const self = players[playerId];
-  const otherPlayers = getOtherPlayersOrder(playerId, numberOfPlayers).map(id => players[id]);
-  const code = 'GHSF';
+  const player = Selectors.getPlayer(state, playerId);
+  const hand = Selectors.getPlayerHand(state, playerId);
+  const nextPlayerId = Selectors.getNextPlayerId(state);
+  const numberOfPlayers = Selectors.getNumberOfPlayers(state);
+  const otherPlayers = Selectors.getPlayers(state);
+  const otherPlayersInOrder = getOtherPlayersOrder(playerId, numberOfPlayers).map(id => otherPlayers[id]);
+  const tricksWon = Selectors.getPlayersTricksWon(state);
+  const hintMode = Selectors.getHintMode(state);
+
+  const isAnyCardSelected = selectedCardIndex || selectedCardIndex === 0;
+  const isSelectedCardLegalToPlay =
+    isAnyCardSelected && Selectors.getIsCardLegalToPlay(state, playerId, selectedCardIndex);
+  const canGiveHint = Selectors.getIsBetweenTricks(state) && !player.hint?.used && !Selectors.getAreAllHintsUsed(state);
+
   return (
     <div className={styles.gameContainer}>
       <div className={styles.upperGameContainer}>
-        <OtherPlayersView players={otherPlayers as Player[]} />
+        <OtherPlayersView
+          players={otherPlayersInOrder}
+          tricksWonByPlayers={tricksWon}
+          hintMode={hintMode}
+          onPressPlayer={onPressPlayer}
+        />
       </div>
       <div className={styles.trickContainer}>
-        <TrickView trick={trick as Trick} numberOfPlayers={numberOfPlayers} playerId={playerId} />
+        <TrickView trick={Selectors.getCurrentTrick(state)} numberOfPlayers={numberOfPlayers} playerId={playerId} />
       </div>
       <div className={styles.lowerGameContainer}>
-        <SelfView player={self as Player} />
+        <SelfView
+          player={player}
+          tricksWon={tricksWon[playerId]}
+          hintMode={hintMode}
+          onPress={() => onPressPlayer(playerId)}
+        />
         <HandView
-          hand={hand as Card[]}
+          hand={hand}
           selectedCardIndex={selectedCardIndex}
           onSelectCard={index => setSelectedCardIndex(index)}
         />
-        <BottomOverlay status="Waiting for Michael to play..." code={code} />
+        <BottomOverlay status={Selectors.getStatusText(state, playerId)} code={code} />
       </div>
-      {selectedCardIndex !== undefined && (
+      {isAnyCardSelected && (
         <div className={styles.textButtonContainer}>
-          <Button text="PLAY" onPress={() => {}} big />
-          <Button text="HINT" onPress={() => {}} big disabled />
+          <Button
+            text="PLAY"
+            disabled={nextPlayerId !== playerId || !isSelectedCardLegalToPlay}
+            onPress={() => {
+              if (!isAnyCardSelected) {
+                throw new Error('Clicked Play Card when no card was selected');
+              }
+              const index = selectedCardIndex;
+              setSelectedCardIndex(undefined);
+              Actions.updateState(Actions.playCard(state, playerId, index), code);
+            }}
+            big
+          />
+          {canGiveHint && (
+            <Button
+              text="HINT"
+              onPress={() => {
+                if (!isAnyCardSelected) {
+                  throw new Error('Clicked Place Hint when no card was selected');
+                }
+                const index = selectedCardIndex;
+                setSelectedCardIndex(undefined);
+                Actions.updateState(Actions.giveHint(state, playerId, index), code);
+              }}
+              big
+            />
+          )}
         </div>
       )}
       {selectedCardIndex !== undefined && selectedCardIndex !== 0 && (

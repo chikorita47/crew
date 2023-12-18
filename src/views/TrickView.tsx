@@ -21,19 +21,19 @@ type TrickViewProps = {
   numberOfPlayers: number;
   playerId: number;
 };
-function TrickView(props: TrickViewProps) {
+function TrickView({ trick, numberOfPlayers, playerId }: TrickViewProps) {
   return (
     <div className={[styles.trick, cityMedium.className].join(' ')}>
-      {props.trick.cards?.map((card, index) => {
-        const player = (index + props.trick.leader) % props.numberOfPlayers;
+      {trick.cards?.map((card, index) => {
+        const player = (index + trick.leader) % numberOfPlayers;
         return (
           <div
             key={`trick-${index}`}
             className={[
               styles.trickCard,
-              trickCardStyle(player, props.playerId, props.trick.cards!.length),
+              trickCardStyle(player, playerId, numberOfPlayers),
               card.suit,
-              player === props.trick.winner ? styles.trickWinner : null,
+              player === trick.winner ? styles.trickWinner : null,
             ]
               .filter(v => v)
               .join(' ')}>

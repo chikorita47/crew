@@ -3,21 +3,24 @@
 import React from 'react';
 import { cityMedium } from '../fonts';
 import styles from './playerStateView.module.css';
-import { Hint } from '../types';
+import { Hint, RulesetHintMode } from '../types';
 
 type PlayerStateViewProps = {
   hint?: Hint;
+  hintMode: RulesetHintMode;
   tasksDone: number;
   tasksTotal: number;
   tricksWon: number;
 };
-function PlayerStateView({ hint, tasksDone, tasksTotal, tricksWon }: PlayerStateViewProps) {
+function PlayerStateView({ hint, hintMode, tasksDone, tasksTotal, tricksWon }: PlayerStateViewProps) {
   return (
     <div className={styles.container}>
       {hint?.card ? (
         <div className={[styles.hint, styles.given, cityMedium.className, hint.card.suit].join(' ')}>
           {hint.card.number}
-          {!!hint.placement && <div className={[styles.token, styles[hint.placement]].join(' ')} />}
+          {!!hint.placement && hintMode !== RulesetHintMode.NO_TOKENS && (
+            <div className={[styles.token, styles[hint.placement]].join(' ')} />
+          )}
         </div>
       ) : (
         <div className={[styles.hint, hint?.used ? styles.used : styles.unused].join(' ')} />

@@ -16,7 +16,11 @@ export type Trick = {
   leader: number;
 };
 
-export type HintPlacement = 'top' | 'middle' | 'bottom';
+export enum HintPlacement {
+  TOP = 'top',
+  MIDDLE = 'middle',
+  BOTTOM = 'bottom',
+}
 export type Hint = {
   used: boolean;
   card?: Card;
@@ -60,7 +64,11 @@ export type Player = {
   extraCards?: number;
 };
 
-export type RulesetHintMode = 'default' | 'fewer' | 'noTokens';
+export enum RulesetHintMode {
+  DEFAULT = 'default',
+  FEWER = 'fewer',
+  NO_TOKENS = 'noTokens',
+}
 export type Ruleset = {
   hintMode: RulesetHintMode;
   timeInSeconds?: number;

@@ -146,7 +146,7 @@ type AssignTasksViewProps = {
 };
 function AssignTasksView(props: AssignTasksViewProps) {
   const isHost = Selectors.getIsPlayerHost(props.state, props.playerId);
-  const [hintMode, setHintMode] = useState<RulesetHintMode>('default');
+  const [hintMode, setHintMode] = useState<RulesetHintMode>(RulesetHintMode.DEFAULT);
   const [timeInSeconds, setTimeInSeconds] = useState<number | undefined>();
 
   if (!props.state.unassignedTasks) {
@@ -216,8 +216,8 @@ function AssignTasksView(props: AssignTasksViewProps) {
               id="hintModeDefault"
               name="hintMode"
               value="default"
-              checked={hintMode === 'default'}
-              onClick={() => setHintMode('default')}
+              checked={hintMode === RulesetHintMode.DEFAULT}
+              onClick={() => setHintMode(RulesetHintMode.DEFAULT)}
             />
             <label htmlFor="hintModeDefault">Default</label>
             <input
@@ -225,8 +225,8 @@ function AssignTasksView(props: AssignTasksViewProps) {
               id="hintModeFewer"
               name="hintMode"
               value="fewer"
-              checked={hintMode === 'fewer'}
-              onClick={() => setHintMode('fewer')}
+              checked={hintMode === RulesetHintMode.FEWER}
+              onClick={() => setHintMode(RulesetHintMode.FEWER)}
             />
             <label htmlFor="hintModeFewer">2 Fewer</label>
             <input
@@ -234,8 +234,8 @@ function AssignTasksView(props: AssignTasksViewProps) {
               id="hintModeNoTokens"
               name="hintMode"
               value="noTokens"
-              checked={hintMode === 'noTokens'}
-              onClick={() => setHintMode('noTokens')}
+              checked={hintMode === RulesetHintMode.NO_TOKENS}
+              onClick={() => setHintMode(RulesetHintMode.NO_TOKENS)}
             />
             <label htmlFor="hintModeNoTokens">No Tokens</label>
           </div>
@@ -277,7 +277,7 @@ function getHintString(player: Player, hintMode: RulesetHintMode): string | null
       bottom: 'lowest',
     };
     if (player.hint.card && player.hint.placement) {
-      if (hintMode === 'noTokens') {
+      if (hintMode === RulesetHintMode.NO_TOKENS) {
         return `${player.hint.card.number} ${player.hint.card.suit} (no token)`;
       }
       return `${player.hint.card.number} is my ${placementString[player.hint.placement]} ${player.hint.card.suit}`;

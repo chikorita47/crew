@@ -323,11 +323,11 @@ export function getHintPlacement(state: GameState, playerId: number, cardIndex: 
   const highestNumberOfHintSuit = Math.max(...cardsOfHintSuit);
   const lowestNumberOfHintSuit = Math.min(...cardsOfHintSuit);
   if (hintCard.number === highestNumberOfHintSuit && hintCard.number === lowestNumberOfHintSuit) {
-    return 'middle';
+    return HintPlacement.MIDDLE;
   } else if (hintCard.number === highestNumberOfHintSuit) {
-    return 'top';
+    return HintPlacement.TOP;
   } else if (hintCard.number === lowestNumberOfHintSuit) {
-    return 'bottom';
+    return HintPlacement.BOTTOM;
   }
   throw new Error('Cannot give a hint about this card');
 }

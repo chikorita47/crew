@@ -1,4 +1,20 @@
-import { Suit, Card, Trick, Hint, GameState, Player, RulesetHintMode, TaskData } from './types';
+import {
+  Suit,
+  Card,
+  Trick,
+  Hint,
+  GameState,
+  Player,
+  RulesetHintMode,
+  TaskData,
+  UnassignedTask,
+  PlayerTaskList,
+  UnassignedTaskList,
+} from './types';
+
+export function getPlayers(state: GameState): Player[] {
+  return state.players;
+}
 
 export function getCaptain(state: GameState): Player {
   const captain = state.players.find(player => player.isCaptain);
@@ -58,8 +74,22 @@ export function getTaskDataForPlayer(state: GameState, playerId: number, taskId:
   return task.data;
 }
 
+export function getPlayerNamesById(state: GameState): string[] {
+  return state.players.map(player => player.name);
+}
+
 export function getUnassignedTasksExist(state: GameState): boolean {
   return !!Object.keys(state.unassignedTasks?.tasks ?? []).length;
+}
+
+export function getUnassignedTasks(state: GameState): UnassignedTaskList {
+  if (!state.unassignedTasks) throw new Error('No unassigned tasks exist');
+  return state.unassignedTasks.tasks;
+}
+
+export function getUnassignedTasksOrdered(state: GameState): UnassignedTask[] {
+  if (!state.unassignedTasks) throw new Error('No unassigned tasks exist');
+  return state.unassignedTasks.order.map(taskId => state.unassignedTasks!.tasks[taskId]);
 }
 
 export function getAreAllTasksAssigned(state: GameState): boolean {
@@ -108,14 +138,16 @@ export function getAreAllTasksDone(state: GameState): boolean {
 }
 
 export function getHintMode(state: GameState): RulesetHintMode {
-  return state.ruleset?.hintMode || 'default';
+  return state.ruleset?.hintMode || RulesetHintMode.DEFAULT;
 }
 
 export function getAreAllHintsUsed(state: GameState): boolean {
   const hintMode = getHintMode(state);
   const numberOfPlayers = getNumberOfPlayers(state);
   const numberOfHintsUsed = state.players.filter(player => player.hint?.used).length;
-  return hintMode === 'fewer' ? numberOfHintsUsed + 2 >= numberOfPlayers : numberOfHintsUsed >= numberOfPlayers;
+  return hintMode === RulesetHintMode.FEWER
+    ? numberOfHintsUsed + 2 >= numberOfPlayers
+    : numberOfHintsUsed >= numberOfPlayers;
 }
 
 export function getCurrentTrickId(state: GameState): number {
@@ -146,8 +178,25 @@ export function getPlayerTricksWon(state: GameState, playerId: number): number {
   return state.tricks.filter(trick => trick.winner === playerId).length;
 }
 
+export function getPlayersTricksWon(state: GameState): number[] {
+  const zeroes = state.players.map(() => 0);
+  if (!state.tricks) {
+    return zeroes;
+  }
+  return state.tricks.reduce((acc, trick) => {
+    if (trick.winner !== undefined) {
+      acc[trick.winner]++;
+    }
+    return acc;
+  }, zeroes);
+}
+
 export function getPlayerHint(state: GameState, playerId: number): Hint {
   return state.players[playerId].hint ?? { used: false };
+}
+
+export function getPlayerTasks(state: GameState, playerId: number): PlayerTaskList {
+  return state.players[playerId].tasks ?? {};
 }
 
 export function getPlayerCard(state: GameState, playerId: number, cardIndex: number): Card {
@@ -158,7 +207,7 @@ export function getPlayerCard(state: GameState, playerId: number, cardIndex: num
 
 export function getPlayerHand(state: GameState, playerId: number): Card[] {
   const hand = state.players[playerId].hand;
-  if (!hand) throw new Error(`Could not find hand for player ${playerId}`);
+  if (!hand) return [];
   return hand;
 }
 
@@ -200,12 +249,7 @@ export function getNextPlayerId(state: GameState): number {
 
 export function getStatusText(state: GameState, playerId: number): string {
   if (getUnassignedTasksExist(state)) {
-    if (getIsPlayerDealer(state, playerId)) {
-      return 'Discuss the task cards with your teammates. Press and hold to claim one.\nOnce all tasks are claimed, you may start the game.';
-    }
-    return `Discuss the task cards with your teammates. Press and hold to claim one.\n${getDealerName(
-      state,
-    )} will start the game once all tasks are claimed.`;
+    return 'Claim your tasks.';
   }
 
   if (getIsGameFinished(state)) {
@@ -215,9 +259,13 @@ export function getStatusText(state: GameState, playerId: number): string {
     return 'Game complete. You lost.';
   }
 
+  const currentTrick = getCurrentTrick(state);
+  const wasTrickJustWon = currentTrick.cards?.length === getNumberOfPlayers(state);
+
   const nextPlayerId = getNextPlayerId(state);
+  const nextPlayerName = getPlayerName(state, nextPlayerId);
   if (nextPlayerId === playerId) {
-    return 'Choose a card to play';
+    return `${wasTrickJustWon ? 'You won the trick. ' : ''}Choose a card to play.`;
   }
-  return `Waiting for ${getPlayerName(state, nextPlayerId)} to play a card`;
+  return `${wasTrickJustWon ? `${nextPlayerName} won the trick. ` : ''}Waiting for ${nextPlayerName} to play a card.`;
 }

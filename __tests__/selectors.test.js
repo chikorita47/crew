@@ -258,6 +258,49 @@ describe('getPlayerTricksWon', () => {
   });
 });
 
+describe('getPlayersTricksWon', () => {
+  it('returns the number of tricks each player has won', () => {
+    const state = createGameState();
+    state.tricks = [
+      {
+        winner: 0,
+        leader: 1,
+        cards: [
+          { number: 3, suit: 'green' },
+          { number: 9, suit: 'blue' },
+          { number: 5, suit: 'green' },
+        ],
+      },
+      {
+        winner: 1,
+        leader: 0,
+        cards: [
+          { number: 3, suit: 'green' },
+          { number: 9, suit: 'blue' },
+          { number: 5, suit: 'green' },
+        ],
+      },
+      {
+        winner: 1,
+        leader: 1,
+        cards: [
+          { number: 3, suit: 'green' },
+          { number: 9, suit: 'blue' },
+          { number: 5, suit: 'green' },
+        ],
+      },
+    ];
+    expect(Selectors.getPlayersTricksWon(state)).toEqual([1, 2, 0]);
+  });
+  it('returns an array of zeroes if no tricks have been won', () => {
+    const state = createGameState();
+    state.tricks = [];
+    expect(Selectors.getPlayersTricksWon(state)).toEqual([0, 0, 0]);
+    const { tricks, ...stateWithoutTricks } = state;
+    expect(Selectors.getPlayersTricksWon(stateWithoutTricks)).toEqual([0, 0, 0]);
+  });
+});
+
 describe('getLedSuitForCurrentTrick', () => {
   it('returns the led suit of the current trick', () => {
     expect(Selectors.getLedSuitForCurrentTrick(createGameState())).toBe('pink');

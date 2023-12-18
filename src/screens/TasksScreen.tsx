@@ -1,27 +1,61 @@
 'use client';
 
 import React from 'react';
+import * as Actions from '../actions';
 import { cityMedium } from '../fonts';
+import * as Selectors from '../selectors';
 import styles from './tasks.module.css';
+import { GameState, HintPlacement, RulesetHintMode } from '../types';
 import TaskListView from '../views/TaskListView';
 
-const tasks = [69, 39, 49, 56, 51, 94, 82, 59, 26, 28, 34, 80, 3, 22, 43, 57, 1, 86, 95, 74, 40, 91, 65, 0].map(
-  taskId => ({ id: taskId, done: !!(taskId % 2), failed: !(taskId % 9) }),
-);
+const placementString = {
+  [HintPlacement.TOP]: 'highest',
+  [HintPlacement.MIDDLE]: 'only',
+  [HintPlacement.BOTTOM]: 'lowest',
+};
 
-function TasksScreen() {
-  const difficultyIndex = 2;
+type TasksScreenProps = {
+  state: GameState;
+  code: string;
+  playerId: number;
+  isSelf: boolean;
+  onClose: () => void;
+};
+function TasksScreen({ state, code, playerId, isSelf, onClose }: TasksScreenProps) {
+  const tasks = Selectors.getPlayerTasks(state, playerId);
+  const hint = Selectors.getPlayerHint(state, playerId);
+  const hintMode = Selectors.getHintMode(state);
   return (
     <div className={styles.container}>
       <div className={styles.header}>
-        <div>Nathan&apos;s Tasks</div>
-        <div className={styles.hint}>
-          Hint: <span className={[styles.hintCard, 'green', cityMedium.className].join(' ')}>3</span> is my <b>only</b>{' '}
-          green
+        <div>{Selectors.getPlayerName(state, playerId)}&apos;s Tasks</div>
+        {!!hint && !!hint.card && (
+          <div className={styles.hint}>
+            Hint:{' '}
+            <span className={[styles.hintCard, hint.card.suit, cityMedium.className].join(' ')}>
+              {hint.card.number}
+            </span>{' '}
+            {hintMode === RulesetHintMode.NO_TOKENS ? (
+              <>(no tokens)</>
+            ) : (
+              <>
+                is my <b>{placementString[hint.placement!]}</b> {hint.card.suit}
+              </>
+            )}
+          </div>
+        )}
+        <div className={styles.closeButton} onClick={onClose}>
+          ✕
         </div>
-        <div className={styles.closeButton}>✕</div>
       </div>
-      <TaskListView tasks={tasks} difficultyIndex={difficultyIndex} />
+      <TaskListView
+        tasks={Object.values(tasks)}
+        difficultyIndex={Selectors.getNumberOfPlayers(state) - 2}
+        showHiddenData={isSelf}
+        onPress={
+          isSelf ? taskId => Actions.updateState(Actions.toggleTaskDone(state, playerId, taskId), code) : undefined
+        }
+      />
     </div>
   );
 }

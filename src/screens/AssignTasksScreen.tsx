@@ -2,81 +2,14 @@
 
 import React, { useState } from 'react';
 import styles from './assignTasks.module.css';
+import * as Actions from '../actions';
 import Button from '../components/Button';
 import Modal from '../components/Modal';
-import { Card, RulesetHintMode, TaskData } from '../types';
+import * as Selectors from '../selectors';
+import { GameState, Ruleset, RulesetHintMode, UnassignedTask } from '../types';
 import HandView from '../views/HandView';
 import BottomOverlay from '../views/BottomOverlay';
 import TaskListView from '../views/TaskListView';
-
-const tasks = [69, 94, 95, 39, 49, 56, 51, 94, 82, 59, 26, 28, 34, 80, 3, 22, 43, 57, 1, 86, 95, 74, 40, 91, 65, 0].map(
-  taskId => ({
-    id: taskId,
-    provisionalPlayerId: taskId % 5,
-    data: taskId === 94 || taskId === 95 ? { n: 3 } : undefined,
-  }),
-);
-
-const playerNames = ['Nathan', 'Eric', 'Melora', 'Michael', 'Rachel'];
-
-const hand = [
-  {
-    number: 3,
-    suit: 'black',
-  },
-  {
-    number: 2,
-    suit: 'black',
-  },
-  {
-    number: 1,
-    suit: 'black',
-  },
-  {
-    number: 6,
-    suit: 'blue',
-  },
-  {
-    number: 5,
-    suit: 'blue',
-  },
-  {
-    number: 2,
-    suit: 'blue',
-  },
-  {
-    number: 7,
-    suit: 'green',
-  },
-  {
-    number: 2,
-    suit: 'green',
-  },
-  {
-    number: 7,
-    suit: 'yellow',
-  },
-  {
-    number: 4,
-    suit: 'yellow',
-  },
-  {
-    number: 1,
-    suit: 'yellow',
-  },
-  {
-    number: 9,
-    suit: 'pink',
-  },
-  {
-    number: 2,
-    suit: 'pink',
-  },
-  {
-    number: 1,
-    suit: 'pink',
-  },
-];
 
 type XTricksSelectorViewProps = {
   onSubmit: (value: number) => void;
@@ -94,11 +27,36 @@ function XTricksSelectorView(props: XTricksSelectorViewProps) {
   );
 }
 
-function AssignTasksScreen() {
-  const difficultyIndex = 2;
-  const code = 'ABCD';
-  const isHost = true;
-  const [hintMode, setHintMode] = useState<RulesetHintMode>('default');
+function taskRequiringExtraDataOrNull(task: UnassignedTask, playerId: number): UnassignedTask | null {
+  return !!task && 'provisionalPlayerId' in task && playerId === task.provisionalPlayerId && !task.data ? task : null;
+}
+
+type AssignTaskScreenProps = {
+  state: GameState;
+  code: string;
+  playerId: number;
+  onFinalizeTasks: (state: GameState) => void;
+};
+function AssignTasksScreen({ state, code, playerId, onFinalizeTasks }: AssignTaskScreenProps) {
+  const isHost = Selectors.getIsPlayerHost(state, playerId);
+  const [hintMode, setHintMode] = useState<RulesetHintMode>(RulesetHintMode.DEFAULT);
+  // const [timeInSeconds, setTimeInSeconds] = useState<number | undefined>();
+
+  if (!Selectors.getUnassignedTasksExist(state)) {
+    throw new Error('Should not be rendering AssignTasksView when there are no unassigned tasks');
+  }
+
+  const difficultyIndex = Selectors.getNumberOfPlayers(state) - 3;
+  const ruleset: Ruleset = { hintMode };
+  // if (timeInSeconds) {
+  //   ruleset.timeInSeconds = timeInSeconds;
+  // }
+
+  const unassignedTasks = Selectors.getUnassignedTasks(state);
+  // TODO: make this better
+  const taskRequiringExtraData =
+    taskRequiringExtraDataOrNull(unassignedTasks[94], playerId) ??
+    taskRequiringExtraDataOrNull(unassignedTasks[95], playerId);
   return (
     <div className={styles.container}>
       {isHost && (
@@ -110,8 +68,8 @@ function AssignTasksScreen() {
               id="hintModeDefault"
               name="hintMode"
               value="default"
-              checked={hintMode === 'default'}
-              onClick={() => setHintMode('default')}
+              checked={hintMode === RulesetHintMode.DEFAULT}
+              onClick={() => setHintMode(RulesetHintMode.DEFAULT)}
             />
             <label htmlFor="hintModeDefault">Default</label>
             <input
@@ -119,8 +77,8 @@ function AssignTasksScreen() {
               id="hintModeFewer"
               name="hintMode"
               value="fewer"
-              checked={hintMode === 'fewer'}
-              onClick={() => setHintMode('fewer')}
+              checked={hintMode === RulesetHintMode.FEWER}
+              onClick={() => setHintMode(RulesetHintMode.FEWER)}
             />
             <label htmlFor="hintModeFewer">2 Fewer</label>
             <input
@@ -128,29 +86,47 @@ function AssignTasksScreen() {
               id="hintModeNoTokens"
               name="hintMode"
               value="noTokens"
-              checked={hintMode === 'noTokens'}
-              onClick={() => setHintMode('noTokens')}
+              checked={hintMode === RulesetHintMode.NO_TOKENS}
+              onClick={() => setHintMode(RulesetHintMode.NO_TOKENS)}
             />
             <label htmlFor="hintModeNoTokens">No Tokens</label>
           </div>
           <div className={styles.buttonContainer}>
-            <Button text="RE-DEAL" onPress={() => {}} />
-            <Button text="START GAME" onPress={() => {}} />
+            <Button
+              text="RE-DEAL"
+              onPress={() => Actions.updateState(Actions.dealPlayerHands(state, Selectors.getDealerId(state)), code)}
+            />
+            <Button
+              text="START GAME"
+              disabled={!Selectors.getAreAllTasksAssigned(state)}
+              onPress={() => {
+                const newState = Actions.finalizeTasksAndRuleset(state, ruleset);
+                Actions.updateState(newState, code);
+                onFinalizeTasks(newState);
+              }}
+            />
           </div>
         </div>
       )}
       <TaskListView
-        tasks={tasks}
+        tasks={Selectors.getUnassignedTasksOrdered(state)}
         difficultyIndex={difficultyIndex}
-        playerNames={playerNames}
-        playerId={0}
-        onKick={() => {}}
+        playerNames={Selectors.getPlayerNamesById(state)}
+        playerId={playerId}
+        onPress={taskId => Actions.updateState(Actions.toggleClaimTask(state, playerId, taskId), code)}
+        onKick={taskId => Actions.updateState(Actions.kickTask(state, taskId), code)}
       />
       <div className={styles.hand}>
-        <HandView hand={hand as Card[]} />
-        <BottomOverlay status="Waiting for Michael to play..." code={code} />
+        <HandView hand={Selectors.getPlayerHand(state, playerId)} />
+        <BottomOverlay status={Selectors.getStatusText(state, playerId)} code={code} />
       </div>
-      {/* <XTricksSelectorView onSubmit={() => {}} /> */}
+      {!!taskRequiringExtraData && (
+        <XTricksSelectorView
+          onSubmit={value =>
+            Actions.updateState(Actions.addDataToTask(state, playerId, taskRequiringExtraData.id, { n: value }), code)
+          }
+        />
+      )}
     </div>
   );
 }
