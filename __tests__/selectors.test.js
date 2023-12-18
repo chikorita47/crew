@@ -181,6 +181,20 @@ describe('getAreAllTasksDone', () => {
   });
 });
 
+describe('getHintPlacementForCard', () => {
+  it('returns null if the hint is invalid', () => {
+    const state = createGameState();
+    expect(Selectors.getHintPlacementForCard(state, 0, 0)).toBeNull();
+    expect(Selectors.getHintPlacementForCard(state, 1, 1)).toBeNull();
+  });
+  it('returns the correct placement of the hint token for a valid hint', () => {
+    const state = createGameState();
+    expect(Selectors.getHintPlacementForCard(state, 2, 0)).toEqual('middle');
+    expect(Selectors.getHintPlacementForCard(state, 2, 1)).toEqual('top');
+    expect(Selectors.getHintPlacementForCard(state, 2, 2)).toEqual('bottom');
+  });
+});
+
 describe('getAreAllHintsUsed', () => {
   it('returns false if there are hints remaining', () => {
     const state = createGameState();

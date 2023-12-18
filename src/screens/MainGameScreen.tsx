@@ -40,8 +40,8 @@ function MainGameScreen({ state, code, playerId, onPressPlayer }: MainGameScreen
   const isAnyCardSelected = selectedCardIndex || selectedCardIndex === 0;
   const isSelectedCardLegalToPlay =
     isAnyCardSelected && Selectors.getIsCardLegalToPlay(state, playerId, selectedCardIndex);
-  const canGiveHint = Selectors.getIsBetweenTricks(state) && !player.hint?.used && !Selectors.getAreAllHintsUsed(state);
-
+  const canGiveHint = isAnyCardSelected && Selectors.getCanPlayerGiveHint(state, playerId);
+  const hintPlacement = canGiveHint && Selectors.getHintPlacementForCard(state, playerId, selectedCardIndex);
   return (
     <div className={styles.gameContainer}>
       <div className={styles.upperGameContainer}>
@@ -88,16 +88,19 @@ function MainGameScreen({ state, code, playerId, onPressPlayer }: MainGameScreen
             }}
             big
           />
-          {canGiveHint && (
+          {canGiveHint && !!hintPlacement && (
             <Button
               text="HINT"
               onPress={() => {
                 if (!isAnyCardSelected) {
                   throw new Error('Clicked Place Hint when no card was selected');
                 }
+                if (!hintPlacement) {
+                  throw new Error('Cannot give this hint right now');
+                }
                 const index = selectedCardIndex;
                 setSelectedCardIndex(undefined);
-                Actions.updateState(Actions.giveHint(state, playerId, index), code);
+                Actions.updateState(Actions.giveHint(state, playerId, index, hintPlacement), code);
               }}
               big
             />

@@ -10,6 +10,7 @@ import {
   UnassignedTask,
   PlayerTaskList,
   UnassignedTaskList,
+  HintPlacement,
 } from './types';
 
 export function getPlayers(state: GameState): Player[] {
@@ -141,6 +142,22 @@ export function getDifficulty(state: GameState): number | undefined {
   return state.difficulty;
 }
 
+export function getHintPlacementForCard(state: GameState, playerId: number, cardIndex: number): HintPlacement | null {
+  const hintCard = getPlayerCard(state, playerId, cardIndex);
+  if (hintCard.suit === Suit.BLACK) return null;
+  const cardsOfHintSuit = getPlayerCardsOfSuit(state, playerId, hintCard.suit).map(card => card.number);
+  const highestNumberOfHintSuit = Math.max(...cardsOfHintSuit);
+  const lowestNumberOfHintSuit = Math.min(...cardsOfHintSuit);
+  if (hintCard.number === highestNumberOfHintSuit && hintCard.number === lowestNumberOfHintSuit) {
+    return HintPlacement.MIDDLE;
+  } else if (hintCard.number === highestNumberOfHintSuit) {
+    return HintPlacement.TOP;
+  } else if (hintCard.number === lowestNumberOfHintSuit) {
+    return HintPlacement.BOTTOM;
+  }
+  return null;
+}
+
 export function getHintMode(state: GameState): RulesetHintMode {
   return state.ruleset?.hintMode || RulesetHintMode.DEFAULT;
 }
@@ -152,6 +169,10 @@ export function getAreAllHintsUsed(state: GameState): boolean {
   return hintMode === RulesetHintMode.FEWER
     ? numberOfHintsUsed + 2 >= numberOfPlayers
     : numberOfHintsUsed >= numberOfPlayers;
+}
+
+export function getCanPlayerGiveHint(state: GameState, playerId: number): boolean {
+  return getIsBetweenTricks(state) && !getPlayer(state, playerId).hint?.used && !getAreAllHintsUsed(state);
 }
 
 export function getCurrentTrickId(state: GameState): number {

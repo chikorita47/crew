@@ -330,7 +330,6 @@ function GameView(props: GameViewProps) {
   const player = Selectors.getPlayer(props.state, props.playerId);
   const nextPlayerId = Selectors.getNextPlayerId(props.state);
   const currentTrick = Selectors.getCurrentTrick(props.state);
-  const isBetweenTricks = Selectors.getIsBetweenTricks(props.state);
   const numberOfPlayers = Selectors.getNumberOfPlayers(props.state);
 
   const hintString = getHintString(player, Selectors.getHintMode(props.state));
@@ -338,6 +337,9 @@ function GameView(props: GameViewProps) {
   const isAnyCardSelected = selectedCardIndex || selectedCardIndex === 0;
   const isSelectedCardLegalToPlay =
     isAnyCardSelected && Selectors.getIsCardLegalToPlay(props.state, props.playerId, selectedCardIndex);
+  const canGiveHint = isAnyCardSelected && Selectors.getCanPlayerGiveHint(props.state, props.playerId);
+  const hintPlacement =
+    canGiveHint && Selectors.getHintPlacementForCard(props.state, props.playerId, selectedCardIndex);
   return (
     <>
       <div>Status: {Selectors.getStatusText(props.state, props.playerId)}</div>
@@ -400,14 +402,15 @@ function GameView(props: GameViewProps) {
           if (!isAnyCardSelected) {
             throw new Error('Clicked Place Hint when no card was selected');
           }
+          if (!hintPlacement) {
+            throw new Error('Cannot give this hint right now');
+          }
           const index = selectedCardIndex;
           setSelectedCardIndex(undefined);
-          Actions.updateState(Actions.giveHint(props.state, props.playerId, index), props.code);
+          Actions.updateState(Actions.giveHint(props.state, props.playerId, index, hintPlacement), props.code);
         }}
         value="Place Hint"
-        disabled={
-          !isBetweenTricks || player.hint?.used || !isAnyCardSelected || Selectors.getAreAllHintsUsed(props.state)
-        }
+        disabled={!canGiveHint || !hintPlacement}
       />
       {Selectors.getOtherPlayers(props.state, props.playerId).map(otherPlayer => (
         <OtherPlayerView

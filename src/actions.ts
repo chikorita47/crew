@@ -6,7 +6,6 @@ import {
   getPlayerName,
   getPlayerCard,
   getIsBetweenTricks,
-  getPlayerCardsOfSuit,
   getCurrentTrick,
   getNumberOfPlayers,
   getCurrentTrickId,
@@ -317,23 +316,7 @@ export function playCard(state: GameState, playerId: number, cardIndex: number):
   return newState;
 }
 
-export function getHintPlacement(state: GameState, playerId: number, cardIndex: number): HintPlacement {
-  const hintCard = getPlayerCard(state, playerId, cardIndex);
-  if (hintCard.suit === Suit.BLACK) throw new Error('Cannot give a hint about a black card');
-  const cardsOfHintSuit = getPlayerCardsOfSuit(state, playerId, hintCard.suit).map(card => card.number);
-  const highestNumberOfHintSuit = Math.max(...cardsOfHintSuit);
-  const lowestNumberOfHintSuit = Math.min(...cardsOfHintSuit);
-  if (hintCard.number === highestNumberOfHintSuit && hintCard.number === lowestNumberOfHintSuit) {
-    return HintPlacement.MIDDLE;
-  } else if (hintCard.number === highestNumberOfHintSuit) {
-    return HintPlacement.TOP;
-  } else if (hintCard.number === lowestNumberOfHintSuit) {
-    return HintPlacement.BOTTOM;
-  }
-  throw new Error('Cannot give a hint about this card');
-}
-
-export function giveHint(state: GameState, playerId: number, cardIndex: number): GameState {
+export function giveHint(state: GameState, playerId: number, cardIndex: number, placement: HintPlacement): GameState {
   if (!getIsBetweenTricks(state)) {
     throw new Error('Cannot give a hint during a trick');
   }
@@ -348,7 +331,6 @@ export function giveHint(state: GameState, playerId: number, cardIndex: number):
   }
 
   const card = getPlayerCard(state, playerId, cardIndex);
-  const placement = getHintPlacement(state, playerId, cardIndex);
 
   const newState = structuredClone(state);
   newState.players[playerId].hint = {

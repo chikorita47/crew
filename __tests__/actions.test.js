@@ -359,42 +359,28 @@ describe('playCard', () => {
   });
 });
 
-describe('getHintPlacement', () => {
-  it('throws if the hint is invalid', () => {
-    const state = createGameState();
-    expect(() => Actions.getHintPlacement(state, 0, 0)).toThrow(Error);
-    expect(() => Actions.getHintPlacement(state, 1, 1)).toThrow(Error);
-  });
-  it('returns the correct placement of the hint token for a valid hint', () => {
-    const state = createGameState();
-    expect(Actions.getHintPlacement(state, 2, 0)).toEqual('middle');
-    expect(Actions.getHintPlacement(state, 2, 1)).toEqual('top');
-    expect(Actions.getHintPlacement(state, 2, 2)).toEqual('bottom');
-  });
-});
-
 describe('giveHint', () => {
   it('throws if between tricks', () => {
-    expect(() => Actions.giveHint(createGameState(), 2, 0)).toThrow(Error);
+    expect(() => Actions.giveHint(createGameState(), 2, 0, 'middle')).toThrow(Error);
   });
   it('throws if player has already given a hint', () => {
     const state = createGameState();
     state.tricks.pop();
-    expect(() => Actions.giveHint(state, 0, 1)).toThrow(Error);
+    expect(() => Actions.giveHint(state, 0, 1, 'top')).toThrow(Error);
     state.players[2].hint = { used: true };
-    expect(() => Actions.giveHint(state, 2, 0)).toThrow(Error);
+    expect(() => Actions.giveHint(state, 2, 0, 'middle')).toThrow(Error);
   });
   it('gives a valid hint', () => {
     const state = createGameState();
     state.tricks.pop();
-    const newState = Actions.giveHint(state, 2, 0);
+    const newState = Actions.giveHint(state, 2, 0, 'middle');
     expect(newState.players[2].hint).toEqual({ used: true, card: { number: 9, suit: 'pink' }, placement: 'middle' });
   });
   it('throws if there are not enough hints remaining in the game', () => {
     const state = createGameState();
     state.tricks.pop();
     state.ruleset = { hintMode: 'fewer' };
-    expect(() => Actions.giveHint(state, 2, 0)).toThrow(Error);
+    expect(() => Actions.giveHint(state, 2, 0, 'middle')).toThrow(Error);
   });
 });
 
