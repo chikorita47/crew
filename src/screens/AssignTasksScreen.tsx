@@ -133,7 +133,10 @@ function AssignTasksScreen() {
             />
             <label htmlFor="hintModeNoTokens">No Tokens</label>
           </div>
-          <Button text="START GAME" onPress={() => {}} />
+          <div className={styles.buttonContainer}>
+            <Button text="RE-DEAL" onPress={() => {}} />
+            <Button text="START GAME" onPress={() => {}} />
+          </div>
         </div>
       )}
       <TaskListView

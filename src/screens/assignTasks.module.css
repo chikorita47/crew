@@ -34,6 +34,10 @@
   margin: 0 0.5vw 0 1.5vw;
 }
 
+.buttonContainer {
+  display: flex;
+}
+
 .xTricksModal {
   display: flex;
   flex-direction: column;

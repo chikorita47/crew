@@ -1,0 +1,21 @@
+.container {
+  width: 100%;
+  height: 100%;
+  user-select: none;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 10vw;
+}
+
+.container div {
+  margin-top: 2vw;
+}
+
+.container input {
+  margin-bottom: 2vw;
+  padding: 1vw;
+  width: 80vw;
+  font-size: 6vw;
+}
