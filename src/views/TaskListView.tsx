@@ -10,22 +10,40 @@ type TaskListViewProps = {
   tasks: PlayerTask[] | UnassignedTask[];
   difficultyIndex: number;
   playerNames?: string[];
+  showHiddenData?: boolean;
+  playerId?: number;
   onPress?: (taskId: number) => void;
   onKick?: (taskId: number) => void;
 };
-function TaskListView({ tasks, difficultyIndex, playerNames, onPress, onKick }: TaskListViewProps) {
+function TaskListView({
+  tasks,
+  difficultyIndex,
+  playerNames,
+  showHiddenData,
+  playerId,
+  onPress,
+  onKick,
+}: TaskListViewProps) {
   return (
     <div className={styles.container}>
       {tasks.map(task => {
         const taskData = TASKS_DATA[task.id];
         const isFinished = 'done' in task && task.done;
         const isFailed = 'failed' in task && task.failed;
+        const showExtraData =
+          !!task.data &&
+          (showHiddenData ||
+            task.id === 95 ||
+            ('provisionalPlayerId' in task && playerId === task.provisionalPlayerId));
         return (
           <div key={`task-${task.id}`} className={styles.taskCardContainer}>
             <div
               className={[styles.taskCard, isFinished ? styles.finished : null].filter(v => v).join(' ')}
               onClick={onPress ? () => onPress(task.id) : undefined}>
-              <div className={styles.taskText}>{taskData.text}</div>
+              <div className={styles.taskText}>
+                {taskData.text}
+                {showExtraData && <b>{` (${task.data!.n})`}</b>}
+              </div>
               {taskData.subtext && <div className={styles.taskSubtext}>{taskData.subtext}</div>}
               <div className={styles.difficulty}>{taskData.difficulty[difficultyIndex]}</div>
             </div>

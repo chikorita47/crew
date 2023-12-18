@@ -21,6 +21,9 @@
   padding-bottom: 5vw;
   z-index: 1;
   background-color: rgb(211, 224, 237);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 .hintModeContainer {
@@ -29,4 +32,17 @@
 
 .hintModeContainer input {
   margin: 0 0.5vw 0 1.5vw;
+}
+
+.xTricksModal {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.xTricksModal input {
+  margin: 2vw 0 2vw 0;
+  padding: 1vw;
+  width: 20vw;
+  font-size: 8vw;
 }

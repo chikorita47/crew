@@ -3,13 +3,18 @@
 import React, { useState } from 'react';
 import styles from './assignTasks.module.css';
 import Button from '../components/Button';
-import { Card, RulesetHintMode } from '../types';
+import Modal from '../components/Modal';
+import { Card, RulesetHintMode, TaskData } from '../types';
 import HandView from '../views/HandView';
 import BottomOverlay from '../views/BottomOverlay';
 import TaskListView from '../views/TaskListView';
 
-const tasks = [69, 39, 49, 56, 51, 94, 82, 59, 26, 28, 34, 80, 3, 22, 43, 57, 1, 86, 95, 74, 40, 91, 65, 0].map(
-  taskId => ({ id: taskId, provisionalPlayerId: taskId % 5 }),
+const tasks = [69, 94, 95, 39, 49, 56, 51, 94, 82, 59, 26, 28, 34, 80, 3, 22, 43, 57, 1, 86, 95, 74, 40, 91, 65, 0].map(
+  taskId => ({
+    id: taskId,
+    provisionalPlayerId: taskId % 5,
+    data: taskId === 94 || taskId === 95 ? { n: 3 } : undefined,
+  }),
 );
 
 const playerNames = ['Nathan', 'Eric', 'Melora', 'Michael', 'Rachel'];
@@ -73,6 +78,22 @@ const hand = [
   },
 ];
 
+type XTricksSelectorViewProps = {
+  onSubmit: (value: number) => void;
+};
+function XTricksSelectorView(props: XTricksSelectorViewProps) {
+  const [value, setValue] = useState<number | undefined>();
+  return (
+    <Modal>
+      <div className={styles.xTricksModal}>
+        Enter value for X:
+        <input type="number" value={value} min={1} max={100} onChange={event => setValue(~~event.target.value)} />
+        <Button text="OK" onPress={() => props.onSubmit(value!)} disabled={value === undefined} />
+      </div>
+    </Modal>
+  );
+}
+
 function AssignTasksScreen() {
   const difficultyIndex = 2;
   const code = 'ABCD';
@@ -115,11 +136,18 @@ function AssignTasksScreen() {
           <Button text="START GAME" onPress={() => {}} />
         </div>
       )}
-      <TaskListView tasks={tasks} difficultyIndex={difficultyIndex} playerNames={playerNames} onKick={() => {}} />
+      <TaskListView
+        tasks={tasks}
+        difficultyIndex={difficultyIndex}
+        playerNames={playerNames}
+        playerId={0}
+        onKick={() => {}}
+      />
       <div className={styles.hand}>
         <HandView hand={hand as Card[]} />
         <BottomOverlay status="Waiting for Michael to play..." code={code} />
       </div>
+      {/* <XTricksSelectorView onSubmit={() => {}} /> */}
     </div>
   );
 }
