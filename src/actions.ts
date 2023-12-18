@@ -157,6 +157,7 @@ export function dealTasks(state: GameState, difficulty: number): GameState {
     ),
   };
   newState.leftoverTasks = skippedTasks.concat(remainingTasks);
+  newState.difficulty = difficulty;
 
   return newState;
 }

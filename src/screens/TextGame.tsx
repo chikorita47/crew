@@ -85,7 +85,7 @@ function SetupGameView(props: SetupGameViewProps) {
         placeholder="Difficulty"
         min={1}
         max={100}
-        onChange={event => setDifficulty(~~event.target.value)}
+        onChange={event => setDifficulty(event.target.value === '' ? undefined : ~~event.target.value)}
       />
       <input
         type="button"
@@ -123,7 +123,7 @@ function XTricksSelectorView(props: XTricksSelectorViewProps) {
         placeholder="Difficulty"
         min={1}
         max={100}
-        onChange={event => setValue(~~event.target.value)}
+        onChange={event => setValue(event.target.value === '' ? undefined : ~~event.target.value)}
       />
       <input
         type="button"
@@ -245,7 +245,7 @@ function AssignTasksView(props: AssignTasksViewProps) {
             placeholder="Timer Length (seconds)"
             min={0}
             max={300}
-            onChange={event => setTimeInSeconds(~~event.target.value)}
+            onChange={event => setTimeInSeconds(event.target.value === '' ? undefined : ~~event.target.value)}
           />
           <input
             type="button"

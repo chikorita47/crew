@@ -79,6 +79,7 @@ export type GameState = {
   tricks?: Trick[];
   unassignedTasks?: UnassignedTasksData;
   leftoverTasks?: number[];
+  difficulty?: number;
   ruleset?: Ruleset;
   timeout?: boolean;
 };

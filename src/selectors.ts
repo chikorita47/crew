@@ -137,6 +137,10 @@ export function getAreAllTasksDone(state: GameState): boolean {
   );
 }
 
+export function getDifficulty(state: GameState): number | undefined {
+  return state.difficulty;
+}
+
 export function getHintMode(state: GameState): RulesetHintMode {
   return state.ruleset?.hintMode || RulesetHintMode.DEFAULT;
 }
@@ -183,8 +187,8 @@ export function getPlayersTricksWon(state: GameState): number[] {
   if (!state.tricks) {
     return zeroes;
   }
-  return state.tricks.reduce((acc, trick) => {
-    if (trick.winner !== undefined) {
+  return state.tricks.reduce((acc, trick, index) => {
+    if (trick.winner !== undefined && (index + 1 < state.tricks!.length || getIsGameFinished(state))) {
       acc[trick.winner]++;
     }
     return acc;
@@ -267,5 +271,7 @@ export function getStatusText(state: GameState, playerId: number): string {
   if (nextPlayerId === playerId) {
     return `${wasTrickJustWon ? 'You won the trick. ' : ''}Choose a card to play.`;
   }
-  return `${wasTrickJustWon ? `${nextPlayerName} won the trick. ` : ''}Waiting for ${nextPlayerName} to play a card.`;
+  return wasTrickJustWon
+    ? `${nextPlayerName} won the trick. Waiting...`
+    : `Waiting for ${nextPlayerName} to play a card...`;
 }

@@ -20,7 +20,13 @@ function XTricksSelectorView(props: XTricksSelectorViewProps) {
     <Modal>
       <div className={styles.xTricksModal}>
         Enter value for X:
-        <input type="number" value={value} min={1} max={100} onChange={event => setValue(~~event.target.value)} />
+        <input
+          type="number"
+          value={value}
+          min={1}
+          max={100}
+          onChange={event => setValue(event.target.value === '' ? undefined : ~~event.target.value)}
+        />
         <Button text="OK" onPress={() => props.onSubmit(value!)} disabled={value === undefined} />
       </div>
     </Modal>
@@ -114,11 +120,15 @@ function AssignTasksScreen({ state, code, playerId, onFinalizeTasks }: AssignTas
         playerNames={Selectors.getPlayerNamesById(state)}
         playerId={playerId}
         onPress={taskId => Actions.updateState(Actions.toggleClaimTask(state, playerId, taskId), code)}
-        onKick={taskId => Actions.updateState(Actions.kickTask(state, taskId), code)}
+        onKick={isHost ? taskId => Actions.updateState(Actions.kickTask(state, taskId), code) : undefined}
       />
       <div className={styles.hand}>
         <HandView hand={Selectors.getPlayerHand(state, playerId)} />
-        <BottomOverlay status={Selectors.getStatusText(state, playerId)} code={code} />
+        <BottomOverlay
+          status={Selectors.getStatusText(state, playerId)}
+          code={code}
+          difficulty={Selectors.getDifficulty(state)}
+        />
       </div>
       {!!taskRequiringExtraData && (
         <XTricksSelectorView

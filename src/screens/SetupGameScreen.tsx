@@ -47,7 +47,7 @@ function SetupGameScreen({ state, code, playerKey, onStartGame }: SetupGameScree
         placeholder="Difficulty"
         min={1}
         max={100}
-        onChange={event => setDifficulty(~~event.target.value)}
+        onChange={event => setDifficulty(event.target.value === '' ? undefined : ~~event.target.value)}
       />
       <Button
         text="DEAL"

@@ -67,7 +67,11 @@ function MainGameScreen({ state, code, playerId, onPressPlayer }: MainGameScreen
           selectedCardIndex={selectedCardIndex}
           onSelectCard={index => setSelectedCardIndex(index)}
         />
-        <BottomOverlay status={Selectors.getStatusText(state, playerId)} code={code} />
+        <BottomOverlay
+          status={Selectors.getStatusText(state, playerId)}
+          code={code}
+          difficulty={Selectors.getDifficulty(state)}
+        />
       </div>
       {isAnyCardSelected && (
         <div className={styles.textButtonContainer}>

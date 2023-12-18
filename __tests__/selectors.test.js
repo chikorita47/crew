@@ -259,36 +259,21 @@ describe('getPlayerTricksWon', () => {
 });
 
 describe('getPlayersTricksWon', () => {
+  const trick = {
+    leader: 1,
+    cards: [
+      { number: 3, suit: 'green' },
+      { number: 9, suit: 'blue' },
+      { number: 5, suit: 'green' },
+    ],
+  };
   it('returns the number of tricks each player has won', () => {
     const state = createGameState();
     state.tricks = [
-      {
-        winner: 0,
-        leader: 1,
-        cards: [
-          { number: 3, suit: 'green' },
-          { number: 9, suit: 'blue' },
-          { number: 5, suit: 'green' },
-        ],
-      },
-      {
-        winner: 1,
-        leader: 0,
-        cards: [
-          { number: 3, suit: 'green' },
-          { number: 9, suit: 'blue' },
-          { number: 5, suit: 'green' },
-        ],
-      },
-      {
-        winner: 1,
-        leader: 1,
-        cards: [
-          { number: 3, suit: 'green' },
-          { number: 9, suit: 'blue' },
-          { number: 5, suit: 'green' },
-        ],
-      },
+      { ...trick, winner: 0 },
+      { ...trick, winner: 1 },
+      { ...trick, winner: 1 },
+      { leader: 1, cards: [{ number: 3, suit: 'green' }] },
     ];
     expect(Selectors.getPlayersTricksWon(state)).toEqual([1, 2, 0]);
   });
@@ -298,6 +283,41 @@ describe('getPlayersTricksWon', () => {
     expect(Selectors.getPlayersTricksWon(state)).toEqual([0, 0, 0]);
     const { tricks, ...stateWithoutTricks } = state;
     expect(Selectors.getPlayersTricksWon(stateWithoutTricks)).toEqual([0, 0, 0]);
+  });
+  it('excludes latest trick if the newest one is not started', () => {
+    const state = createGameState();
+    state.tricks = [
+      { ...trick, winner: 0 },
+      { ...trick, winner: 1 },
+      { ...trick, winner: 1 },
+    ];
+    expect(Selectors.getPlayersTricksWon(state)).toEqual([1, 1, 0]);
+  });
+  it('includes the last trick', () => {
+    const state = createGameState();
+    state.players.push({});
+    state.players.push({});
+    const trick5P = {
+      leader: 1,
+      cards: [
+        { number: 3, suit: 'green' },
+        { number: 9, suit: 'blue' },
+        { number: 5, suit: 'green' },
+        { number: 2, suit: 'green' },
+        { number: 1, suit: 'green' },
+      ],
+    };
+    state.tricks = [
+      { ...trick5P, winner: 0 },
+      { ...trick5P, winner: 1 },
+      { ...trick5P, winner: 2 },
+      { ...trick5P, winner: 3 },
+      { ...trick5P, winner: 4 },
+      { ...trick5P, winner: 3 },
+      { ...trick5P, winner: 2 },
+      { ...trick5P, winner: 1 },
+    ];
+    expect(Selectors.getPlayersTricksWon(state)).toEqual([1, 2, 2, 2, 1]);
   });
 });
 

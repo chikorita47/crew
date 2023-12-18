@@ -45,13 +45,17 @@ function TaskListView({
                 {showExtraData && <b>{` (${task.data!.n})`}</b>}
               </div>
               {taskData.subtext && <div className={styles.taskSubtext}>{taskData.subtext}</div>}
-              <div className={styles.difficulty}>{taskData.difficulty[difficultyIndex]}</div>
+              {'provisionalPlayerId' in task && !!playerNames?.[task.provisionalPlayerId!] && (
+                <div className={styles.claimant}>{playerNames![task.provisionalPlayerId!]}</div>
+              )}
             </div>
+            <div className={styles.difficulty}>{taskData.difficulty[difficultyIndex]}</div>
             {isFinished && <div className={[styles.status, styles.success].join(' ')}>✓</div>}
             {isFailed && <div className={[styles.status, styles.fail].join(' ')}>✗</div>}
-            {!!onKick && <div className={styles.kick}>✕</div>}
-            {'provisionalPlayerId' in task && !!playerNames?.[task.provisionalPlayerId!] && (
-              <div className={styles.claimant}>{playerNames![task.provisionalPlayerId!]}</div>
+            {!!onKick && (
+              <div className={styles.kick} onClick={() => onKick(task.id)}>
+                ✕
+              </div>
             )}
           </div>
         );

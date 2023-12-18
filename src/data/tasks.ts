@@ -840,7 +840,7 @@ export default {
   },
   '95': {
     id: 95,
-    text: 'l will win X tricks',
+    text: 'I will win X tricks',
     subtext: 'Note your prediction and share it with the crew',
     difficulty: [3, 2, 2],
     requiresExtraData: true,
@@ -850,4 +850,4 @@ export default {
       return task_winExactTrickCount(n)(state, owner);
     },
   },
-} satisfies TasksData;
+} as TasksData;
