@@ -4,12 +4,13 @@ import {
   // CardTally,
   Comparison,
   GameState,
+  MaxNumCards,
   Suit,
   TaskState,
   TasksDataEntryTest,
   Trick,
 } from '../types';
-import { isCardEqual } from '../utilities';
+import { isCardEqual, isCardSimilar } from '../utilities';
 
 export const LAST_TRICK = 'LAST_TRICK';
 export const CAPTAIN = 'CAPTAIN';
@@ -81,8 +82,28 @@ export function task_winCardCountWithProperty(
 
     if (exact && cardsWon.length > count) return TaskState.FAILURE;
     if (exact && !getIsGameOver(state)) return TaskState.PENDING;
+    if (exact && cardsWon.length === count) return TaskState.SUCCESS;
     if (cardsWon.length >= count) return TaskState.SUCCESS;
     return TaskState.PENDING;
+  };
+}
+
+// I will win as many pink as yellow
+// I will win more pink than green
+export function task_winComparativeCardCountForProperties(
+  propertyA: Suit | number,
+  comparison: Comparison,
+  propertyB: Suit | number,
+): TasksDataEntryTest {
+  return (state: GameState, owner: number): TaskState => {
+    if (!getIsGameOver(state)) return TaskState.PENDING;
+    const ownerCards = getCardsWonByPlayer(owner, state);
+    const countA = getCardsWithProperty(ownerCards, propertyA).length;
+    const countb = getCardsWithProperty(ownerCards, propertyB).length;
+
+    const comparisonMet = compare(countA, comparison, countb);
+    if (comparisonMet) return TaskState.SUCCESS;
+    return TaskState.FAILURE;
   };
 }
 
@@ -136,16 +157,18 @@ export function task_winTrickPassingAggregateTest(test: (cards: Card[]) => boole
 
 // I will win the {ordinal} trick
 // I will win the green 2 in the last trick of the game
+// I will NOT win the {ordinal} trick
 export function task_winNthTrick(
   n: number | typeof LAST_TRICK,
   condition: (trick: Trick) => boolean = () => true,
+  not = false,
 ): TasksDataEntryTest {
   return (state: GameState, owner: number): TaskState => {
     if (n === LAST_TRICK) {
       n = getMaxTrickCount(state);
     }
     if (n !== state.tricks?.length) return TaskState.PENDING;
-    if (state.tricks[n - 1].winner === owner) {
+    if (not ? state.tricks[n - 1].winner !== owner : state.tricks[n - 1].winner === owner) {
       return condition(state.tricks[n - 1]) ? TaskState.SUCCESS : TaskState.FAILURE;
     }
     return TaskState.FAILURE;
@@ -176,6 +199,28 @@ export function task_notOpenTrickWithCardProperty(property: Suit | number): Task
     if (state.tricks?.length === getMaxTrickCount(state)) {
       return TaskState.SUCCESS;
     }
+    return TaskState.PENDING;
+  };
+}
+
+// I will win a trick using a {number}
+// I will win a {number} with a {number}
+export function task_winTrickUsingCard(
+  cardOrProperty: Card | Suit | number,
+  condition: (trick: Trick) => boolean = () => true,
+): TasksDataEntryTest {
+  return (state: GameState, owner: number): TaskState => {
+    const trick = getMostRecentTrick(state);
+    if (trick?.winner !== owner) return TaskState.PENDING;
+    if (!condition(trick)) return TaskState.PENDING;
+
+    const ownerCard = getCardPlayedByPlayerInTrick(owner, trick, state);
+    const card: Partial<Card> =
+      typeof cardOrProperty !== 'number' && typeof cardOrProperty !== 'string'
+        ? { number: cardOrProperty.number, suit: cardOrProperty.suit }
+        : makeCard(cardOrProperty);
+
+    if (isCardSimilar(ownerCard, card)) return TaskState.SUCCESS;
     return TaskState.PENDING;
   };
 }
@@ -224,6 +269,15 @@ export function getNumTricksWonByPlayer(player: number, state: GameState) {
 export function getNumConsecutiveTricksWonByPlayer(player: number, state: GameState) {
   return state.tricks?.reduce((acc, trick) => (trick.winner === player ? acc + 1 : 0), 0) || 0;
 }
+export function getCardsWithProperty(cards: Card[], property: Suit | number) {
+  return cards.filter(c => c.number === property || c.suit === property);
+}
+export function getCardPlayedByPlayerInTrick(player: number, trick: Trick, state: GameState) {
+  if (!trick.cards) throw new Error('No cards have been played in the given trick');
+  const numPlayers = state.players.length;
+  const index = (player - trick.leader + numPlayers) % numPlayers;
+  return trick.cards[index];
+}
 
 // Task Util Functions
 export function taskIntersection(...tests: TasksDataEntryTest[]): TasksDataEntryTest {
@@ -249,4 +303,16 @@ export function compare(a: number, comparison: Comparison, b: number) {
     case Comparison.FEWER_THAN:
       return a < b;
   }
+}
+export function trickContains(cardOrProperty: Partial<Card> | number | Suit, quantity: MaxNumCards = 1, exact = false) {
+  return (trick: Trick) => {
+    const card = makeCard(cardOrProperty);
+    const matchingCards = trick.cards?.filter(trickCard => isCardSimilar(trickCard, card)) || [];
+    return exact ? matchingCards.length === quantity : matchingCards.length >= quantity;
+  };
+}
+export function makeCard(from: Suit | number | Partial<Card>): Partial<Card> {
+  if (typeof from === 'number' || typeof from === 'string') {
+    return typeof from === 'number' ? { number: from } : { suit: from };
+  } else return from;
 }

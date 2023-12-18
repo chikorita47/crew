@@ -3,6 +3,17 @@ import { Card, Suit } from './types';
 export function isCardEqual(from: Card, to: Card): boolean {
   return from.number === to.number && from.suit === to.suit;
 }
+/**
+ * Checks if a card, `from`, has the same values for all the properties of a (partial) card, `to`.
+ * If `to` has both `number` and `suit`, this function is equivalent to `isCardEqual`.
+ * @param from The card being compared against
+ * @param to The (partial) card being checked for similarities
+ */
+export function isCardSimilar(from: Card, to: Partial<Card>): boolean {
+  if (typeof to.number === 'number' && typeof to.suit === 'string')
+    return isCardEqual(from, { number: to.number, suit: to.suit });
+  return from.number === to.number || from.suit === to.suit;
+}
 
 export function generateCode(): string {
   const letters = 'ABCDEFGHJKLMNPQRSTUVWXYZ';

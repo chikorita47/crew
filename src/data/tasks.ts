@@ -1,9 +1,6 @@
 import {
   CAPTAIN,
-  getMaxTrickCount,
-  getMostRecentTrick,
   LAST_TRICK,
-  task_notOpenTrickWithCardProperty,
   task_winCardCountWithProperty,
   task_winComparativeTrickCount,
   task_winConsecutiveTricks,
@@ -12,13 +9,20 @@ import {
   task_winSpecificCard,
   task_winTrickPassingAggregateTest,
   task_winTrickPassingCardTest,
+  task_winTrickUsingCard,
   task_winTrickWithValueComparison,
+  task_winComparativeCardCountForProperties,
+  task_notOpenTrickWithCardProperty,
   taskIntersection,
   taskUnion,
+  trickContains,
+  getMaxTrickCount,
+  getMostRecentTrick,
+  getNumTricksWonByPlayer,
+  getRemainingTrickCount,
 } from './helpers';
 import { getNumberOfPlayers, getTaskDataForPlayer } from '../selectors';
 import { Comparison, Suit, TasksData, TaskState } from '../types';
-import { isCardEqual } from '../utilities';
 
 export default {
   '0': {
@@ -84,18 +88,21 @@ export default {
     text: 'I will win a 5 with a 7',
     subtext: '',
     difficulty: [1, 2, 2],
+    test: task_winTrickUsingCard(7, trickContains(5)),
   },
   '7': {
     id: 7,
     text: 'I will win a 6 with another 6',
     subtext: '',
     difficulty: [2, 3, 4],
+    test: task_winTrickUsingCard(6, trickContains(6, 2)),
   },
   '8': {
     id: 8,
     text: 'I will win an 8 with a 4',
     subtext: '',
     difficulty: [3, 4, 5],
+    test: task_winTrickUsingCard(4, trickContains(8)),
   },
   '9': {
     id: 9,
@@ -116,24 +123,28 @@ export default {
     text: 'I will win a trick using a 2',
     subtext: '',
     difficulty: [3, 4, 5],
+    test: task_winTrickUsingCard(2),
   },
   '12': {
     id: 12,
     text: 'I will win a trick using a 3',
     subtext: '',
     difficulty: [3, 4, 5],
+    test: task_winTrickUsingCard(3),
   },
   '13': {
     id: 13,
     text: 'I will win a trick using a 5',
     subtext: '',
     difficulty: [2, 3, 4],
+    test: task_winTrickUsingCard(5),
   },
   '14': {
     id: 14,
     text: 'I will win a trick using a 6',
     subtext: '',
     difficulty: [2, 3, 3],
+    test: task_winTrickUsingCard(6),
   },
   '15': {
     id: 15,
@@ -225,18 +236,21 @@ export default {
     text: 'I will win as many pink as yellow cards',
     subtext: '0 pink/yellow cards is not allowed',
     difficulty: [4, 4, 4],
+    test: task_winComparativeCardCountForProperties(Suit.PINK, Comparison.EQUAL_TO, Suit.YELLOW),
   },
   '23': {
     id: 23,
     text: 'I will win more pink than green cards',
     subtext: '0 green cards is allowed',
     difficulty: [1, 1, 1],
+    test: task_winComparativeCardCountForProperties(Suit.PINK, Comparison.MORE_THAN, Suit.GREEN),
   },
   '24': {
     id: 24,
     text: 'I will win more yellow than blue cards',
     subtext: '0 blue cards is allowed',
     difficulty: [1, 1, 1],
+    test: task_winComparativeCardCountForProperties(Suit.YELLOW, Comparison.MORE_THAN, Suit.BLUE),
   },
   '25': {
     id: 25,
@@ -417,18 +431,39 @@ export default {
     text: 'I will win fewer tricks than everyone else',
     subtext: '',
     difficulty: [2, 2, 3],
+    test: (state, owner) => {
+      const tasks = state.players
+        .filter(p => p.id === owner)
+        .map(p => task_winComparativeTrickCount(Comparison.FEWER_THAN, p.id));
+      return taskIntersection(...tasks)(state, owner);
+    },
   },
   '49': {
     id: 49,
     text: 'I will win more tricks than anyone else',
     subtext: '',
     difficulty: [2, 3, 3],
+    test: (state, owner) => {
+      const tasks = state.players
+        .filter(p => p.id !== owner)
+        .map(p => task_winComparativeTrickCount(Comparison.MORE_THAN, p.id));
+      return taskIntersection(...tasks)(state, owner);
+    },
   },
   '50': {
     id: 50,
     text: 'I will win more tricks than everyone else combined',
     subtext: '',
     difficulty: [3, 4, 5],
+    test: (state, owner) => {
+      const numTricksToWin = Math.ceil(getMaxTrickCount(state) / 2);
+      const numTricksWon = getNumTricksWonByPlayer(owner, state);
+      const numTricksRemainingToWin = numTricksToWin - numTricksWon;
+      const numTricksRemaining = getRemainingTrickCount(state);
+      if (numTricksRemaining < numTricksRemainingToWin) return TaskState.FAILURE;
+      if (numTricksWon >= numTricksToWin) return TaskState.SUCCESS;
+      return TaskState.PENDING;
+    },
   },
   '51': {
     id: 51,
@@ -543,18 +578,36 @@ export default {
     text: 'I will win none of the first 3 tricks',
     subtext: '',
     difficulty: [1, 2, 2],
+    test: taskIntersection(
+      task_winNthTrick(1, undefined, true),
+      task_winNthTrick(2, undefined, true),
+      task_winNthTrick(3, undefined, true),
+    ),
   },
   '66': {
     id: 66,
     text: 'I will win none of the first 4 tricks',
     subtext: '',
     difficulty: [1, 2, 3],
+    test: taskIntersection(
+      task_winNthTrick(1, undefined, true),
+      task_winNthTrick(2, undefined, true),
+      task_winNthTrick(3, undefined, true),
+      task_winNthTrick(4, undefined, true),
+    ),
   },
   '67': {
     id: 67,
     text: 'I will win none of the first 5 tricks',
     subtext: '',
     difficulty: [2, 3, 3],
+    test: taskIntersection(
+      task_winNthTrick(1, undefined, true),
+      task_winNthTrick(2, undefined, true),
+      task_winNthTrick(3, undefined, true),
+      task_winNthTrick(4, undefined, true),
+      task_winNthTrick(5, undefined, true),
+    ),
   },
   '68': {
     id: 68,
@@ -757,22 +810,21 @@ export default {
     text: 'I will win the pink 7 with a black',
     subtext: '',
     difficulty: [3, 3, 3],
+    test: task_winTrickUsingCard(Suit.BLACK, trickContains({ suit: Suit.PINK, number: 7 })),
   },
   '92': {
     id: 92,
     text: 'I will win the green 9 with a black',
     subtext: '',
     difficulty: [3, 3, 3],
+    test: task_winTrickUsingCard(Suit.BLACK, trickContains({ suit: Suit.GREEN, number: 9 })),
   },
   '93': {
     id: 93,
     text: 'I will win the green 2 in the final trick of the game',
     subtext: '',
     difficulty: [3, 4, 5],
-    test: task_winNthTrick(
-      LAST_TRICK,
-      trick => !!trick.cards?.some(card => isCardEqual(card, { number: 2, suit: Suit.GREEN })),
-    ),
+    test: task_winNthTrick(LAST_TRICK, trickContains({ suit: Suit.GREEN, number: 2 })),
   },
   '94': {
     id: 94,
@@ -798,4 +850,4 @@ export default {
       return task_winExactTrickCount(n)(state, owner);
     },
   },
-} as TasksData;
+} satisfies TasksData;

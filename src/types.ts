@@ -97,7 +97,7 @@ export type TasksDataEntry = {
   subtext?: string;
   difficulty: TasksDataEntryDifficulty;
   requiresExtraData?: boolean;
-  test?: TasksDataEntryTest;
+  test: TasksDataEntryTest;
 };
 
 export type TasksData = {
@@ -114,6 +114,7 @@ type IntRange<F extends number, T extends number> = Exclude<Enumerate<T>, Enumer
 export type CardTally = {
   [key in Suit]: key extends 'black' ? Array<IntRange<1, 5>> : Array<IntRange<1, 10>>;
 };
+export type MaxNumCards = IntRange<1, 6>;
 
 export enum Comparison {
   FEWER_THAN = -1,
