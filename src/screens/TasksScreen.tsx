@@ -1,12 +1,9 @@
 'use client';
 
-import localFont from 'next/font/local';
 import React from 'react';
+import { cityMedium } from '../fonts';
 import styles from './tasks.module.css';
-
-import TaskListView from '@/views/TaskListView';
-
-const cityMedium = localFont({ src: '../fonts/City Medium.ttf', display: 'swap' });
+import TaskListView from '../views/TaskListView';
 
 const tasks = [69, 39, 49, 56, 51, 94, 82, 59, 26, 28, 34, 80, 3, 22, 43, 57, 1, 86, 95, 74, 40, 91, 65, 0].map(
   taskId => ({ id: taskId, done: !!(taskId % 2), failed: !(taskId % 9) }),

@@ -9,8 +9,11 @@ import { PlayerTask, UnassignedTask } from '../types';
 type TaskListViewProps = {
   tasks: PlayerTask[] | UnassignedTask[];
   difficultyIndex: number;
+  playerNames?: string[];
+  onPress?: (taskId: number) => void;
+  onKick?: (taskId: number) => void;
 };
-function TaskListView({ tasks, difficultyIndex }: TaskListViewProps) {
+function TaskListView({ tasks, difficultyIndex, playerNames, onPress, onKick }: TaskListViewProps) {
   return (
     <div className={styles.container}>
       {tasks.map(task => {
@@ -19,13 +22,19 @@ function TaskListView({ tasks, difficultyIndex }: TaskListViewProps) {
         const isFailed = 'failed' in task && task.failed;
         return (
           <div key={`task-${task.id}`} className={styles.taskCardContainer}>
-            <div className={[styles.taskCard, isFinished ? styles.finished : null].filter(v => v).join(' ')}>
+            <div
+              className={[styles.taskCard, isFinished ? styles.finished : null].filter(v => v).join(' ')}
+              onClick={onPress ? () => onPress(task.id) : undefined}>
               <div className={styles.taskText}>{taskData.text}</div>
               {taskData.subtext && <div className={styles.taskSubtext}>{taskData.subtext}</div>}
               <div className={styles.difficulty}>{taskData.difficulty[difficultyIndex]}</div>
             </div>
             {isFinished && <div className={[styles.status, styles.success].join(' ')}>✓</div>}
             {isFailed && <div className={[styles.status, styles.fail].join(' ')}>✗</div>}
+            {!!onKick && <div className={styles.kick}>✕</div>}
+            {'provisionalPlayerId' in task && !!playerNames?.[task.provisionalPlayerId!] && (
+              <div className={styles.claimant}>{playerNames![task.provisionalPlayerId!]}</div>
+            )}
           </div>
         );
       })}

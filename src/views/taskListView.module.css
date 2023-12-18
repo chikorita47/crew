@@ -20,6 +20,7 @@
   flex-direction: column;
   justify-content: center;
   aspect-ratio: 7/10;
+  /* box-shadow: -0.4vw 0.4vw 1vw 0.5vw rgba(0, 0, 0, 0.1); */
 }
 
 .taskCard.finished {
@@ -51,6 +52,20 @@
   height: 8vw;
 }
 
+.claimant {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translate(-50%, 40%);
+  background-color: #004aad;
+  color: white;
+  border-radius: 5vw;
+  font-size: 4.5vw;
+  text-align: center;
+  padding: 1.5vw 2.5vw 1.5vw 2.5vw;
+  height: 8vw;
+}
+
 .status {
   position: absolute;
   top: 0;
@@ -71,4 +86,20 @@
 
 .status.fail {
   background-color: brown;
+}
+
+.kick {
+  position: absolute;
+  top: 0;
+  right: 0;
+  transform: translate(40%, -40%);
+  background-color: brown;
+  color: white;
+  border-radius: 5vw;
+  font-size: 6vw;
+  text-align: center;
+  padding-top: 0.25vw;
+  padding-left: 0.25vw;
+  width: 8vw;
+  height: 8vw;
 }

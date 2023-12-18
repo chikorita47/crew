@@ -1,8 +1,10 @@
 'use client';
 
 import React, { useState } from 'react';
+import Button from '../components/Button';
 import styles from './game.module.css';
 import { Card, Player, Trick } from '../types';
+import BottomOverlay from '../views/BottomOverlay';
 import OtherPlayersView from '../views/OtherPlayersView';
 import TrickView from '../views/TrickView';
 import SelfView from '../views/SelfView';
@@ -159,15 +161,12 @@ function MainGameScreen() {
           selectedCardIndex={selectedCardIndex}
           onSelectCard={index => setSelectedCardIndex(index)}
         />
-        <div className={styles.bottomOverlay}>
-          <div className={styles.statusContainer}>Waiting for Michael to play...</div>
-          <div className={styles.codeContainer}>{code}</div>
-        </div>
+        <BottomOverlay status="Waiting for Michael to play..." code={code} />
       </div>
       {selectedCardIndex !== undefined && (
         <div className={styles.textButtonContainer}>
-          <div className={styles.textButton}>PLAY</div>
-          <div className={[styles.textButton, styles.disabled].join(' ')}>HINT</div>
+          <Button text="PLAY" onPress={() => {}} big />
+          <Button text="HINT" onPress={() => {}} big disabled />
         </div>
       )}
       {selectedCardIndex !== undefined && selectedCardIndex !== 0 && (

@@ -14,6 +14,7 @@
   border-radius: 2.25vw;
   color: white;
   font-size: 8vw;
+  box-shadow: -3vw 0 2vw -2vw rgba(0, 0, 0, 0.15);
 }
 
 .selected {
