@@ -50,7 +50,7 @@ function TasksScreen({ state, code, playerId, isSelf, onClose }: TasksScreenProp
       </div>
       <TaskListView
         tasks={Object.values(tasks)}
-        difficultyIndex={Selectors.getNumberOfPlayers(state) - 2}
+        difficultyIndex={Selectors.getNumberOfPlayers(state) - 3}
         showHiddenData={isSelf}
         onPress={
           isSelf ? taskId => Actions.updateState(Actions.toggleTaskDone(state, playerId, taskId), code) : undefined
