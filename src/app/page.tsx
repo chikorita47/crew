@@ -20,19 +20,21 @@ function App() {
   const [showTasksForPlayer, setShowTasksForPlayer] = useState<number | undefined>();
 
   let initialOrientation = 'portrait-primary';
-  if (typeof screen !== 'undefined') {
+  if (typeof screen !== 'undefined' && !!screen.orientation) {
     initialOrientation = screen.orientation.type;
   }
   const [orientation, setOrientation] = useState(initialOrientation);
   useEffect(() => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const handleOrientationChange = (event: any) => {
-      if (event.target) {
-        setOrientation(event.target.type);
-      }
-    };
-    screen.orientation.addEventListener('change', handleOrientationChange);
-    return () => screen.orientation.removeEventListener('change', handleOrientationChange);
+    if (typeof screen !== 'undefined' && !!screen.orientation) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const handleOrientationChange = (event: any) => {
+        if (event.target) {
+          setOrientation(event.target.type);
+        }
+      };
+      screen.orientation.addEventListener('change', handleOrientationChange);
+      return () => screen.orientation.removeEventListener('change', handleOrientationChange);
+    }
   }, []);
 
   const [state, setState] = useState<GameState | ProvisionalGame>();
