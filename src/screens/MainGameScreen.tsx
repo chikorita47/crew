@@ -6,6 +6,7 @@ import Button from '../components/Button';
 import styles from './game.module.css';
 import { GameState } from '../types';
 import * as Selectors from '../selectors';
+import UndoHandler from '../UndoHandler';
 import BottomOverlay from '../views/BottomOverlay';
 import OtherPlayersView from '../views/OtherPlayersView';
 import TrickView from '../views/TrickView';
@@ -29,6 +30,7 @@ type MainGameScreenProps = {
 function MainGameScreen({ state, code, playerId, onPressPlayer }: MainGameScreenProps) {
   const [selectedCardIndex, setSelectedCardIndex] = useState<number | undefined>();
   const player = Selectors.getPlayer(state, playerId);
+  const isHost = Selectors.getIsPlayerHost(state, playerId);
   const hand = Selectors.getPlayerHand(state, playerId);
   const nextPlayerId = Selectors.getNextPlayerId(state);
   const numberOfPlayers = Selectors.getNumberOfPlayers(state);
@@ -36,6 +38,11 @@ function MainGameScreen({ state, code, playerId, onPressPlayer }: MainGameScreen
   const otherPlayersInOrder = getOtherPlayersOrder(playerId, numberOfPlayers).map(id => otherPlayers[id]);
   const tricksWon = Selectors.getPlayersTricksWon(state);
   const hintMode = Selectors.getHintMode(state);
+
+  const undo = () => {
+    const prevState = UndoHandler.undo();
+    if (prevState) Actions.updateState(prevState, code);
+  };
 
   const isAnyCardSelected = selectedCardIndex || selectedCardIndex === 0;
   const isSelectedCardLegalToPlay =
@@ -61,6 +68,7 @@ function MainGameScreen({ state, code, playerId, onPressPlayer }: MainGameScreen
           tricksWon={tricksWon[playerId]}
           hintMode={hintMode}
           onPress={() => onPressPlayer(playerId)}
+          onPressUndo={isHost ? undo : undefined}
         />
         <HandView
           hand={hand}

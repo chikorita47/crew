@@ -4,3 +4,7 @@
   padding: 0 1vw 0 1vw;
   justify-content: space-between;
 }
+
+.undo {
+  font-size: 6vw;
+}

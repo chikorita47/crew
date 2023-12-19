@@ -11,13 +11,21 @@ type SelfViewProps = {
   tricksWon: number;
   hintMode: RulesetHintMode;
   onPress: () => void;
+  onPressUndo?: () => void;
 };
-function SelfView({ player, tricksWon, hintMode, onPress }: SelfViewProps) {
+function SelfView({ player, tricksWon, hintMode, onPress, onPressUndo }: SelfViewProps) {
   const tasks = Object.values(player.tasks ?? {});
   const tasksDone = tasks.filter(task => task.done).length;
   return (
     <div className={styles.container}>
-      <PlayerInfoView player={player} />
+      <div>
+        {!!onPressUndo && (
+          <div className={styles.undo} onClick={onPressUndo}>
+            ⎌
+          </div>
+        )}
+        <PlayerInfoView player={player} />
+      </div>
       <div onClick={onPress}>
         <PlayerStateView
           hint={player.hint}

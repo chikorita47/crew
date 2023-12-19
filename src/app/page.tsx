@@ -12,6 +12,7 @@ import TasksScreen from '../screens/TasksScreen';
 // import TextGameScreen from '../screens/TextGame';
 import * as Selectors from '../selectors';
 import { GameState, ProvisionalGame } from '../types';
+import UndoHandler from '../UndoHandler';
 
 function App() {
   const [code, setCode] = useState<string | undefined>();
@@ -42,7 +43,9 @@ function App() {
     if (code) {
       const gameRef = child(child(ref(db), 'games'), code);
       const cleanup = onValue(gameRef, snapshot => {
-        setState(snapshot.val());
+        const newState = snapshot.val();
+        setState(newState);
+        UndoHandler.save(newState);
       });
       return cleanup;
     }
