@@ -19,6 +19,22 @@ function App() {
   const [playerId, setPlayerId] = useState<number | undefined>();
   const [showTasksForPlayer, setShowTasksForPlayer] = useState<number | undefined>();
 
+  let initialOrientation = 'portrait-primary';
+  if (typeof screen !== 'undefined') {
+    initialOrientation = screen.orientation.type;
+  }
+  const [orientation, setOrientation] = useState(initialOrientation);
+  useEffect(() => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const handleOrientationChange = (event: any) => {
+      if (event.target) {
+        setOrientation(event.target.type);
+      }
+    };
+    screen.orientation.addEventListener('change', handleOrientationChange);
+    return () => screen.orientation.removeEventListener('change', handleOrientationChange);
+  }, []);
+
   const [state, setState] = useState<GameState | ProvisionalGame>();
   useEffect(() => {
     if (code) {
@@ -29,6 +45,10 @@ function App() {
       return cleanup;
     }
   }, [code]);
+
+  if (orientation.startsWith('landscape')) {
+    return <div className="center-container">Please rotate your device into portrait mode!</div>;
+  }
 
   if (!code || !key) {
     return (
@@ -41,7 +61,11 @@ function App() {
     );
   }
 
-  if (!state || 'host' in state) {
+  if (!state) {
+    return <div className="center-container">Entering game...</div>;
+  }
+
+  if ('host' in state) {
     return (
       <SetupGameScreen
         state={state}
@@ -57,7 +81,7 @@ function App() {
 
   if (playerId === undefined) {
     setPlayerId(Selectors.getPlayerByKey(state, key).id);
-    return <div>Re-entering game...</div>;
+    return <div className="center-container">Re-entering game...</div>;
   }
 
   if (Selectors.getUnassignedTasksExist(state)) {

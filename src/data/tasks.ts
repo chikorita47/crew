@@ -456,7 +456,7 @@ export default {
     subtext: '',
     difficulty: [3, 4, 5],
     test: (state, owner) => {
-      const numTricksToWin = Math.ceil(getMaxTrickCount(state) / 2);
+      const numTricksToWin = Math.floor(getMaxTrickCount(state) / 2 + 1);
       const numTricksWon = getNumTricksWonByPlayer(owner, state);
       const numTricksRemainingToWin = numTricksToWin - numTricksWon;
       const numTricksRemaining = getRemainingTrickCount(state);

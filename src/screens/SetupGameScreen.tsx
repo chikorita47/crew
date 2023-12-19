@@ -8,7 +8,7 @@ import { getPlayerByKey } from '../selectors';
 import { GameState, ProvisionalGame } from '../types';
 
 type SetupGameScreenProps = {
-  state?: ProvisionalGame;
+  state: ProvisionalGame;
   code: string;
   playerKey: string;
   onStartGame: (state: GameState) => void;
@@ -17,20 +17,16 @@ function SetupGameScreen({ state, code, playerKey, onStartGame }: SetupGameScree
   const [difficulty, setDifficulty] = useState<number | undefined>();
   const [dealer, setDealer] = useState<string>(playerKey);
 
-  if (!state) {
-    return <div className={styles.container}>Entering game...</div>;
-  }
-
   const isHost = state.host === state.clientList[playerKey];
   const hostName = state.host;
   if (!isHost) {
-    return <div className={styles.container}>Waiting for {hostName} to start the game...</div>;
+    return <div className="center-container">Waiting for {hostName} to start the game...</div>;
   }
 
   const numberOfPlayers = Object.keys(state.clientList).length;
   const canStart = numberOfPlayers >= 3 && numberOfPlayers <= 5;
   return (
-    <div className={styles.container}>
+    <div className="center-container">
       <div>
         Code: <span className={styles.code}>{code}</span>
       </div>
