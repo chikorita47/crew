@@ -236,7 +236,10 @@ export default {
     text: 'I will win as many pink as yellow cards',
     subtext: '0 pink/yellow cards is not allowed',
     difficulty: [4, 4, 4],
-    test: task_winComparativeCardCountForProperties(Suit.PINK, Comparison.EQUAL_TO, Suit.YELLOW),
+    test: taskIntersection(
+      task_winComparativeCardCountForProperties(Suit.PINK, Comparison.EQUAL_TO, Suit.YELLOW),
+      task_winCardCountWithProperty(1, Suit.PINK, false),
+    ),
   },
   '23': {
     id: 23,

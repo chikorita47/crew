@@ -31,6 +31,7 @@ export function task_winExactTrickCount(count: number): TasksDataEntryTest {
   return (state: GameState, owner: number): TaskState => {
     const numTricksWonByOwner = getNumTricksWonByPlayer(owner, state);
     if (numTricksWonByOwner > count) return TaskState.FAILURE;
+    if (numTricksWonByOwner + getRemainingTrickCount(state) < count) return TaskState.FAILURE;
     if (!getIsGameOver(state)) return TaskState.PENDING;
     if (numTricksWonByOwner === count) return TaskState.SUCCESS;
     return TaskState.PENDING;
@@ -43,17 +44,15 @@ export function task_winComparativeTrickCount(
   player: number | typeof CAPTAIN,
 ): TasksDataEntryTest {
   return (state: GameState, owner: number): TaskState => {
-    if (player === CAPTAIN) {
-      player = getCaptainId(state);
-    }
+    if (!getIsGameOver(state)) return TaskState.PENDING;
 
     const numTricksWonByOwner = getNumTricksWonByPlayer(owner, state);
-    const numTricksWonByTarget = getNumTricksWonByPlayer(player, state);
+    const numTricksWonByTarget = getNumTricksWonByPlayer(player === CAPTAIN ? getCaptainId(state) : player, state);
 
     const comparisonMet = compare(numTricksWonByOwner, comparison, numTricksWonByTarget);
 
     if (comparisonMet) return TaskState.SUCCESS;
-    return TaskState.PENDING;
+    return TaskState.FAILURE;
   };
 }
 
@@ -78,12 +77,14 @@ export function task_winCardCountWithProperty(
 ): TasksDataEntryTest {
   return (state: GameState, owner: number): TaskState => {
     const cardsWon = getCardsWonByPlayer(owner, state).filter(c => c.number === property || c.suit === property);
+    const isGameOver = getIsGameOver(state);
     // TODO: add logic if cards needed have been won by other players?
 
     if (exact && cardsWon.length > count) return TaskState.FAILURE;
-    if (exact && !getIsGameOver(state)) return TaskState.PENDING;
+    if (exact && !isGameOver) return TaskState.PENDING;
     if (exact && cardsWon.length === count) return TaskState.SUCCESS;
     if (cardsWon.length >= count) return TaskState.SUCCESS;
+    if (isGameOver) return TaskState.FAILURE;
     return TaskState.PENDING;
   };
 }
@@ -99,9 +100,9 @@ export function task_winComparativeCardCountForProperties(
     if (!getIsGameOver(state)) return TaskState.PENDING;
     const ownerCards = getCardsWonByPlayer(owner, state);
     const countA = getCardsWithProperty(ownerCards, propertyA).length;
-    const countb = getCardsWithProperty(ownerCards, propertyB).length;
+    const countB = getCardsWithProperty(ownerCards, propertyB).length;
 
-    const comparisonMet = compare(countA, comparison, countb);
+    const comparisonMet = compare(countA, comparison, countB);
     if (comparisonMet) return TaskState.SUCCESS;
     return TaskState.FAILURE;
   };
@@ -164,12 +165,11 @@ export function task_winNthTrick(
   not = false,
 ): TasksDataEntryTest {
   return (state: GameState, owner: number): TaskState => {
-    if (n === LAST_TRICK) {
-      n = getMaxTrickCount(state);
-    }
-    if (n !== state.tricks?.length) return TaskState.PENDING;
-    if (not ? state.tricks[n - 1].winner !== owner : state.tricks[n - 1].winner === owner) {
-      return condition(state.tricks[n - 1]) ? TaskState.SUCCESS : TaskState.FAILURE;
+    const realN = n === LAST_TRICK ? getMaxTrickCount(state) : n;
+    if (!state.tricks || !state.tricks.length) return TaskState.PENDING;
+    if (realN > state.tricks.length) return TaskState.PENDING;
+    if (not ? state.tricks[realN - 1].winner !== owner : state.tricks[realN - 1].winner === owner) {
+      return condition(state.tricks[realN - 1]) ? TaskState.SUCCESS : TaskState.FAILURE;
     }
     return TaskState.FAILURE;
   };
@@ -181,7 +181,7 @@ export function task_notOpenTrickWithCardProperty(property: Suit | number): Task
   return (state: GameState, owner: number): TaskState => {
     const trick = getMostRecentTrick(state);
     if (!trick) return TaskState.PENDING;
-    if (owner !== trick.leader || (trick.cards?.length || 0) > 1) {
+    if (owner !== trick.leader) {
       if (state.tricks?.length === getMaxTrickCount(state)) {
         return TaskState.SUCCESS;
       }
@@ -189,14 +189,13 @@ export function task_notOpenTrickWithCardProperty(property: Suit | number): Task
     }
 
     // owner leads with a card with given property
-    if (trick.cards?.length === 1 && (trick.cards[0].number === property || trick.cards[0].suit === property))
-      return TaskState.FAILURE;
+    if (trick.cards?.[0].number === property || trick.cards?.[0].suit === property) return TaskState.FAILURE;
 
     // owner's hand only contains cards with the given property
     if (state.players[0].hand?.every(card => card.number === property || card.suit === property))
       return TaskState.FAILURE;
 
-    if (state.tricks?.length === getMaxTrickCount(state)) {
+    if (state.tricks?.length === getMaxTrickCount(state) && (trick.cards?.length || 0) > 1) {
       return TaskState.SUCCESS;
     }
     return TaskState.PENDING;
