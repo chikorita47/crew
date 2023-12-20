@@ -358,6 +358,92 @@ describe('computeWinner', () => {
   });
 });
 
+describe('computeAndSetTaskState', () => {
+  it('sets done state if a task has succeeded', () => {
+    const state = createGameState();
+    state.players[0].tasks = { 70: { id: 70, done: false, failed: false } }; // win first trick
+    state.tricks = [
+      {
+        winner: 0,
+        leader: 1,
+        cards: [
+          { number: 3, suit: 'green' },
+          { number: 9, suit: 'blue' },
+          { number: 5, suit: 'green' },
+        ],
+      },
+    ];
+    Actions.computeAndSetTaskState(state);
+    expect(state.players[0].tasks).toEqual({ 70: { id: 70, done: true, failed: false } });
+  });
+  it('sets failure state if a task has failed', () => {
+    const state = createGameState();
+    state.players[0].tasks = { 70: { id: 70, done: false, failed: false } }; // win first trick
+    state.tricks = [
+      {
+        winner: 2,
+        leader: 0,
+        cards: [
+          { number: 3, suit: 'green' },
+          { number: 9, suit: 'blue' },
+          { number: 5, suit: 'green' },
+        ],
+      },
+    ];
+    Actions.computeAndSetTaskState(state);
+    expect(state.players[0].tasks).toEqual({ 70: { id: 70, done: false, failed: true } });
+  });
+  it('ignores a task that is still pending', () => {
+    const state = createGameState();
+    state.players[0].tasks = { 71: { id: 71, done: false, failed: false } }; // win first 2 tricks
+    state.tricks = [
+      {
+        winner: 0,
+        leader: 1,
+        cards: [
+          { number: 3, suit: 'green' },
+          { number: 9, suit: 'blue' },
+          { number: 5, suit: 'green' },
+        ],
+      },
+    ];
+    Actions.computeAndSetTaskState(state);
+    expect(state.players[0].tasks).toEqual({ 71: { id: 71, done: false, failed: false } });
+  });
+  it('ignores a task where state is already set', () => {
+    const stateAlreadyDone = createGameState();
+    stateAlreadyDone.players[0].tasks = { 70: { id: 70, done: true, failed: false } }; // win first trick
+    stateAlreadyDone.tricks = [
+      {
+        winner: 2, // would fail
+        leader: 0,
+        cards: [
+          { number: 3, suit: 'green' },
+          { number: 9, suit: 'blue' },
+          { number: 5, suit: 'green' },
+        ],
+      },
+    ];
+    Actions.computeAndSetTaskState(stateAlreadyDone);
+    expect(stateAlreadyDone.players[0].tasks).toEqual({ 70: { id: 70, done: true, failed: false } });
+    const stateAlreadyFailed = createGameState();
+    stateAlreadyFailed.players[0].tasks = { 70: { id: 70, done: false, failed: true } }; // win first trick
+    stateAlreadyFailed.tricks = [
+      {
+        winner: 0, // would succeed
+        leader: 1,
+        cards: [
+          { number: 3, suit: 'green' },
+          { number: 9, suit: 'blue' },
+          { number: 5, suit: 'green' },
+        ],
+      },
+    ];
+    Actions.computeAndSetTaskState(stateAlreadyFailed);
+    expect(stateAlreadyFailed.players[0].tasks).toEqual({ 70: { id: 70, done: false, failed: true } });
+  });
+});
+
 describe('playCard', () => {
   it('throws if player is out of turn', () => {
     expect(() => Actions.playCard(createGameState(), 2, 0)).toThrow(Error);
@@ -414,6 +500,30 @@ describe('playCard', () => {
       winner: 2,
     });
   });
+  it('sets task state if a trick was just finished', () => {
+    const state = createGameState();
+    state.players[0].tasks[71] = { id: 71, done: false, failed: false };
+    state.players[1].tasks[77] = { id: 77, done: false, failed: false };
+    state.tricks[1].cards = [
+      { number: 9, suit: 'yellow' },
+      { number: 8, suit: 'yellow' },
+    ];
+    const newState = Actions.playCard(state, 2, 1);
+    expect(newState.tricks[1]).toEqual({
+      leader: 0,
+      cards: [
+        { number: 9, suit: 'yellow' },
+        { number: 8, suit: 'yellow' },
+        { number: 7, suit: 'yellow' },
+      ],
+      winner: 0,
+    });
+    expect(newState.players[0].tasks).toEqual({
+      ...state.players[0].tasks,
+      71: { id: 71, done: true, failed: false },
+    });
+    expect(newState.players[1].tasks).toEqual(state.players[1].tasks);
+  });
 });
 
 describe('giveHint', () => {
@@ -453,6 +563,14 @@ describe('toggleTaskDone', () => {
     expect(newState1.players[0].tasks['23'].done).toBe(true);
     const newState2 = Actions.toggleTaskDone(state, 0, 14);
     expect(newState2.players[0].tasks['14'].done).toBe(false);
+  });
+  it('unsets failed state if set', () => {
+    const state = createGameState();
+    state.players[0].tasks[23].failed = true;
+    state.players[0].tasks[14].failed = true;
+    const newState = Actions.toggleTaskDone(Actions.toggleTaskDone(state, 0, 23), 0, 14);
+    expect(newState.players[0].tasks['23'].failed).toBe(false);
+    expect(newState.players[0].tasks['14'].failed).toBe(false);
   });
 });
 
