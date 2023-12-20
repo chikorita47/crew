@@ -474,6 +474,28 @@ const TESTS = {
     ],
     [TaskState.FAILURE]: [tricks(cards(Suit.BLACK, 4, Suit.BLACK, 3, Suit.PINK, 9), 1, 1)], // someone else wins
   },
+  // win blue 6 and yellow 7
+  80: {
+    [TaskState.SUCCESS]: [
+      tricks(cards(Suit.BLUE, 6, Suit.YELLOW, 7, Suit.PINK, 9), 0, 0), // one trick
+      // multiple tricks
+      tricks(
+        cards(Suit.BLUE, 6, Suit.GREEN, 9, Suit.PINK, 9),
+        0,
+        0,
+        cards(Suit.BLUE, 9, Suit.GREEN, 9, Suit.YELLOW, 7),
+        0,
+        0,
+      ),
+    ],
+    [TaskState.PENDING]: [
+      tricks(cards(Suit.BLUE, 6, Suit.GREEN, 9, Suit.PINK, 9), 0, 0), // one but not the other
+    ],
+    [TaskState.FAILURE]: [
+      tricks(cards(Suit.BLUE, 6, Suit.GREEN, 9, Suit.PINK, 9), 1, 1), // someone else wins one
+      tricks(cards(Suit.BLUE, 9, Suit.GREEN, 9, Suit.YELLOW, 7), 1, 1), // someone else wins other
+    ],
+  },
   // win pink 7 with a black
   91: {
     [TaskState.SUCCESS]: [
