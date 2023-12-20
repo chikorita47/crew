@@ -28,6 +28,7 @@ import {
   Trick,
   Suit,
   TaskData,
+  TaskState,
 } from './types';
 import { SUIT_ORDER, createDeck, generateCode, shuffle } from './utilities';
 
@@ -269,6 +270,24 @@ export function computeWinner(trick: Trick, numberOfPlayers: number) {
   return (winningPos + trick.leader) % numberOfPlayers;
 }
 
+/**
+ * Mutates state
+ */
+export function computeAndSetTaskState(state: GameState) {
+  state.players.forEach(player => {
+    if (!player.tasks) return;
+    Object.values(player.tasks).forEach(task => {
+      if (task.done || task.failed) return;
+      const taskState = TASKS_DATA[task.id].test(state, player.id);
+      if (taskState === TaskState.SUCCESS) {
+        state.players[player.id].tasks![task.id].done = true;
+      } else if (taskState === TaskState.FAILURE) {
+        state.players[player.id].tasks![task.id].failed = true;
+      }
+    });
+  });
+}
+
 export function playCard(state: GameState, playerId: number, cardIndex: number): GameState {
   if (getNextPlayerId(state) !== playerId) {
     throw new Error(`${getPlayerName(state, playerId)} is trying to play out of turn`);
@@ -306,11 +325,15 @@ export function playCard(state: GameState, playerId: number, cardIndex: number):
       ...latestTrick,
       cards: [...(latestTrick.cards || []), card],
     };
-    if (updatedTrick.cards.length === numberOfPlayers) {
+    const isTrickComplete = updatedTrick.cards.length === numberOfPlayers;
+    if (isTrickComplete) {
       updatedTrick.winner = computeWinner(updatedTrick, numberOfPlayers);
-      // TODO: compute if any tasks have been completed
     }
     newState.tricks![getCurrentTrickId(state)] = updatedTrick;
+
+    if (isTrickComplete) {
+      computeAndSetTaskState(newState);
+    }
   }
 
   return newState;
@@ -346,6 +369,7 @@ export function toggleTaskDone(state: GameState, playerId: number, taskId: numbe
   const newState = structuredClone(state);
   if (!newState.players[playerId].tasks?.[taskId]) throw new Error(`Player does not have task ${taskId}`);
   newState.players[playerId].tasks![taskId].done = !newState.players[playerId].tasks![taskId].done;
+  newState.players[playerId].tasks![taskId].failed = false;
   return newState;
 }
 
