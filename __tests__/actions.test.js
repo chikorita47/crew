@@ -50,6 +50,30 @@ describe('dealTasks', () => {
   it('throws if given too high a difficulty', () => {
     expect(() => Actions.dealTasks(createGameState(), 1000)).toThrow(Error);
   });
+  it('uses leftoverTasks if they exist', () => {
+    const state = createGameState();
+    state.leftoverTasks = [47, 48, 49];
+    const newState = Actions.dealTasks(state, 7);
+    expect(newState.unassignedTasks.tasks).toEqual({ 47: { id: 47 }, 48: { id: 48 }, 49: { id: 49 } });
+    expect(newState.unassignedTasks.order).toEqual([47, 48, 49]);
+  });
+  it('uses leftoverTasks and then redeals the rest if difficulty is too high', () => {
+    const state = createGameState();
+    state.leftoverTasks = [47];
+    const newState = Actions.dealTasks(state, 4);
+
+    // should deal task 47 and then a random difficulty 1 task
+    expect(newState.unassignedTasks.tasks[47]).toEqual({ id: 47 });
+    expect(newState.unassignedTasks.order[0]).toEqual(47);
+    expect(newState.unassignedTasks.order.length).toEqual(2);
+    expect(TASKS_DATA[newState.unassignedTasks.order[1]].difficulty[0]).toEqual(1);
+
+    // leftoverTasks should now include all tasks in the game
+    // except for 47 and the other difficulty 1 task it just dealt
+    expect(newState.leftoverTasks.length).toEqual(Object.keys(TASKS_DATA).length - 2);
+    expect(newState.leftoverTasks.includes(47)).toBe(false);
+    expect(newState.leftoverTasks.includes(newState.unassignedTasks.order[1])).toBe(false);
+  });
 });
 
 describe('toggleClaimTask', () => {

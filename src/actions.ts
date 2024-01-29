@@ -18,6 +18,7 @@ import {
   getIsCardLegalToPlay,
   getAreAllHintsUsed,
   getNextDealerId,
+  getLeftoverTasks,
 } from './selectors';
 import {
   HintPlacement,
@@ -120,12 +121,28 @@ function getTasksForDifficulty(
   skippedTasks: number[];
   remainingTasks: number[];
 } {
+  const initialPool = [...pool];
   const tasksToUse = [];
   const skippedTasks = [];
   let difficultyCounter = 0;
+  let hasReshuffledTasks = false;
   while (difficultyCounter < difficulty) {
     const newTaskId = pool.shift();
-    if (newTaskId === undefined) throw new Error('Failed to reach difficulty');
+    if (newTaskId === undefined) {
+      if (hasReshuffledTasks) {
+        // only allow reshuffling once per call of this function
+        throw new Error('Failed to reach difficulty');
+      }
+      pool = pool.concat(
+        shuffle(
+          Object.keys(TASKS_DATA)
+            .map(taskIdString => ~~taskIdString)
+            .filter(taskId => !initialPool.includes(taskId)),
+        ),
+      );
+      hasReshuffledTasks = true;
+      continue;
+    }
     const newTaskDifficulty = TASKS_DATA[newTaskId].difficulty[difficultyIndex];
     if (difficultyCounter + newTaskDifficulty > difficulty) {
       skippedTasks.push(newTaskId);
@@ -140,8 +157,11 @@ function getTasksForDifficulty(
 export function dealTasks(state: GameState, difficulty: number): GameState {
   const numberOfPlayers = getNumberOfPlayers(state);
 
-  const allTasks = shuffle(Object.keys(TASKS_DATA).map(taskIdString => ~~taskIdString)); // TODO: do this elsewhere
-  const { tasksToUse, skippedTasks, remainingTasks } = getTasksForDifficulty(allTasks, difficulty, numberOfPlayers - 3);
+  const { tasksToUse, skippedTasks, remainingTasks } = getTasksForDifficulty(
+    getLeftoverTasks(state),
+    difficulty,
+    numberOfPlayers - 3,
+  );
 
   const newState = structuredClone(state);
 

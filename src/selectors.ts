@@ -83,6 +83,10 @@ export function getPlayerNamesById(state: GameState): string[] {
   return state.players.map(player => player.name);
 }
 
+export function getLeftoverTasks(state: GameState): number[] {
+  return state.leftoverTasks ?? [];
+}
+
 export function getUnassignedTasksExist(state: GameState): boolean {
   return !!Object.keys(state.unassignedTasks?.tasks ?? []).length;
 }
