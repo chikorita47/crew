@@ -37,6 +37,10 @@ export function getDealerId(state: GameState): number {
   return getDealer(state).id;
 }
 
+export function getNextDealerId(state: GameState): number {
+  return (getDealer(state).id + 1) % getNumberOfPlayers(state);
+}
+
 export function getDealerName(state: GameState): string {
   return getDealer(state).name;
 }

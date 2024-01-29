@@ -266,6 +266,63 @@ describe('finalizeTasksAndRuleset', () => {
   });
 });
 
+describe('retryGame', () => {
+  const state = createGameState();
+  state.players[0].tasks[23].failed = true;
+  state.timeout = true;
+  state.players[1].isDealer = true;
+  state.players[2].isDealer = false;
+  const newState = Actions.retryGame(state);
+
+  it('throws if the game is not completed', () => {
+    expect(() => Actions.retryGame(createGameState())).toThrow(Error);
+  });
+  it('resets tasks', () => {
+    expect(newState.unassignedTasks).toEqual({
+      order: [14, 23],
+      tasks: { 23: { id: 23 }, 14: { id: 14 } },
+    });
+    for (const player of newState.players) {
+      expect(player.tasks).toBeUndefined();
+    }
+  });
+  it('re-deals hands and moves the dealer to the next player', () => {
+    expect(newState.players[2].isDealer).toBe(true);
+    expect(newState.players[0].isDealer).toBe(false);
+    expect(newState.players[1].isDealer).toBe(false);
+
+    expect(newState.players[0].extraCards).toEqual(1);
+    expect(newState.players[1].extraCards).toEqual(0);
+    expect(newState.players[2].extraCards).toEqual(0);
+
+    expect(newState.players[0].hand.length).toEqual(14);
+    expect(newState.players[1].hand.length).toEqual(13);
+    expect(newState.players[2].hand.length).toEqual(13);
+  });
+  it('resets tricks, timeout and player hint state', () => {
+    expect(newState.tricks).toEqual([]);
+    expect(newState.timeout).toBe(false);
+
+    for (const player of newState.players) {
+      expect(player.hint).toEqual({ used: false });
+    }
+  });
+  it('keeps player data', () => {
+    expect(newState.players[0].name === 'Nathan');
+    expect(newState.players[1].name === 'Eric');
+    expect(newState.players[2].name === 'Melora');
+  });
+});
+
+describe('removePlayerTasks', () => {
+  it('removes all tasks assigned to any players', () => {
+    const newState = Actions.removePlayerTasks(createGameState());
+    for (const player of newState.players) {
+      expect(player.tasks).toBeUndefined();
+    }
+  });
+});
+
 describe('computeWinner', () => {
   it('throws if the trick is not completed', () => {
     const trick = {

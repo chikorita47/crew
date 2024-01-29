@@ -1,3 +1,11 @@
 .code {
   user-select: text;
 }
+
+.closeButton {
+  position: absolute;
+  top: 0;
+  right: 0;
+  padding: 5vw;
+  opacity: 40%;
+}

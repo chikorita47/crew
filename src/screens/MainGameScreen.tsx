@@ -26,8 +26,9 @@ type MainGameScreenProps = {
   code: string;
   playerId: number;
   onPressPlayer: (playerId: number) => void;
+  onPressGameFinished: () => void;
 };
-function MainGameScreen({ state, code, playerId, onPressPlayer }: MainGameScreenProps) {
+function MainGameScreen({ state, code, playerId, onPressPlayer, onPressGameFinished }: MainGameScreenProps) {
   const [selectedCardIndex, setSelectedCardIndex] = useState<number | undefined>();
   const player = Selectors.getPlayer(state, playerId);
   const isHost = Selectors.getIsPlayerHost(state, playerId);
@@ -78,6 +79,8 @@ function MainGameScreen({ state, code, playerId, onPressPlayer }: MainGameScreen
           status={Selectors.getStatusText(state, playerId)}
           code={code}
           difficulty={Selectors.getDifficulty(state)}
+          showNavigation={isHost && isGameFinished}
+          onPressNavigation={onPressGameFinished}
         />
       </div>
       {isAnyCardSelected && (

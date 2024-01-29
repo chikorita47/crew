@@ -17,6 +17,7 @@ import {
   getAreAllTasksAssigned,
   getIsCardLegalToPlay,
   getAreAllHintsUsed,
+  getNextDealerId,
 } from './selectors';
 import {
   HintPlacement,
@@ -241,6 +242,39 @@ export function finalizeTasksAndRuleset(state: GameState, ruleset: Ruleset): Gam
 
   newState.ruleset = ruleset;
 
+  return newState;
+}
+
+export function retryGame(state: GameState): GameState {
+  if (!getIsGameFinished(state)) {
+    throw new Error('Cannot restart a game that is not finished');
+  }
+  const newState = structuredClone(state);
+
+  // recreate unassignedTasks
+  const tasks: UnassignedTaskList = {};
+  for (const player of newState.players) {
+    if (player.tasks) {
+      for (const taskId in player.tasks) {
+        tasks[taskId] = { id: ~~taskId };
+      }
+    }
+  }
+  newState.unassignedTasks = {
+    order: Object.keys(tasks).map(taskId => ~~taskId),
+    tasks,
+  };
+
+  // reset state and re-deal
+  return dealPlayerHands(removePlayerTasks(newState), getNextDealerId(state));
+}
+
+export function removePlayerTasks(state: GameState): GameState {
+  const newState = structuredClone(state);
+  newState.players = newState.players.map(player => {
+    const { tasks, ...playerWithoutTasks } = player;
+    return playerWithoutTasks;
+  });
   return newState;
 }
 

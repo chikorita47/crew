@@ -13,12 +13,14 @@ import TasksScreen from '../screens/TasksScreen';
 import * as Selectors from '../selectors';
 import { GameState, ProvisionalGame } from '../types';
 import UndoHandler from '../UndoHandler';
+import ResetGameScreen from '@/screens/ResetGameScreen';
 
 function App() {
   const [code, setCode] = useState<string | undefined>();
   const [key, setKey] = useState<string | undefined>();
   const [playerId, setPlayerId] = useState<number | undefined>();
   const [showTasksForPlayer, setShowTasksForPlayer] = useState<number | undefined>();
+  const [showResetGameScreen, setShowResetGameScreen] = useState<boolean>(false);
 
   let initialOrientation = 'portrait-primary';
   if (typeof screen !== 'undefined' && !!screen.orientation) {
@@ -114,12 +116,28 @@ function App() {
     );
   }
 
+  if (showResetGameScreen) {
+    return (
+      <ResetGameScreen
+        state={state}
+        code={code}
+        playerId={playerId}
+        onStartGame={newState => {
+          setState(newState);
+          setShowResetGameScreen(false);
+        }}
+        onPressBack={() => setShowResetGameScreen(false)}
+      />
+    );
+  }
+
   return (
     <MainGameScreen
       state={state}
       code={code}
       playerId={playerId}
       onPressPlayer={otherPlayerId => setShowTasksForPlayer(otherPlayerId)}
+      onPressGameFinished={() => setShowResetGameScreen(true)}
     />
   );
 }
