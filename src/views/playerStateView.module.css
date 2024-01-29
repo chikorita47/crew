@@ -15,6 +15,11 @@
   height: 9vw;
 }
 
+.tasks.complete {
+  border-color: rgba(0, 74, 173, 0.5);
+  color: rgba(0, 0, 0, 0.2);
+}
+
 .tasksBg {
   position: absolute;
   top: 50%;
@@ -23,6 +28,11 @@
   color: #004aad;
   font-size: 7vw;
   opacity: 25%;
+}
+
+.complete .tasksBg {
+  color: green;
+  opacity: 100%;
 }
 
 .tricksWon {

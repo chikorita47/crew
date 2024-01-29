@@ -26,7 +26,7 @@ function PlayerStateView({ hint, hintMode, tasksDone, tasksTotal, tricksWon }: P
         <div className={[styles.hint, hint?.used ? styles.used : styles.unused].join(' ')} />
       )}
       {tasksTotal > 0 && (
-        <div className={styles.tasks}>
+        <div className={[styles.tasks, tasksDone === tasksTotal ? styles.complete : null].filter(v => v).join(' ')}>
           <div className={styles.tasksBg}>✓</div>
           {tasksDone}/{tasksTotal}
         </div>
