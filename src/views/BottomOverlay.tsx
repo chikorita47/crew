@@ -8,7 +8,7 @@ type BottomOverlayProps = {
   code: string;
   difficulty?: number;
   showNavigation?: boolean;
-  onPressNavigation: () => void;
+  onPressNavigation?: () => void;
 };
 function BottomOverlay(props: BottomOverlayProps) {
   return (
