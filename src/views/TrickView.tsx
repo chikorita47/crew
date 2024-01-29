@@ -20,8 +20,10 @@ type TrickViewProps = {
   trick: Trick;
   numberOfPlayers: number;
   playerId: number;
+  nextPlayerId: number;
 };
-function TrickView({ trick, numberOfPlayers, playerId }: TrickViewProps) {
+function TrickView({ trick, numberOfPlayers, playerId, nextPlayerId }: TrickViewProps) {
+  const shouldShowNextCardSpot = !trick.cards || trick.cards.length < numberOfPlayers;
   return (
     <div className={[styles.trick, cityMedium.className].join(' ')}>
       {trick.cards?.map((card, index) => {
@@ -41,6 +43,9 @@ function TrickView({ trick, numberOfPlayers, playerId }: TrickViewProps) {
           </div>
         );
       })}
+      {shouldShowNextCardSpot && (
+        <div className={[styles.trickCardEmpty, trickCardStyle(nextPlayerId, playerId, numberOfPlayers)].join(' ')} />
+      )}
     </div>
   );
 }

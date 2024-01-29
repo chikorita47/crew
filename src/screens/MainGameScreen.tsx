@@ -64,7 +64,12 @@ function MainGameScreen({ state, code, playerId, onPressPlayer, onPressGameFinis
         />
       </div>
       <div className={styles.trickContainer}>
-        <TrickView trick={Selectors.getCurrentTrick(state)} numberOfPlayers={numberOfPlayers} playerId={playerId} />
+        <TrickView
+          trick={Selectors.getCurrentTrick(state)}
+          numberOfPlayers={numberOfPlayers}
+          playerId={playerId}
+          nextPlayerId={nextPlayerId}
+        />
       </div>
       <div className={styles.lowerGameContainer}>
         <SelfView
