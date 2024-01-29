@@ -123,6 +123,7 @@ export function getIsGameStarted(state: GameState): boolean {
 export function getIsGameFinished(state: GameState): boolean {
   if (state.timeout) return true;
   if (state.players.some(player => player.tasks && Object.values(player.tasks).some(task => task.failed))) return true;
+  if (getAreAllTasksDone(state)) return true;
   const numberOfPlayers = getNumberOfPlayers(state);
   const tricksInGame = Math.floor(40 / numberOfPlayers);
   return (

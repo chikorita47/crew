@@ -163,6 +163,11 @@ describe('getIsGameFinished', () => {
     state.players[0].tasks[23].failed = true;
     expect(Selectors.getIsGameFinished(state)).toBe(true);
   });
+  it('returns true if all tasks are done', () => {
+    const state = createGameState();
+    state.players[0].tasks[23].done = true;
+    expect(Selectors.getIsGameFinished(state)).toBe(true);
+  });
 });
 
 describe('getAreAllTasksDone', () => {
