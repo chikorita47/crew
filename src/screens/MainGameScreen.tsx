@@ -49,6 +49,9 @@ function MainGameScreen({ state, code, playerId, onPressPlayer }: MainGameScreen
     isAnyCardSelected && Selectors.getIsCardLegalToPlay(state, playerId, selectedCardIndex);
   const canGiveHint = isAnyCardSelected && Selectors.getCanPlayerGiveHint(state, playerId);
   const hintPlacement = canGiveHint && Selectors.getHintPlacementForCard(state, playerId, selectedCardIndex);
+
+  const isGameFinished = Selectors.getIsGameFinished(state);
+  const onSelectCard = isGameFinished ? undefined : (index?: number) => setSelectedCardIndex(index);
   return (
     <div className={styles.gameContainer}>
       <div className={styles.upperGameContainer}>
@@ -70,11 +73,7 @@ function MainGameScreen({ state, code, playerId, onPressPlayer }: MainGameScreen
           onPress={() => onPressPlayer(playerId)}
           onPressUndo={isHost ? undo : undefined}
         />
-        <HandView
-          hand={hand}
-          selectedCardIndex={selectedCardIndex}
-          onSelectCard={index => setSelectedCardIndex(index)}
-        />
+        <HandView hand={hand} selectedCardIndex={selectedCardIndex} onSelectCard={onSelectCard} />
         <BottomOverlay
           status={Selectors.getStatusText(state, playerId)}
           code={code}
