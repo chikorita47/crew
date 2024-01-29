@@ -12,7 +12,8 @@ export function isCardEqual(from: Card, to: Card): boolean {
 export function isCardSimilar(from: Card, to: Partial<Card>): boolean {
   if (typeof to.number === 'number' && typeof to.suit === 'string')
     return isCardEqual(from, { number: to.number, suit: to.suit });
-  return from.number === to.number || from.suit === to.suit;
+  // if comparing only a number, black should never be a match
+  return (from.number === to.number && from.suit !== Suit.BLACK) || from.suit === to.suit;
 }
 
 export function generateCode(): string {

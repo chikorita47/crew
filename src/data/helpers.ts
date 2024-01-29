@@ -76,7 +76,8 @@ export function task_winCardCountWithProperty(
   exact: boolean,
 ): TasksDataEntryTest {
   return (state: GameState, owner: number): TaskState => {
-    const cardsWon = getCardsWonByPlayer(owner, state).filter(c => c.number === property || c.suit === property);
+    const ownerCards = getCardsWonByPlayer(owner, state);
+    const cardsWon = getCardsWithProperty(ownerCards, property);
     const isGameOver = getIsGameOver(state);
     // TODO: add logic if cards needed have been won by other players?
 
@@ -269,7 +270,8 @@ export function getNumConsecutiveTricksWonByPlayer(player: number, state: GameSt
   return state.tricks?.reduce((acc, trick) => (trick.winner === player ? acc + 1 : 0), 0) || 0;
 }
 export function getCardsWithProperty(cards: Card[], property: Suit | number) {
-  return cards.filter(c => c.number === property || c.suit === property);
+  // if property is a number, black should never be a match
+  return cards.filter(c => (c.number === property && c.suit !== Suit.BLACK) || c.suit === property);
 }
 export function getCardPlayedByPlayerInTrick(player: number, trick: Trick, state: GameState) {
   if (!trick.cards) throw new Error('No cards have been played in the given trick');

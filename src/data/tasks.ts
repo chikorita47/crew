@@ -107,16 +107,16 @@ export default {
   '9': {
     id: 9,
     text: 'I will win a trick that contains only even-numbered cards',
-    subtext: '',
+    subtext: 'Submarines are not allowed in the trick',
     difficulty: [2, 5, 6],
-    test: task_winTrickPassingCardTest(c => c.number % 2 === 0),
+    test: task_winTrickPassingCardTest(c => c.number % 2 === 0 && c.suit !== Suit.BLACK),
   },
   '10': {
     id: 10,
     text: 'I will win a trick that contains only odd-numbered cards',
-    subtext: '',
+    subtext: 'Submarines are not allowed in the trick',
     difficulty: [2, 4, 5],
-    test: task_winTrickPassingCardTest(c => c.number % 2 === 1),
+    test: task_winTrickPassingCardTest(c => c.number % 2 === 1 && c.suit !== Suit.BLACK),
   },
   '11': {
     id: 11,
@@ -624,7 +624,14 @@ export default {
     text: 'I will win only the last trick',
     subtext: '',
     difficulty: [4, 4, 4],
-    test: taskIntersection(task_winNthTrick(LAST_TRICK), task_winExactTrickCount(1)),
+    test: (state, owner) => {
+      if (getNumTricksWonByPlayer(owner, state) > 1) return TaskState.FAILURE;
+      const trick = getMostRecentTrick(state);
+      if (state.tricks?.length === getMaxTrickCount(state)) {
+        return trick?.winner === owner ? TaskState.SUCCESS : TaskState.FAILURE;
+      }
+      return trick?.winner === owner ? TaskState.FAILURE : TaskState.PENDING;
+    },
   },
   '70': {
     id: 70,
