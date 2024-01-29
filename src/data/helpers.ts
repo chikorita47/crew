@@ -18,9 +18,9 @@ export const CAPTAIN = 'CAPTAIN';
 // I will win the {card}
 export function task_winSpecificCard(card: Card): TasksDataEntryTest {
   return (state: GameState, owner: number): TaskState => {
-    const trick = getMostRecentTrick(state);
-    if (trick?.cards?.some(trickCard => isCardEqual(card, trickCard))) {
-      return trick?.winner === owner ? TaskState.SUCCESS : TaskState.FAILURE;
+    const trickWithCard = state.tricks?.find(trick => trick.cards?.some(trickCard => isCardEqual(card, trickCard)));
+    if (trickWithCard) {
+      return trickWithCard.winner === owner ? TaskState.SUCCESS : TaskState.FAILURE;
     }
     return TaskState.PENDING;
   };
