@@ -24,6 +24,11 @@
   opacity: 40%;
 }
 
+.closeButton:active {
+  background-color: black;
+  color: white;
+}
+
 .hint {
   margin-top: 2vw;
   font-size: 4.5vw;

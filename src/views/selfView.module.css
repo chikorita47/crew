@@ -8,3 +8,9 @@
 .undo {
   font-size: 6vw;
 }
+
+.undo:active {
+  background-color: black;
+  color: white;
+  opacity: 40%;
+}

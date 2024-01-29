@@ -28,6 +28,11 @@
   opacity: 30%;
 }
 
+.taskCard:active {
+  background-color: #004aad;
+  color: #b6e4ff;
+}
+
 .taskText {
   font-size: 5vw;
 }

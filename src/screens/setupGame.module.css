@@ -9,3 +9,8 @@
   padding: 5vw;
   opacity: 40%;
 }
+
+.closeButton:active {
+  background-color: black;
+  color: white;
+}
