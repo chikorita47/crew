@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import styles from './assignTasks.module.css';
 import * as Actions from '../actions';
 import Button from '../components/Button';
+import ExtraCardsSymbol from '../components/ExtraCardsSymbol';
 import Modal from '../components/Modal';
 import * as Selectors from '../selectors';
 import { GameState, Ruleset, RulesetHintMode, UnassignedTask } from '../types';
@@ -63,6 +64,8 @@ function AssignTasksScreen({ state, code, playerId, onFinalizeTasks }: AssignTas
   const taskRequiringExtraData =
     taskRequiringExtraDataOrNull(unassignedTasks[94], playerId) ??
     taskRequiringExtraDataOrNull(unassignedTasks[95], playerId);
+
+  const hasExtraCards = !!Selectors.getPlayer(state, playerId).extraCards;
   return (
     <div className={styles.container}>
       {isHost && (
@@ -122,7 +125,8 @@ function AssignTasksScreen({ state, code, playerId, onFinalizeTasks }: AssignTas
         onPress={taskId => Actions.updateState(Actions.toggleClaimTask(state, playerId, taskId), code)}
         onKick={isHost ? taskId => Actions.updateState(Actions.kickTask(state, taskId), code) : undefined}
       />
-      <div className={styles.hand}>
+      <div className={[styles.hand, hasExtraCards ? styles.handWithExtraCardsSymbol : null].filter(v => v).join(' ')}>
+        {hasExtraCards && <ExtraCardsSymbol />}
         <HandView hand={Selectors.getPlayerHand(state, playerId)} />
         <BottomOverlay
           status={Selectors.getStatusText(state, playerId)}

@@ -13,6 +13,10 @@
   max-height: 25vw;
 }
 
+.handWithExtraCardsSymbol {
+  max-height: 32vw;
+}
+
 .header {
   position: sticky;
   top: 0;
