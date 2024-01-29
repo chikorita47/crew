@@ -18,3 +18,8 @@
 .button.disabled {
   opacity: 40%;
 }
+
+.button:active {
+  background-color: #004aad;
+  color: #b6e4ff;
+}
