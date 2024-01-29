@@ -32,9 +32,18 @@ function SetupGameScreen({ state, code, playerKey, onStartGame }: SetupGameScree
       </div>
       <div>Players:</div>
       {Object.entries(state.clientList).map(([key, playerName]) => (
-        <div key={key} onClick={() => setDealer(key)}>
-          {playerName}
+        <div key={key}>
+          <span onClick={() => setDealer(key)}>{playerName}</span>
           {key === dealer && ' (Dealer)'}
+          {state.host !== playerName && key !== dealer && (
+            <span
+              onClick={() => {
+                Actions.removeProvisionalPlayer(key, code);
+              }}>
+              {' '}
+              ✕
+            </span>
+          )}
         </div>
       ))}
       <input
