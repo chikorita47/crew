@@ -15,7 +15,7 @@ function Button(props: ButtonProps) {
       className={[styles.button, props.disabled ? styles.disabled : null, props.big ? styles.big : null]
         .filter(v => v)
         .join(' ')}
-      onClick={props.onPress ?? undefined}>
+      onClick={props.disabled ? undefined : props.onPress ?? undefined}>
       {props.text}
     </div>
   );

@@ -47,3 +47,11 @@
   right: 2vw;
   font-size: 24vw;
 }
+
+.leftButton:active {
+  opacity: 25%;
+}
+
+.rightButton:active {
+  opacity: 25%;
+}

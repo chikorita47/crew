@@ -109,3 +109,7 @@
   width: 8vw;
   height: 8vw;
 }
+
+.kick:active {
+  opacity: 40%;
+}

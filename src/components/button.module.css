@@ -19,7 +19,7 @@
   opacity: 40%;
 }
 
-.button:active {
+.button:active:not(.disabled) {
   background-color: #004aad;
   color: #b6e4ff;
 }
