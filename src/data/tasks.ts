@@ -436,7 +436,7 @@ export default {
     difficulty: [2, 2, 3],
     test: (state, owner) => {
       const tasks = state.players
-        .filter(p => p.id === owner)
+        .filter(p => p.id !== owner)
         .map(p => task_winComparativeTrickCount(Comparison.FEWER_THAN, p.id));
       return taskIntersection(...tasks)(state, owner);
     },
