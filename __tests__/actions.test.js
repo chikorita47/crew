@@ -1,4 +1,5 @@
 import * as Actions from '../src/actions';
+import * as ActionUtilities from '../src/actions/utilities';
 import { TASKS_DATA } from '../src/data';
 import { shuffle } from '../src/utilities';
 import { createGameState } from './util';
@@ -340,7 +341,7 @@ describe('retryGame', () => {
 
 describe('removePlayerTasks', () => {
   it('removes all tasks assigned to any players', () => {
-    const newState = Actions.removePlayerTasks(createGameState());
+    const newState = ActionUtilities.removePlayerTasks(createGameState());
     for (const player of newState.players) {
       expect(player.tasks).toBeUndefined();
     }
@@ -353,7 +354,7 @@ describe('computeWinner', () => {
       leader: 0,
       cards: [{ number: 9, suit: 'blue' }],
     };
-    expect(() => Actions.computeWinner(trick, 3)).toThrow(Error);
+    expect(() => ActionUtilities.computeWinner(trick, 3)).toThrow(Error);
   });
   it('returns the player of the highest card in the led suit, if no black cards', () => {
     const trick = {
@@ -365,9 +366,9 @@ describe('computeWinner', () => {
         { number: 7, suit: 'blue' },
       ],
     };
-    expect(Actions.computeWinner(trick, 4)).toEqual(3);
+    expect(ActionUtilities.computeWinner(trick, 4)).toEqual(3);
     trick.leader = 2;
-    expect(Actions.computeWinner(trick, 4)).toEqual(1);
+    expect(ActionUtilities.computeWinner(trick, 4)).toEqual(1);
   });
   it('returns the player of the highest black card, if any exist', () => {
     const trick = {
@@ -378,7 +379,7 @@ describe('computeWinner', () => {
         { number: 3, suit: 'black' },
       ],
     };
-    expect(Actions.computeWinner(trick, 3)).toEqual(0);
+    expect(ActionUtilities.computeWinner(trick, 3)).toEqual(0);
   });
 });
 
@@ -397,7 +398,7 @@ describe('computeAndSetTaskState', () => {
         ],
       },
     ];
-    Actions.computeAndSetTaskState(state);
+    ActionUtilities.computeAndSetTaskState(state);
     expect(state.players[0].tasks).toEqual({ 70: { id: 70, done: true, failed: false } });
   });
   it('sets failure state if a task has failed', () => {
@@ -414,7 +415,7 @@ describe('computeAndSetTaskState', () => {
         ],
       },
     ];
-    Actions.computeAndSetTaskState(state);
+    ActionUtilities.computeAndSetTaskState(state);
     expect(state.players[0].tasks).toEqual({ 70: { id: 70, done: false, failed: true } });
   });
   it('ignores a task that is still pending', () => {
@@ -431,7 +432,7 @@ describe('computeAndSetTaskState', () => {
         ],
       },
     ];
-    Actions.computeAndSetTaskState(state);
+    ActionUtilities.computeAndSetTaskState(state);
     expect(state.players[0].tasks).toEqual({ 71: { id: 71, done: false, failed: false } });
   });
   it('ignores a task where state is already set', () => {
@@ -448,7 +449,7 @@ describe('computeAndSetTaskState', () => {
         ],
       },
     ];
-    Actions.computeAndSetTaskState(stateAlreadyDone);
+    ActionUtilities.computeAndSetTaskState(stateAlreadyDone);
     expect(stateAlreadyDone.players[0].tasks).toEqual({ 70: { id: 70, done: true, failed: false } });
     const stateAlreadyFailed = createGameState();
     stateAlreadyFailed.players[0].tasks = { 70: { id: 70, done: false, failed: true } }; // win first trick
@@ -463,7 +464,7 @@ describe('computeAndSetTaskState', () => {
         ],
       },
     ];
-    Actions.computeAndSetTaskState(stateAlreadyFailed);
+    ActionUtilities.computeAndSetTaskState(stateAlreadyFailed);
     expect(stateAlreadyFailed.players[0].tasks).toEqual({ 70: { id: 70, done: false, failed: true } });
   });
 });

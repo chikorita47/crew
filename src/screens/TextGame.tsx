@@ -1,11 +1,10 @@
 'use client';
 
-import { child, onValue, ref } from 'firebase/database';
 import React, { useState, useEffect } from 'react';
 
 import * as Actions from '../actions';
 import { TASKS_DATA } from '../data';
-import db from '../firebase';
+import * as Db from '../firebase';
 import * as Selectors from '../selectors';
 import { GameState, Player, ProvisionalGame, Ruleset, RulesetHintMode, TaskData } from '../types';
 
@@ -27,7 +26,7 @@ function EnterGameView(props: EnterGameViewProps) {
             if (!name) {
               throw new Error('Must enter name');
             }
-            const { code, key } = await Actions.createGame(name);
+            const { code, key } = await Db.createGame(name);
             props.onEnterGame(code, key);
           }}
           value="Create New Game"
@@ -41,7 +40,7 @@ function EnterGameView(props: EnterGameViewProps) {
             if (!name || !code) {
               throw new Error('Must enter name and code');
             }
-            const key = await Actions.joinGame(name, code);
+            const key = await Db.joinGame(name, code);
             props.onEnterGame(code, key);
           }}
           value="Join Game"
@@ -93,10 +92,10 @@ function SetupGameView(props: SetupGameViewProps) {
           if (!difficulty) {
             throw new Error('Must enter valid difficulty');
           }
-          const initialState = await Actions.startGame(props.code);
+          const initialState = await Db.startGame(props.code);
           const dealerId = Selectors.getPlayerByKey(initialState, dealer).id;
           const stateWithDealFinished = Actions.dealPlayerHands(Actions.dealTasks(initialState, difficulty), dealerId);
-          Actions.updateState(stateWithDealFinished, props.code);
+          Db.updateState(stateWithDealFinished, props.code);
           props.onStartGame(stateWithDealFinished);
         }}
         value="Start Game"
@@ -171,9 +170,7 @@ function AssignTasksView(props: AssignTasksViewProps) {
         return (
           <div key={`task-${task.id}`}>
             <a
-              onClick={() =>
-                Actions.updateState(Actions.toggleClaimTask(props.state, props.playerId, task.id), props.code)
-              }>
+              onClick={() => Db.updateState(Actions.toggleClaimTask(props.state, props.playerId, task.id), props.code)}>
               {taskData.difficulty[difficultyIndex]}: {taskData.text}
               {taskData.subtext && `/${taskData.subtext}`}
               {'provisionalPlayerId' in task && ` (${Selectors.getPlayerName(props.state, task.provisionalPlayerId!)})`}
@@ -182,10 +179,7 @@ function AssignTasksView(props: AssignTasksViewProps) {
               <XTricksSelectorView
                 data={task.data}
                 onSubmit={value => {
-                  Actions.updateState(
-                    Actions.addDataToTask(props.state, props.playerId, task.id, { n: value }),
-                    props.code,
-                  );
+                  Db.updateState(Actions.addDataToTask(props.state, props.playerId, task.id, { n: value }), props.code);
                 }}
               />
             )}
@@ -193,7 +187,7 @@ function AssignTasksView(props: AssignTasksViewProps) {
               <input
                 type="button"
                 value="Kick Task"
-                onClick={() => Actions.updateState(Actions.kickTask(props.state, task.id), props.code)}
+                onClick={() => Db.updateState(Actions.kickTask(props.state, task.id), props.code)}
               />
             )}
           </div>
@@ -204,7 +198,7 @@ function AssignTasksView(props: AssignTasksViewProps) {
           <input
             type="button"
             onClick={() =>
-              Actions.updateState(Actions.dealPlayerHands(props.state, Selectors.getDealerId(props.state)), props.code)
+              Db.updateState(Actions.dealPlayerHands(props.state, Selectors.getDealerId(props.state)), props.code)
             }
             value="Re-deal"
           />
@@ -251,7 +245,7 @@ function AssignTasksView(props: AssignTasksViewProps) {
             type="button"
             onClick={() => {
               const newState = Actions.finalizeTasksAndRuleset(props.state, ruleset);
-              Actions.updateState(newState, props.code);
+              Db.updateState(newState, props.code);
               props.onFinalizeTasks(newState);
             }}
             value="Start Game"
@@ -373,7 +367,7 @@ function GameView(props: GameViewProps) {
                 key={`task-${task.id}`}
                 style={task.done ? { textDecoration: 'line-through' } : {}}
                 onClick={() =>
-                  Actions.updateState(Actions.toggleTaskDone(props.state, props.playerId, task.id), props.code)
+                  Db.updateState(Actions.toggleTaskDone(props.state, props.playerId, task.id), props.code)
                 }>
                 {taskData.text}
                 {taskData.subtext && `/${taskData.subtext}`}
@@ -391,7 +385,7 @@ function GameView(props: GameViewProps) {
           }
           const index = selectedCardIndex;
           setSelectedCardIndex(undefined);
-          Actions.updateState(Actions.playCard(props.state, props.playerId, index), props.code);
+          Db.updateState(Actions.playCard(props.state, props.playerId, index), props.code);
         }}
         value="Play Card"
         disabled={nextPlayerId !== props.playerId || !isSelectedCardLegalToPlay}
@@ -407,7 +401,7 @@ function GameView(props: GameViewProps) {
           }
           const index = selectedCardIndex;
           setSelectedCardIndex(undefined);
-          Actions.updateState(Actions.giveHint(props.state, props.playerId, index, hintPlacement), props.code);
+          Db.updateState(Actions.giveHint(props.state, props.playerId, index, hintPlacement), props.code);
         }}
         value="Place Hint"
         disabled={!canGiveHint || !hintPlacement}
@@ -432,9 +426,8 @@ function TextGameScreen() {
   const [state, setState] = useState<GameState | ProvisionalGame>();
   useEffect(() => {
     if (code) {
-      const gameRef = child(child(ref(db), 'games'), code);
-      const cleanup = onValue(gameRef, snapshot => {
-        setState(snapshot.val());
+      const cleanup = Db.subscribeToGame(code, state => {
+        setState(state);
       });
       return cleanup;
     }

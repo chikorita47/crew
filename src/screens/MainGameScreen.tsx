@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import * as Actions from '../actions';
 import Button from '../components/Button';
 import styles from './game.module.css';
+import * as Db from '../firebase';
 import { GameState } from '../types';
 import * as Selectors from '../selectors';
 import UndoHandler from '../UndoHandler';
@@ -42,9 +43,9 @@ function MainGameScreen({ state, code, playerId, onPressPlayer, onPressGameFinis
 
   const undo = () => {
     const prevState = UndoHandler.undo();
-    if (prevState) Actions.updateState(prevState, code);
+    if (prevState) Db.updateState(prevState, code);
   };
-  const reportBug = () => Actions.reportBug(state, code);
+  const reportBug = () => Db.reportBug(state, code);
 
   const isAnyCardSelected = selectedCardIndex || selectedCardIndex === 0;
   const isSelectedCardLegalToPlay =
@@ -101,7 +102,7 @@ function MainGameScreen({ state, code, playerId, onPressPlayer, onPressGameFinis
               }
               const index = selectedCardIndex;
               setSelectedCardIndex(undefined);
-              Actions.updateState(Actions.playCard(state, playerId, index), code);
+              Db.updateState(Actions.playCard(state, playerId, index), code);
             }}
             big
           />
@@ -117,7 +118,7 @@ function MainGameScreen({ state, code, playerId, onPressPlayer, onPressGameFinis
                 }
                 const index = selectedCardIndex;
                 setSelectedCardIndex(undefined);
-                Actions.updateState(Actions.giveHint(state, playerId, index, hintPlacement), code);
+                Db.updateState(Actions.giveHint(state, playerId, index, hintPlacement), code);
               }}
               big
             />

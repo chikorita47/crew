@@ -2,6 +2,7 @@
 
 import React from 'react';
 import * as Actions from '../actions';
+import * as Db from '../firebase';
 import { cityMedium } from '../fonts';
 import * as Selectors from '../selectors';
 import styles from './tasks.module.css';
@@ -52,9 +53,7 @@ function TasksScreen({ state, code, playerId, isSelf, onClose }: TasksScreenProp
         tasks={Object.values(tasks)}
         difficultyIndex={Selectors.getNumberOfPlayers(state) - 3}
         showHiddenData={isSelf}
-        onPress={
-          isSelf ? taskId => Actions.updateState(Actions.toggleTaskDone(state, playerId, taskId), code) : undefined
-        }
+        onPress={isSelf ? taskId => Db.updateState(Actions.toggleTaskDone(state, playerId, taskId), code) : undefined}
       />
     </div>
   );

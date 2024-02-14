@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import styles from './setupGame.module.css';
 import * as Actions from '../actions';
 import Button from '../components/Button';
+import * as Db from '../firebase';
 import { getPlayerByKey } from '../selectors';
 import { GameState, ProvisionalGame } from '../types';
 
@@ -38,7 +39,7 @@ function SetupGameScreen({ state, code, playerKey, onStartGame }: SetupGameScree
           {state.host !== playerName && key !== dealer && (
             <span
               onClick={() => {
-                Actions.removeProvisionalPlayer(key, code);
+                Db.removeProvisionalPlayer(key, code);
               }}>
               {' '}
               ✕
@@ -61,10 +62,10 @@ function SetupGameScreen({ state, code, playerKey, onStartGame }: SetupGameScree
           if (!difficulty) {
             throw new Error('Must enter valid difficulty');
           }
-          const initialState = await Actions.startGame(code);
+          const initialState = await Db.startGame(code);
           const dealerId = getPlayerByKey(initialState, dealer).id;
           const stateWithDealFinished = Actions.dealPlayerHands(Actions.dealTasks(initialState, difficulty), dealerId);
-          Actions.updateState(stateWithDealFinished, code);
+          Db.updateState(stateWithDealFinished, code);
           onStartGame(stateWithDealFinished);
         }}
       />

@@ -6,6 +6,7 @@ import * as Actions from '../actions';
 import Button from '../components/Button';
 import ExtraCardsSymbol from '../components/ExtraCardsSymbol';
 import Modal from '../components/Modal';
+import * as Db from '../firebase';
 import * as Selectors from '../selectors';
 import { GameState, Ruleset, RulesetHintMode, UnassignedTask } from '../types';
 import HandView from '../views/HandView';
@@ -103,14 +104,14 @@ function AssignTasksScreen({ state, code, playerId, onFinalizeTasks }: AssignTas
           <div className={styles.buttonContainer}>
             <Button
               text="RE-DEAL"
-              onPress={() => Actions.updateState(Actions.dealPlayerHands(state, Selectors.getDealerId(state)), code)}
+              onPress={() => Db.updateState(Actions.dealPlayerHands(state, Selectors.getDealerId(state)), code)}
             />
             <Button
               text="START GAME"
               disabled={!Selectors.getAreAllTasksAssigned(state)}
               onPress={() => {
                 const newState = Actions.finalizeTasksAndRuleset(state, ruleset);
-                Actions.updateState(newState, code);
+                Db.updateState(newState, code);
                 onFinalizeTasks(newState);
               }}
             />
@@ -122,8 +123,8 @@ function AssignTasksScreen({ state, code, playerId, onFinalizeTasks }: AssignTas
         difficultyIndex={difficultyIndex}
         playerNames={Selectors.getPlayerNamesById(state)}
         playerId={playerId}
-        onPress={taskId => Actions.updateState(Actions.toggleClaimTask(state, playerId, taskId), code)}
-        onKick={isHost ? taskId => Actions.updateState(Actions.kickTask(state, taskId), code) : undefined}
+        onPress={taskId => Db.updateState(Actions.toggleClaimTask(state, playerId, taskId), code)}
+        onKick={isHost ? taskId => Db.updateState(Actions.kickTask(state, taskId), code) : undefined}
       />
       <div className={[styles.hand, hasExtraCards ? styles.handWithExtraCardsSymbol : null].filter(v => v).join(' ')}>
         {hasExtraCards && <ExtraCardsSymbol />}
@@ -137,7 +138,7 @@ function AssignTasksScreen({ state, code, playerId, onFinalizeTasks }: AssignTas
       {!!taskRequiringExtraData && (
         <XTricksSelectorView
           onSubmit={value =>
-            Actions.updateState(Actions.addDataToTask(state, playerId, taskRequiringExtraData.id, { n: value }), code)
+            Db.updateState(Actions.addDataToTask(state, playerId, taskRequiringExtraData.id, { n: value }), code)
           }
         />
       )}

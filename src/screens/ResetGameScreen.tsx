@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import styles from './setupGame.module.css';
 import * as Actions from '../actions';
 import Button from '../components/Button';
+import * as Db from '../firebase';
 import { getIsGameFinished, getIsPlayerHost, getNextDealerId } from '../selectors';
 import { GameState } from '../types';
 
@@ -34,7 +35,7 @@ function ResetGameScreen({ state, code, playerId, onStartGame, onPressBack }: Re
         text="RETRY SAME TASKS"
         onPress={async () => {
           const retryState = Actions.retryGame(state);
-          Actions.updateState(retryState, code);
+          Db.updateState(retryState, code);
           onStartGame(retryState);
         }}
       />
@@ -60,11 +61,8 @@ function ResetGameScreen({ state, code, playerId, onStartGame, onPressBack }: Re
           if (!difficulty) {
             throw new Error('Must enter valid difficulty');
           }
-          const redealState = Actions.dealPlayerHands(
-            Actions.dealTasks(Actions.removePlayerTasks(state), difficulty),
-            dealer,
-          );
-          Actions.updateState(redealState, code);
+          const redealState = Actions.dealNewGame(state, difficulty, dealer);
+          Db.updateState(redealState, code);
           onStartGame(redealState);
         }}
       />

@@ -2,8 +2,8 @@
 
 import React, { useState } from 'react';
 import styles from './enterGame.module.css';
-import { createGame, joinGame } from '../actions';
 import Button from '../components/Button';
+import { createGame, joinGame } from '../firebase';
 
 type EnterGameScreenProps = {
   onEnterGame: (code: string, key: string) => void;

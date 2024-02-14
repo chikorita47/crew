@@ -1,19 +1,18 @@
 'use client';
 
-import { child, onValue, ref } from 'firebase/database';
 import React, { useEffect, useState } from 'react';
 
-import db from '../firebase';
+import { subscribeToGame } from '../firebase';
 import AssignTasksScreen from '../screens/AssignTasksScreen';
 import EnterGameScreen from '../screens/EnterGameScreen';
 import MainGameScreen from '../screens/MainGameScreen';
+import ResetGameScreen from '../screens/ResetGameScreen';
 import SetupGameScreen from '../screens/SetupGameScreen';
 import TasksScreen from '../screens/TasksScreen';
 // import TextGameScreen from '../screens/TextGame';
 import * as Selectors from '../selectors';
 import { GameState, ProvisionalGame } from '../types';
 import UndoHandler from '../UndoHandler';
-import ResetGameScreen from '@/screens/ResetGameScreen';
 
 function App() {
   const [code, setCode] = useState<string | undefined>();
@@ -43,9 +42,7 @@ function App() {
   const [state, setState] = useState<GameState | ProvisionalGame>();
   useEffect(() => {
     if (code) {
-      const gameRef = child(child(ref(db), 'games'), code);
-      const cleanup = onValue(gameRef, snapshot => {
-        const newState = snapshot.val();
+      const cleanup = subscribeToGame(code, newState => {
         setState(newState);
         UndoHandler.save(newState);
       });
