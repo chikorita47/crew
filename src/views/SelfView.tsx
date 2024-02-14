@@ -12,18 +12,22 @@ type SelfViewProps = {
   hintMode: RulesetHintMode;
   onPress: () => void;
   onPressUndo?: () => void;
+  onPressReportBug?: () => void;
 };
-function SelfView({ player, tricksWon, hintMode, onPress, onPressUndo }: SelfViewProps) {
+function SelfView({ player, tricksWon, hintMode, onPress, onPressUndo, onPressReportBug }: SelfViewProps) {
   const tasks = Object.values(player.tasks ?? {});
   const tasksDone = tasks.filter(task => task.done).length;
   return (
     <div className={styles.container}>
       <div>
-        {!!onPressUndo && (
-          <div className={styles.undo} onClick={onPressUndo}>
-            ⎌
-          </div>
-        )}
+        <div className={styles.hostButtons}>
+          {!!onPressUndo && (
+            <div className={styles.undo} onClick={onPressUndo}>
+              ⎌
+            </div>
+          )}
+          {!!onPressReportBug && <div onClick={onPressReportBug}>𖢥</div>}
+        </div>
         <PlayerInfoView player={player} />
       </div>
       <div onClick={onPress}>

@@ -5,11 +5,16 @@
   justify-content: space-between;
 }
 
-.undo {
+.hostButtons {
   font-size: 6vw;
+  display: flex;
 }
 
-.undo:active {
+.undo {
+  margin-right: 2vw;
+}
+
+.hostButtons :active {
   background-color: black;
   color: white;
   opacity: 40%;

@@ -112,6 +112,10 @@ export async function startGame(code: string): Promise<GameState> {
   return gameState;
 }
 
+export function reportBug(state: GameState, code: string): void {
+  updateState(state, `${code}-bug${new Date().getTime()}`);
+}
+
 function getTasksForDifficulty(
   pool: number[],
   difficulty: number,

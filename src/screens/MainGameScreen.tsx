@@ -44,6 +44,7 @@ function MainGameScreen({ state, code, playerId, onPressPlayer, onPressGameFinis
     const prevState = UndoHandler.undo();
     if (prevState) Actions.updateState(prevState, code);
   };
+  const reportBug = () => Actions.reportBug(state, code);
 
   const isAnyCardSelected = selectedCardIndex || selectedCardIndex === 0;
   const isSelectedCardLegalToPlay =
@@ -78,6 +79,7 @@ function MainGameScreen({ state, code, playerId, onPressPlayer, onPressGameFinis
           hintMode={hintMode}
           onPress={() => onPressPlayer(playerId)}
           onPressUndo={isHost ? undo : undefined}
+          onPressReportBug={isHost ? reportBug : undefined}
         />
         <HandView hand={hand} selectedCardIndex={selectedCardIndex} onSelectCard={onSelectCard} />
         <BottomOverlay
