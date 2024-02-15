@@ -68,3 +68,7 @@
   flex-direction: column;
   align-items: center;
 }
+
+.playerContainer:active {
+  opacity: 30%;
+}
