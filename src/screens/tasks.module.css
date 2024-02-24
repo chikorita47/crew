@@ -3,9 +3,11 @@
   height: 100%;
   user-select: none;
   overflow: scroll;
+  display: grid;
 }
 
 .hand {
+  margin-block-start: auto;
   position: sticky;
   bottom: 0;
   z-index: 1;
