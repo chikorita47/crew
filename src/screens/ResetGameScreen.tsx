@@ -5,7 +5,7 @@ import styles from './setupGame.module.css';
 import * as Actions from '../actions';
 import Button from '../components/Button';
 import * as Db from '../firebase';
-import { getIsGameFinished, getIsPlayerHost, getNextDealerId } from '../selectors';
+import { getIsPlayerHost, getNextDealerId } from '../selectors';
 import { GameState, Ruleset, RulesetHintMode } from '../types';
 
 type ResetGameScreenProps = {
@@ -21,8 +21,8 @@ function ResetGameScreen({ state, code, playerId, onStartGame, onPressBack }: Re
   const [hintMode, setHintMode] = useState<RulesetHintMode>(RulesetHintMode.DEFAULT);
   // const [timeInSeconds, setTimeInSeconds] = useState<number | undefined>();
 
-  if (!getIsPlayerHost(state, playerId) || !getIsGameFinished(state)) {
-    throw new Error('Bad state, showing ResetGameScreen at the wrong time');
+  if (!getIsPlayerHost(state, playerId)) {
+    throw new Error('Non-host player should not see ResetGameScreen');
   }
 
   const ruleset: Ruleset = { hintMode };

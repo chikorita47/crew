@@ -1,10 +1,4 @@
-import {
-  getIsGameStarted,
-  getIsGameFinished,
-  getUnassignedTasksExist,
-  getAreAllTasksAssigned,
-  getNextDealerId,
-} from '../selectors';
+import { getUnassignedTasksExist, getAreAllTasksAssigned, getNextDealerId } from '../selectors';
 import { GameState, Ruleset, UnassignedTaskList, Suit } from '../types';
 import { SUIT_ORDER, createDeck, shuffle } from '../utilities';
 
@@ -15,10 +9,6 @@ import { removePlayerTasks } from './utilities';
  * Deals player hands from a shuffled deck, resets tricks and timeout state.
  */
 export function dealPlayerHands(state: GameState, dealerId: number): GameState {
-  if (getIsGameStarted(state) && !getIsGameFinished(state)) {
-    throw new Error('Game is in progress');
-  }
-
   const newState = structuredClone(state);
 
   const cards = shuffle(createDeck());
@@ -88,10 +78,10 @@ export function finalizeTasksAndStartGame(state: GameState): GameState {
   return newState;
 }
 
+/**
+ * Sets the `ruleset` on the game state.
+ */
 export function setRuleset(state: GameState, ruleset: Ruleset): GameState {
-  if (!getUnassignedTasksExist(state)) {
-    throw new Error('Cannot alter rules for a game that has already started');
-  }
   const newState = structuredClone(state);
   newState.ruleset = ruleset;
   return newState;
@@ -110,9 +100,6 @@ export function dealNewGame(state: GameState, difficulty: number, dealerId: numb
  * and resets game state.
  */
 export function retryGame(state: GameState): GameState {
-  if (!getIsGameFinished(state)) {
-    throw new Error('Cannot restart a game that is not finished');
-  }
   const newState = structuredClone(state);
 
   // recreate unassignedTasks

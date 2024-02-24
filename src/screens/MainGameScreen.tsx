@@ -78,7 +78,7 @@ function MainGameScreen({ state, code, playerId, onPressPlayer, onPressGameFinis
           status={Selectors.getStatusText(state, playerId)}
           code={code}
           difficulty={Selectors.getDifficulty(state)}
-          showNavigation={isHost && isGameFinished}
+          showNavigation={isHost}
           onPressNavigation={onPressGameFinished}
         />
       </div>
