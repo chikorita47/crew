@@ -17,11 +17,11 @@
   box-shadow: -3vw 0 2vw -2vw rgba(0, 0, 0, 0.15);
 }
 
-.card:active:not(.selected) {
+.canSelect .card:active:not(.selected) {
   transform: translate(0, -2vw);
 }
 
-.card.selected:active {
+.canSelect .card.selected:active {
   transform: translate(0, 1vw);
 }
 

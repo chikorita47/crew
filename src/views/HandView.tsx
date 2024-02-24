@@ -12,7 +12,8 @@ type HandViewProps = {
 };
 function HandView({ hand, selectedCardIndex, onSelectCard }: HandViewProps) {
   return (
-    <div className={[styles.hand, cityMedium.className].join(' ')}>
+    <div
+      className={[styles.hand, cityMedium.className, onSelectCard ? styles.canSelect : null].filter(v => v).join(' ')}>
       {hand.map((card, index) => (
         <div
           key={`hand-${index}`}
