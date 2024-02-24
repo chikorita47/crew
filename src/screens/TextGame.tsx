@@ -244,7 +244,7 @@ function AssignTasksView(props: AssignTasksViewProps) {
           <input
             type="button"
             onClick={() => {
-              const newState = Actions.finalizeTasksAndRuleset(props.state, ruleset);
+              const newState = Actions.finalizeTasksAndStartGame(Actions.setRuleset(props.state, ruleset));
               Db.updateState(newState, props.code);
               props.onFinalizeTasks(newState);
             }}

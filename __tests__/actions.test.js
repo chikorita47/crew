@@ -233,11 +233,9 @@ describe('kickTask', () => {
   });
 });
 
-describe('finalizeTasksAndRuleset', () => {
-  const ruleset = { hintMode: 'default' };
-
+describe('finalizeTasksAndStartGame', () => {
   it('throws if unassignedTasks is empty', () => {
-    expect(() => Actions.finalizeTasksAndRuleset(createGameState(), ruleset)).toThrow(Error);
+    expect(() => Actions.finalizeTasksAndStartGame(createGameState())).toThrow(Error);
   });
   it('throws if any task has no provisionalPlayerId', () => {
     const state = createGameState();
@@ -248,7 +246,7 @@ describe('finalizeTasksAndRuleset', () => {
         5: { id: 5 },
       },
     };
-    expect(() => Actions.finalizeTasksAndRuleset(state, ruleset)).toThrow(Error);
+    expect(() => Actions.finalizeTasksAndStartGame(state)).toThrow(Error);
   });
   it('throws if a task is assigned to a nonexistent player', () => {
     const state = createGameState();
@@ -258,7 +256,7 @@ describe('finalizeTasksAndRuleset', () => {
         4: { id: 4, provisionalPlayerId: 3 },
       },
     };
-    expect(() => Actions.finalizeTasksAndRuleset(state, ruleset)).toThrow(Error);
+    expect(() => Actions.finalizeTasksAndStartGame(state)).toThrow(Error);
   });
   it('moves tasks to player data and saves ruleset', () => {
     const state = createGameState();
@@ -275,8 +273,7 @@ describe('finalizeTasksAndRuleset', () => {
     };
     delete state.players[0].tasks;
     delete state.players[1].tasks;
-    const newState = Actions.finalizeTasksAndRuleset(state, ruleset);
-    expect(newState.ruleset).toEqual(ruleset);
+    const newState = Actions.finalizeTasksAndStartGame(state);
     expect(newState.unassignedTasks).toBeUndefined();
     expect(newState.players[0].tasks).toEqual({
       4: { id: 4, done: false, failed: false },

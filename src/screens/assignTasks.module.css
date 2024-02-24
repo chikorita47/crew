@@ -30,14 +30,6 @@
   align-items: center;
 }
 
-.hintModeContainer {
-  margin-bottom: 2vw;
-}
-
-.hintModeContainer input {
-  margin: 0 0.5vw 0 1.5vw;
-}
-
 .buttonContainer {
   display: flex;
 }

@@ -58,9 +58,9 @@ export function dealPlayerHands(state: GameState, dealerId: number): GameState {
 }
 
 /**
- * Moves all tasks from `unassignedTasks` to player objects and sets ruleset to start game.
+ * Moves all tasks from `unassignedTasks` to player objects to start game.
  */
-export function finalizeTasksAndRuleset(state: GameState, ruleset: Ruleset): GameState {
+export function finalizeTasksAndStartGame(state: GameState): GameState {
   if (!getUnassignedTasksExist(state)) {
     throw new Error('Cannot begin a game that has already started, or with no tasks');
   }
@@ -85,8 +85,15 @@ export function finalizeTasksAndRuleset(state: GameState, ruleset: Ruleset): Gam
     }
   }
 
-  newState.ruleset = ruleset;
+  return newState;
+}
 
+export function setRuleset(state: GameState, ruleset: Ruleset): GameState {
+  if (!getUnassignedTasksExist(state)) {
+    throw new Error('Cannot alter rules for a game that has already started');
+  }
+  const newState = structuredClone(state);
+  newState.ruleset = ruleset;
   return newState;
 }
 

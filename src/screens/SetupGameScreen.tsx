@@ -6,7 +6,7 @@ import * as Actions from '../actions';
 import Button from '../components/Button';
 import * as Db from '../firebase';
 import { getPlayerByKey } from '../selectors';
-import { GameState, ProvisionalGame } from '../types';
+import { GameState, ProvisionalGame, Ruleset, RulesetHintMode } from '../types';
 
 type SetupGameScreenProps = {
   state: ProvisionalGame;
@@ -17,12 +17,19 @@ type SetupGameScreenProps = {
 function SetupGameScreen({ state, code, playerKey, onStartGame }: SetupGameScreenProps) {
   const [difficulty, setDifficulty] = useState<number | undefined>();
   const [dealer, setDealer] = useState<string>(playerKey);
+  const [hintMode, setHintMode] = useState<RulesetHintMode>(RulesetHintMode.DEFAULT);
+  // const [timeInSeconds, setTimeInSeconds] = useState<number | undefined>();
 
   const isHost = state.host === state.clientList[playerKey];
   const hostName = state.host;
   if (!isHost) {
     return <div className="center-container">Waiting for {hostName} to start the game...</div>;
   }
+
+  const ruleset: Ruleset = { hintMode };
+  // if (timeInSeconds) {
+  //   ruleset.timeInSeconds = timeInSeconds;
+  // }
 
   const numberOfPlayers = Object.keys(state.clientList).length;
   const canStart = numberOfPlayers >= 3 && numberOfPlayers <= 5;
@@ -55,6 +62,45 @@ function SetupGameScreen({ state, code, playerKey, onStartGame }: SetupGameScree
         max={100}
         onChange={event => setDifficulty(event.target.value === '' ? undefined : ~~event.target.value)}
       />
+      <div className={styles.hintModeContainer}>
+        Hint Mode:
+        <input
+          type="radio"
+          id="hintModeDefault"
+          name="hintMode"
+          value="default"
+          checked={hintMode === RulesetHintMode.DEFAULT}
+          onClick={() => setHintMode(RulesetHintMode.DEFAULT)}
+        />
+        <label htmlFor="hintModeDefault">Default</label>
+        <input
+          type="radio"
+          id="hintModeFewer"
+          name="hintMode"
+          value="fewer"
+          checked={hintMode === RulesetHintMode.FEWER}
+          onClick={() => setHintMode(RulesetHintMode.FEWER)}
+        />
+        <label htmlFor="hintModeFewer">2 Fewer</label>
+        <input
+          type="radio"
+          id="hintModeNoTokens"
+          name="hintMode"
+          value="noTokens"
+          checked={hintMode === RulesetHintMode.NO_TOKENS}
+          onClick={() => setHintMode(RulesetHintMode.NO_TOKENS)}
+        />
+        <label htmlFor="hintModeNoTokens">No Tokens</label>
+        <input
+          type="radio"
+          id="hintModeNone"
+          name="hintMode"
+          value="none"
+          checked={hintMode === RulesetHintMode.NONE}
+          onClick={() => setHintMode(RulesetHintMode.NONE)}
+        />
+        <label htmlFor="hintModeNone">No Hints</label>
+      </div>
       <Button
         text="DEAL"
         disabled={!canStart || !difficulty}
@@ -64,7 +110,10 @@ function SetupGameScreen({ state, code, playerKey, onStartGame }: SetupGameScree
           }
           const initialState = await Db.startGame(code);
           const dealerId = getPlayerByKey(initialState, dealer).id;
-          const stateWithDealFinished = Actions.dealPlayerHands(Actions.dealTasks(initialState, difficulty), dealerId);
+          const stateWithDealFinished = Actions.setRuleset(
+            Actions.dealPlayerHands(Actions.dealTasks(initialState, difficulty), dealerId),
+            ruleset,
+          );
           Db.updateState(stateWithDealFinished, code);
           onStartGame(stateWithDealFinished);
         }}
