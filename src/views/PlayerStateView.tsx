@@ -24,7 +24,9 @@ function PlayerStateView({ hint, hintMode, tasksDone, tasksTotal, tricksWon }: P
             )}
           </div>
         ) : (
-          <div className={[styles.hint, hint?.used ? styles.used : styles.unused].join(' ')} />
+          <div className={[styles.hint, hint?.used ? styles.used : styles.unused].join(' ')}>
+            {hint?.used && <div className={styles.token} />}
+          </div>
         )
       ) : null}
       {tasksTotal > 0 && (
