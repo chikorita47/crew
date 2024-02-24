@@ -15,16 +15,18 @@ type PlayerStateViewProps = {
 function PlayerStateView({ hint, hintMode, tasksDone, tasksTotal, tricksWon }: PlayerStateViewProps) {
   return (
     <div className={styles.container}>
-      {hint?.card ? (
-        <div className={[styles.hint, styles.given, cityMedium.className, hint.card.suit].join(' ')}>
-          {hint.card.number}
-          {!!hint.placement && hintMode !== RulesetHintMode.NO_TOKENS && (
-            <div className={[styles.token, styles[hint.placement]].join(' ')} />
-          )}
-        </div>
-      ) : (
-        <div className={[styles.hint, hint?.used ? styles.used : styles.unused].join(' ')} />
-      )}
+      {hintMode !== RulesetHintMode.NONE ? (
+        hint?.card ? (
+          <div className={[styles.hint, styles.given, cityMedium.className, hint.card.suit].join(' ')}>
+            {hint.card.number}
+            {!!hint.placement && hintMode !== RulesetHintMode.NO_TOKENS && (
+              <div className={[styles.token, styles[hint.placement]].join(' ')} />
+            )}
+          </div>
+        ) : (
+          <div className={[styles.hint, hint?.used ? styles.used : styles.unused].join(' ')} />
+        )
+      ) : null}
       {tasksTotal > 0 && (
         <div className={[styles.tasks, tasksDone === tasksTotal ? styles.complete : null].filter(v => v).join(' ')}>
           <div className={styles.tasksBg}>✓</div>

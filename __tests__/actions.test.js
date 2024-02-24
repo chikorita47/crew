@@ -574,6 +574,13 @@ describe('giveHint', () => {
     state.ruleset = { hintMode: 'fewer' };
     expect(() => Actions.giveHint(state, 2, 0, 'middle')).toThrow(Error);
   });
+  it('throws if ruleset hint mode is none', () => {
+    const state = createGameState();
+    state.tricks.pop();
+    state.players[0].hint = { used: false };
+    state.ruleset = { hintMode: 'none' };
+    expect(() => Actions.giveHint(state, 2, 0, 'middle')).toThrow(Error);
+  });
 });
 
 describe('toggleTaskDone', () => {

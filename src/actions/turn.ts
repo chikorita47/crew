@@ -9,8 +9,9 @@ import {
   getPlayerHint,
   getIsCardLegalToPlay,
   getAreAllHintsUsed,
+  getHintMode,
 } from '../selectors';
-import { HintPlacement, GameState } from '../types';
+import { HintPlacement, GameState, RulesetHintMode } from '../types';
 
 import { computeAndSetTaskState, computeWinner } from './utilities';
 
@@ -79,6 +80,10 @@ export function playCard(state: GameState, playerId: number, cardIndex: number):
 export function giveHint(state: GameState, playerId: number, cardIndex: number, placement: HintPlacement): GameState {
   if (!getIsBetweenTricks(state)) {
     throw new Error('Cannot give a hint during a trick');
+  }
+
+  if (getHintMode(state) === RulesetHintMode.NONE) {
+    throw new Error('Cannot give a hint in no hints mode');
   }
 
   const playerHint = getPlayerHint(state, playerId);

@@ -65,6 +65,7 @@ export type Player = {
 };
 
 export enum RulesetHintMode {
+  NONE = 'none',
   DEFAULT = 'default',
   FEWER = 'fewer',
   NO_TOKENS = 'noTokens',

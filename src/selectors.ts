@@ -181,7 +181,12 @@ export function getAreAllHintsUsed(state: GameState): boolean {
 }
 
 export function getCanPlayerGiveHint(state: GameState, playerId: number): boolean {
-  return getIsBetweenTricks(state) && !getPlayer(state, playerId).hint?.used && !getAreAllHintsUsed(state);
+  return (
+    getIsBetweenTricks(state) &&
+    !getPlayer(state, playerId).hint?.used &&
+    !getAreAllHintsUsed(state) &&
+    getHintMode(state) !== RulesetHintMode.NONE
+  );
 }
 
 export function getCurrentTrickId(state: GameState): number {
