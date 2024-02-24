@@ -83,6 +83,16 @@ export function getPlayerNamesById(state: GameState): string[] {
   return state.players.map(player => player.name);
 }
 
+export function getOtherPlayersInOrder(state: GameState, playerId: number): Player[] {
+  const players = getPlayers(state);
+  const numberOfPlayers = getNumberOfPlayers(state);
+  const order: number[] = [];
+  for (let i = (playerId + 1) % numberOfPlayers; i !== playerId; i = (i + 1) % numberOfPlayers) {
+    order.push(i);
+  }
+  return order.map(id => players[id]);
+}
+
 export function getLeftoverTasks(state: GameState): number[] {
   return state.leftoverTasks ?? [];
 }

@@ -30,7 +30,14 @@
   align-items: center;
 }
 
+.playersContainer {
+  width: 100%;
+  display: flex;
+  justify-content: space-around;
+}
+
 .buttonContainer {
+  margin-top: 3vw;
   display: flex;
 }
 

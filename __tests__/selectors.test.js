@@ -33,6 +33,15 @@ describe('getPlayerByName', () => {
   });
 });
 
+describe('getOtherPlayersInOrder', () => {
+  it('returns the other players in the correct display order', () => {
+    const state = createGameState();
+    expect(Selectors.getOtherPlayersInOrder(state, 0)).toEqual([state.players[1], state.players[2]]);
+    expect(Selectors.getOtherPlayersInOrder(state, 1)).toEqual([state.players[2], state.players[0]]);
+    expect(Selectors.getOtherPlayersInOrder(state, 2)).toEqual([state.players[0], state.players[1]]);
+  });
+});
+
 describe('getUnassignedTasksExist', () => {
   it('returns true if unassigned tasks exist', () => {
     const state = createGameState();

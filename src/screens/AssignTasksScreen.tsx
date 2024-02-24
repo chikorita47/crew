@@ -11,6 +11,7 @@ import * as Selectors from '../selectors';
 import { GameState, UnassignedTask } from '../types';
 import HandView from '../views/HandView';
 import BottomOverlay from '../views/BottomOverlay';
+import PlayerInfoView from '../views/PlayerInfoView';
 import TaskListView from '../views/TaskListView';
 
 type XTricksSelectorViewProps = {
@@ -54,6 +55,7 @@ function AssignTasksScreen({ state, code, playerId, onFinalizeTasks }: AssignTas
 
   const difficultyIndex = Selectors.getNumberOfPlayers(state) - 3;
   const unassignedTasks = Selectors.getUnassignedTasks(state);
+  const otherPlayers = Selectors.getOtherPlayersInOrder(state, playerId);
   // TODO: make this better
   const taskRequiringExtraData =
     taskRequiringExtraDataOrNull(unassignedTasks[94], playerId) ??
@@ -62,8 +64,13 @@ function AssignTasksScreen({ state, code, playerId, onFinalizeTasks }: AssignTas
   const hasExtraCards = !!Selectors.getPlayer(state, playerId).extraCards;
   return (
     <div className={styles.container}>
-      {isHost && (
-        <div className={styles.header}>
+      <div className={styles.header}>
+        <div className={styles.playersContainer}>
+          {otherPlayers.map(player => (
+            <PlayerInfoView player={player} key={`player-${player.id}`} />
+          ))}
+        </div>
+        {isHost && (
           <div className={styles.buttonContainer}>
             <Button
               text="RE-DEAL"
@@ -79,8 +86,8 @@ function AssignTasksScreen({ state, code, playerId, onFinalizeTasks }: AssignTas
               }}
             />
           </div>
-        </div>
-      )}
+        )}
+      </div>
       <TaskListView
         tasks={Selectors.getUnassignedTasksOrdered(state)}
         difficultyIndex={difficultyIndex}

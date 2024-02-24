@@ -14,14 +14,6 @@ import TrickView from '../views/TrickView';
 import SelfView from '../views/SelfView';
 import HandView from '../views/HandView';
 
-function getOtherPlayersOrder(playerId: number, numberOfPlayers: number): number[] {
-  const order: number[] = [];
-  for (let i = (playerId + 1) % numberOfPlayers; i !== playerId; i = (i + 1) % numberOfPlayers) {
-    order.push(i);
-  }
-  return order;
-}
-
 type MainGameScreenProps = {
   state: GameState;
   code: string;
@@ -36,8 +28,7 @@ function MainGameScreen({ state, code, playerId, onPressPlayer, onPressGameFinis
   const hand = Selectors.getPlayerHand(state, playerId);
   const nextPlayerId = Selectors.getNextPlayerId(state);
   const numberOfPlayers = Selectors.getNumberOfPlayers(state);
-  const otherPlayers = Selectors.getPlayers(state);
-  const otherPlayersInOrder = getOtherPlayersOrder(playerId, numberOfPlayers).map(id => otherPlayers[id]);
+  const otherPlayersInOrder = Selectors.getOtherPlayersInOrder(state, playerId);
   const tricksWon = Selectors.getPlayersTricksWon(state);
   const hintMode = Selectors.getHintMode(state);
 

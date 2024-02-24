@@ -14,7 +14,15 @@ function EnterGameScreen(props: EnterGameScreenProps) {
 
   return (
     <div className={styles.container}>
-      <input type="text" value={name} placeholder="Name" onChange={event => setName(event.target.value)} />
+      <input
+        type="text"
+        value={name}
+        placeholder="Name"
+        onChange={event => {
+          if (event.target.value.length > 12) return;
+          setName(event.target.value);
+        }}
+      />
       <input
         type="text"
         value={code}
