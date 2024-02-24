@@ -107,7 +107,7 @@ function App() {
         state={state}
         code={code}
         playerId={showTasksForPlayer}
-        isSelf={playerId === showTasksForPlayer}
+        selfId={playerId}
         onClose={() => setShowTasksForPlayer(undefined)}
       />
     );

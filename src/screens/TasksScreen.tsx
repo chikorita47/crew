@@ -7,6 +7,7 @@ import { cityMedium } from '../fonts';
 import * as Selectors from '../selectors';
 import styles from './tasks.module.css';
 import { GameState, HintPlacement, RulesetHintMode } from '../types';
+import HandView from '../views/HandView';
 import TaskListView from '../views/TaskListView';
 
 const placementString = {
@@ -19,13 +20,14 @@ type TasksScreenProps = {
   state: GameState;
   code: string;
   playerId: number;
-  isSelf: boolean;
+  selfId: number;
   onClose: () => void;
 };
-function TasksScreen({ state, code, playerId, isSelf, onClose }: TasksScreenProps) {
+function TasksScreen({ state, code, playerId, selfId, onClose }: TasksScreenProps) {
   const tasks = Selectors.getPlayerTasks(state, playerId);
   const hint = Selectors.getPlayerHint(state, playerId);
   const hintMode = Selectors.getHintMode(state);
+  const isSelf = selfId === playerId;
   return (
     <div className={styles.container}>
       <div className={styles.header}>
@@ -55,6 +57,9 @@ function TasksScreen({ state, code, playerId, isSelf, onClose }: TasksScreenProp
         showHiddenData={isSelf}
         onPress={isSelf ? taskId => Db.updateState(Actions.toggleTaskDone(state, playerId, taskId), code) : undefined}
       />
+      <div className={styles.hand}>
+        <HandView hand={Selectors.getPlayerHand(state, selfId)} />
+      </div>
     </div>
   );
 }

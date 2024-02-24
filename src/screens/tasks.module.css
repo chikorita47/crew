@@ -5,6 +5,14 @@
   overflow: scroll;
 }
 
+.hand {
+  position: sticky;
+  bottom: 0;
+  z-index: 1;
+  overflow: hidden;
+  max-height: 25vw;
+}
+
 .header {
   position: sticky;
   top: 0;
