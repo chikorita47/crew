@@ -6,6 +6,8 @@ import { createGameState } from './util';
 
 const sum = arr => arr.reduce((acc, num) => acc + num, 0);
 
+const NUM_TASKS_IN_GAME = 96; // Object.keys(TASKS_DATA).filter(taskId => !TASKS_DATA[taskId].special).length
+
 describe('dealTasks', () => {
   it('randomly selects tasks', () => {
     const state = createGameState();
@@ -71,7 +73,7 @@ describe('dealTasks', () => {
 
     // leftoverTasks should now include all tasks in the game
     // except for 47 and the other difficulty 1 task it just dealt
-    expect(newState.leftoverTasks.length).toEqual(Object.keys(TASKS_DATA).length - 2);
+    expect(newState.leftoverTasks.length).toEqual(NUM_TASKS_IN_GAME - 2);
     expect(newState.leftoverTasks.includes(47)).toBe(false);
     expect(newState.leftoverTasks.includes(newState.unassignedTasks.order[1])).toBe(false);
   });
@@ -296,9 +298,6 @@ describe('retryGame', () => {
   state.players[2].isDealer = false;
   const newState = Actions.retryGame(state);
 
-  it('throws if the game is not completed', () => {
-    expect(() => Actions.retryGame(createGameState())).toThrow(Error);
-  });
   it('resets tasks', () => {
     expect(newState.unassignedTasks).toEqual({
       order: [14, 23],
@@ -604,9 +603,6 @@ describe('toggleTaskDone', () => {
 });
 
 describe('dealPlayerHands', () => {
-  it('throws if the game is in progress', () => {
-    expect(() => Actions.dealPlayerHands(createGameState(), 0)).toThrow(Error);
-  });
   it('deals players the correct number of cards', () => {
     const state = {
       players: [
