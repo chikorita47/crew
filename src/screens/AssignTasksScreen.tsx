@@ -80,7 +80,7 @@ function AssignTasksScreen({ state, code, playerId, onFinalizeTasks }: AssignTas
               text="START GAME"
               disabled={!Selectors.getAreAllTasksAssigned(state)}
               onPress={() => {
-                const newState = Actions.finalizeTasksAndStartGame(state);
+                const newState = Actions.finalizeTasks(state);
                 Db.updateState(newState, code);
                 onFinalizeTasks(newState);
               }}

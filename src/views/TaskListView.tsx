@@ -28,6 +28,7 @@ function TaskListView({
     <div className={styles.container}>
       {tasks.map(task => {
         const taskData = TASKS_DATA[task.id];
+        const difficulty = taskData.difficulty?.[difficultyIndex];
         const isFinished = 'done' in task && task.done;
         const isFailed = 'failed' in task && task.failed;
         const showExtraData =
@@ -49,7 +50,7 @@ function TaskListView({
                 <div className={styles.claimant}>{playerNames![task.provisionalPlayerId!]}</div>
               )}
             </div>
-            <div className={styles.difficulty}>{taskData.difficulty[difficultyIndex]}</div>
+            {!!difficulty && <div className={styles.difficulty}>{difficulty}</div>}
             {isFinished && <div className={[styles.status, styles.success].join(' ')}>✓</div>}
             {isFailed && <div className={[styles.status, styles.fail].join(' ')}>✗</div>}
             {!!onKick && (

@@ -18,6 +18,7 @@ function SetupGameScreen({ state, code, playerKey, onStartGame }: SetupGameScree
   const [difficulty, setDifficulty] = useState<number | undefined>();
   const [dealer, setDealer] = useState<string>(playerKey);
   const [hintMode, setHintMode] = useState<RulesetHintMode>(RulesetHintMode.DEFAULT);
+  const [logbookNumber, setLogbookNumber] = useState<number | undefined>();
   // const [timeInSeconds, setTimeInSeconds] = useState<number | undefined>();
 
   const isHost = state.host === state.clientList[playerKey];
@@ -56,12 +57,29 @@ function SetupGameScreen({ state, code, playerKey, onStartGame }: SetupGameScree
       ))}
       <input
         type="number"
-        value={difficulty}
+        value={difficulty ?? ''}
         placeholder="Difficulty"
         min={1}
         max={100}
-        onChange={event => setDifficulty(event.target.value === '' ? undefined : ~~event.target.value)}
+        onChange={event => {
+          setDifficulty(event.target.value === '' ? undefined : ~~event.target.value);
+          setLogbookNumber(undefined);
+        }}
       />
+      <select
+        value={logbookNumber ?? 0}
+        onChange={event => {
+          setLogbookNumber(~~event.target.value || undefined);
+          setDifficulty(undefined);
+        }}>
+        <option value={0}>None</option>
+        <option value={8}>Mission 8</option>
+        <option value={12}>Mission 12</option>
+        <option value={21}>Mission 21</option>
+        <option value={23}>Mission 23</option>
+        <option value={27}>Mission 27</option>
+        <option value={32}>Mission 32</option>
+      </select>
       <div className={styles.hintModeContainer}>
         Hint Mode:
         <input
@@ -103,15 +121,17 @@ function SetupGameScreen({ state, code, playerKey, onStartGame }: SetupGameScree
       </div>
       <Button
         text="DEAL"
-        disabled={!canStart || !difficulty}
+        disabled={!canStart || (!difficulty && !logbookNumber)}
         onPress={async () => {
-          if (!difficulty) {
+          if (!difficulty && !logbookNumber) {
             throw new Error('Must enter valid difficulty');
           }
           const initialState = await Db.startGame(code);
           const dealerId = getPlayerByKey(initialState, dealer).id;
           const stateWithDealFinished = Actions.setRuleset(
-            Actions.dealPlayerHands(Actions.dealTasks(initialState, difficulty), dealerId),
+            logbookNumber
+              ? Actions.dealNewGameSpecial(initialState, logbookNumber, dealerId)
+              : Actions.dealNewGame(initialState, difficulty!, dealerId),
             ruleset,
           );
           Db.updateState(stateWithDealFinished, code);

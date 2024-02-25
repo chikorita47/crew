@@ -58,13 +58,13 @@ export function getTasksForDifficulty(
         shuffle(
           Object.keys(TASKS_DATA)
             .map(taskIdString => ~~taskIdString)
-            .filter(taskId => !initialPool.includes(taskId)),
+            .filter(taskId => !initialPool.includes(taskId) && !TASKS_DATA[taskId].special),
         ),
       );
       hasReshuffledTasks = true;
       continue;
     }
-    const newTaskDifficulty = TASKS_DATA[newTaskId].difficulty[difficultyIndex];
+    const newTaskDifficulty = TASKS_DATA[newTaskId].difficulty![difficultyIndex];
     if (difficultyCounter + newTaskDifficulty > difficulty) {
       skippedTasks.push(newTaskId);
     } else {

@@ -171,7 +171,7 @@ function AssignTasksView(props: AssignTasksViewProps) {
           <div key={`task-${task.id}`}>
             <a
               onClick={() => Db.updateState(Actions.toggleClaimTask(props.state, props.playerId, task.id), props.code)}>
-              {taskData.difficulty[difficultyIndex]}: {taskData.text}
+              {taskData.difficulty![difficultyIndex]}: {taskData.text}
               {taskData.subtext && `/${taskData.subtext}`}
               {'provisionalPlayerId' in task && ` (${Selectors.getPlayerName(props.state, task.provisionalPlayerId!)})`}
             </a>
@@ -244,7 +244,7 @@ function AssignTasksView(props: AssignTasksViewProps) {
           <input
             type="button"
             onClick={() => {
-              const newState = Actions.finalizeTasksAndStartGame(Actions.setRuleset(props.state, ruleset));
+              const newState = Actions.finalizeTasks(Actions.setRuleset(props.state, ruleset));
               Db.updateState(newState, props.code);
               props.onFinalizeTasks(newState);
             }}

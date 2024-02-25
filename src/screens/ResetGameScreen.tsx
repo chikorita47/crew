@@ -19,6 +19,7 @@ function ResetGameScreen({ state, code, playerId, onStartGame, onPressBack }: Re
   const [difficulty, setDifficulty] = useState<number | undefined>(state.difficulty);
   const [dealer, setDealer] = useState<number>(getNextDealerId(state));
   const [hintMode, setHintMode] = useState<RulesetHintMode>(RulesetHintMode.DEFAULT);
+  const [logbookNumber, setLogbookNumber] = useState<number | undefined>();
   // const [timeInSeconds, setTimeInSeconds] = useState<number | undefined>();
 
   if (!getIsPlayerHost(state, playerId)) {
@@ -55,12 +56,29 @@ function ResetGameScreen({ state, code, playerId, onStartGame, onPressBack }: Re
       ))}
       <input
         type="number"
-        value={difficulty}
+        value={difficulty ?? ''}
         placeholder="Difficulty"
         min={1}
         max={100}
-        onChange={event => setDifficulty(event.target.value === '' ? undefined : ~~event.target.value)}
+        onChange={event => {
+          setDifficulty(event.target.value === '' ? undefined : ~~event.target.value);
+          setLogbookNumber(undefined);
+        }}
       />
+      <select
+        value={logbookNumber ?? 0}
+        onChange={event => {
+          setLogbookNumber(~~event.target.value || undefined);
+          setDifficulty(undefined);
+        }}>
+        <option value={0}>None</option>
+        <option value={8}>Mission 8</option>
+        <option value={12}>Mission 12</option>
+        <option value={21}>Mission 21</option>
+        <option value={23}>Mission 23</option>
+        <option value={27}>Mission 27</option>
+        <option value={32}>Mission 32</option>
+      </select>
       <div className={styles.hintModeContainer}>
         Hint Mode:
         <input
@@ -102,12 +120,17 @@ function ResetGameScreen({ state, code, playerId, onStartGame, onPressBack }: Re
       </div>
       <Button
         text="DEAL"
-        disabled={!difficulty}
+        disabled={!difficulty && !logbookNumber}
         onPress={async () => {
-          if (!difficulty) {
+          if (!difficulty && !logbookNumber) {
             throw new Error('Must enter valid difficulty');
           }
-          const redealState = Actions.setRuleset(Actions.dealNewGame(state, difficulty, dealer), ruleset);
+          const redealState = Actions.setRuleset(
+            logbookNumber
+              ? Actions.dealNewGameSpecial(state, logbookNumber, dealer)
+              : Actions.dealNewGame(state, difficulty!, dealer),
+            ruleset,
+          );
           Db.updateState(redealState, code);
           onStartGame(redealState);
         }}

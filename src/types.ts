@@ -97,8 +97,9 @@ export type TasksDataEntry = {
   id: number;
   text: string;
   subtext?: string;
-  difficulty: TasksDataEntryDifficulty;
+  difficulty?: TasksDataEntryDifficulty;
   requiresExtraData?: boolean;
+  special?: boolean;
   test: TasksDataEntryTest;
 };
 

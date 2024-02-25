@@ -3,6 +3,7 @@ import { getNumberOfPlayers, getLeftoverTasks } from '../selectors';
 import { GameState, UnassignedTaskList, TaskData } from '../types';
 
 import { getTasksForDifficulty } from './utilities';
+
 /**
  * Deals tasks for the given `difficulty`.
  *
@@ -78,7 +79,11 @@ export function kickTask(state: GameState, taskId: number): GameState {
   }
 
   const difficultyIndex = getNumberOfPlayers(state) - 3;
-  const difficulty = TASKS_DATA[taskId].difficulty[difficultyIndex];
+  const difficulty = TASKS_DATA[taskId].difficulty![difficultyIndex];
+
+  if (!difficulty) {
+    throw new Error('Cannot kick task with no difficulty');
+  }
 
   const { tasksToUse, leftoverTasks } = getTasksForDifficulty([...state.leftoverTasks], difficulty, difficultyIndex);
 

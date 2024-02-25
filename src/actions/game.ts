@@ -50,7 +50,7 @@ export function dealPlayerHands(state: GameState, dealerId: number): GameState {
 /**
  * Moves all tasks from `unassignedTasks` to player objects to start game.
  */
-export function finalizeTasksAndStartGame(state: GameState): GameState {
+export function finalizeTasks(state: GameState): GameState {
   if (!getUnassignedTasksExist(state)) {
     throw new Error('Cannot begin a game that has already started, or with no tasks');
   }
@@ -93,6 +93,45 @@ export function setRuleset(state: GameState, ruleset: Ruleset): GameState {
  */
 export function dealNewGame(state: GameState, difficulty: number, dealerId: number) {
   return dealPlayerHands(dealTasks(removePlayerTasks(state), difficulty), dealerId);
+}
+
+const LOGBOOK_NUMBER_TO_TASK_ID = {
+  8: 100,
+  12: 101,
+  21: 102,
+  23: 103,
+  27: 104,
+} as { [key: number]: number };
+/**
+ * Starts a new game using a special task (or set of tasks) for a specific logbook game.
+ * For `logbookNumber`s other than 32, assigns the task to the host.
+ */
+export function dealNewGameSpecial(state: GameState, logbookNumber: number, dealerId: number) {
+  const newState = removePlayerTasks(state);
+  if (logbookNumber === 32) {
+    newState.unassignedTasks = {
+      order: [3, 4, 38, 73],
+      tasks: {
+        3: { id: 3 },
+        4: { id: 4 },
+        38: { id: 38 },
+        73: { id: 73 },
+      },
+    };
+  } else {
+    if (!(logbookNumber in LOGBOOK_NUMBER_TO_TASK_ID)) {
+      throw new Error('Could not start special game with invalid logbook number');
+    }
+    const taskId = LOGBOOK_NUMBER_TO_TASK_ID[logbookNumber];
+    newState.players[0].tasks = {
+      [taskId]: {
+        id: taskId,
+        done: false,
+        failed: false,
+      },
+    };
+  }
+  return dealPlayerHands(newState, dealerId);
 }
 
 /**

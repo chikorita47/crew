@@ -20,9 +20,13 @@ import {
   getMostRecentTrick,
   getNumTricksWonByPlayer,
   getRemainingTrickCount,
+  getCardsWithProperty,
+  getCardsWonByPlayer,
+  getIsGameOver,
 } from './helpers';
 import { getNumberOfPlayers, getTaskDataForPlayer } from '../selectors';
 import { Comparison, Suit, TasksData, TaskState } from '../types';
+import { isCardEqual } from '../utilities';
 
 export default {
   '0': {
@@ -858,6 +862,86 @@ export default {
       const { n } = getTaskDataForPlayer(state, owner, 95);
       if (n === undefined || typeof n !== 'number') throw new Error('Missing required extra data for task');
       return task_winExactTrickCount(n)(state, owner);
+    },
+  },
+
+  // special tasks for logbook games
+  '100': {
+    id: 100,
+    special: true,
+    text: 'At no point is a crew member allowed to have won two more “9” cards than any other crew member.',
+    test: state => {
+      const ninesPerPlayer = state.players.map(player => {
+        const cardsWon = getCardsWonByPlayer(player.id, state);
+        return getCardsWithProperty(cardsWon, 9).length;
+      });
+      const mostNines = Math.max(...ninesPerPlayer);
+      const leastNines = Math.max(...ninesPerPlayer);
+      if (mostNines - leastNines > 1) return TaskState.FAILURE;
+      return getIsGameOver(state) ? TaskState.SUCCESS : TaskState.PENDING;
+    },
+  },
+  '101': {
+    id: 101,
+    special: true,
+    text: 'No trick may be opened with a pink card or a submarine card.',
+    test: state => {
+      if (state.tricks) {
+        for (const trick of state.tricks) {
+          if (!trick.cards) continue;
+          const opener = trick.cards[0];
+          if (opener.suit === Suit.PINK || opener.suit === Suit.BLACK) return TaskState.FAILURE;
+        }
+      }
+      return getIsGameOver(state) ? TaskState.SUCCESS : TaskState.PENDING;
+    },
+  },
+  '102': {
+    id: 102,
+    special: true,
+    text: 'At no point is a crew member allowed to have won two more “1” cards than any other crew member.',
+    test: state => {
+      const onesPerPlayer = state.players.map(player => {
+        const cardsWon = getCardsWonByPlayer(player.id, state);
+        return getCardsWithProperty(cardsWon, 1).length;
+      });
+      const mostOnes = Math.max(...onesPerPlayer);
+      const leastOnes = Math.max(...onesPerPlayer);
+      if (mostOnes - leastOnes > 1) return TaskState.FAILURE;
+      return getIsGameOver(state) ? TaskState.SUCCESS : TaskState.PENDING;
+    },
+  },
+  '103': {
+    id: 103,
+    special: true,
+    text: 'Whoever wins the first trick must have won more tricks at any given time than any other crew member.',
+    test: state => {
+      const firstTrickWinner = state.tricks?.[0].winner;
+      if (firstTrickWinner !== undefined) {
+        for (const trick of state.tricks!) {
+          if (trick.winner !== undefined && trick.winner !== firstTrickWinner) return TaskState.FAILURE;
+        }
+      }
+      return getIsGameOver(state) ? TaskState.SUCCESS : TaskState.PENDING;
+    },
+  },
+  '104': {
+    id: 104,
+    special: true,
+    text: 'The yellow 5 card has to be played as the final card in the final trick of the entire mission.',
+    subtext: 'In a 3 player game, it cannot be left unplayed.',
+    test: state => {
+      if (getIsGameOver(state)) {
+        const lastTrick = state.tricks?.[getMaxTrickCount(state) - 1];
+        const lastCard = lastTrick?.cards?.[state.players.length - 1];
+        return lastCard && isCardEqual({ number: 5, suit: Suit.YELLOW }, lastCard)
+          ? TaskState.SUCCESS
+          : TaskState.FAILURE;
+      }
+      const trickWithCard = state.tricks?.find(
+        trick => trick.cards?.some(trickCard => isCardEqual({ number: 5, suit: Suit.YELLOW }, trickCard)),
+      );
+      return trickWithCard ? TaskState.FAILURE : TaskState.PENDING;
     },
   },
 } as TasksData;
