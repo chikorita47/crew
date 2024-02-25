@@ -277,10 +277,10 @@ export default {
     subtext: '',
     difficulty: [3, 4, 5],
     test: taskUnion(
-      task_winCardCountWithProperty(9, Suit.BLUE, true),
-      task_winCardCountWithProperty(9, Suit.GREEN, true),
-      task_winCardCountWithProperty(9, Suit.YELLOW, true),
-      task_winCardCountWithProperty(9, Suit.PINK, true),
+      task_winCardCountWithProperty(9, Suit.BLUE, false),
+      task_winCardCountWithProperty(9, Suit.GREEN, false),
+      task_winCardCountWithProperty(9, Suit.YELLOW, false),
+      task_winCardCountWithProperty(9, Suit.PINK, false),
     ),
   },
   '27': {
@@ -309,14 +309,14 @@ export default {
     text: 'I will win all 4x 3s',
     subtext: '',
     difficulty: [3, 4, 5],
-    test: task_winCardCountWithProperty(4, 3, true),
+    test: task_winCardCountWithProperty(4, 3, false),
   },
   '31': {
     id: 31,
     text: 'I will win all 4x 9s',
     subtext: '',
     difficulty: [4, 5, 6],
-    test: task_winCardCountWithProperty(4, 9, true),
+    test: task_winCardCountWithProperty(4, 9, false),
   },
   '32': {
     id: 32,
@@ -865,7 +865,7 @@ export default {
     },
   },
 
-  // special tasks for logbook games
+  // special tasks for logbook missions
   '100': {
     id: 100,
     special: true,

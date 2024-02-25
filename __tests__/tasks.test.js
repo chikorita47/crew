@@ -247,6 +247,17 @@ const TESTS = {
         ),
         ...repeat(10, tricks(cards(Suit.PINK, 9, Suit.PINK, 9, Suit.YELLOW, 9), 1, 1)),
       ],
+      tricks(
+        cards(Suit.BLUE, 9, Suit.BLUE, 8, Suit.BLUE, 7),
+        0,
+        0,
+        cards(Suit.BLUE, 6, Suit.BLUE, 5, Suit.BLUE, 4),
+        0,
+        0,
+        cards(Suit.BLUE, 3, Suit.BLUE, 2, Suit.BLUE, 1),
+        0,
+        0,
+      ),
     ],
     [TaskState.PENDING]: [
       tricks(
@@ -318,6 +329,25 @@ const TESTS = {
         ),
         ...repeat(11, tricks(cards(Suit.BLUE, 9, Suit.GREEN, 9, Suit.PINK, 9), 0, 0)),
       ],
+      tricks(
+        cards(Suit.BLUE, 3, Suit.GREEN, 3, Suit.PINK, 3),
+        0,
+        0,
+        cards(Suit.YELLOW, 3, Suit.GREEN, 9, Suit.PINK, 9),
+        0,
+        0,
+      ),
+    ],
+    [TaskState.PENDING]: [
+      // black should be excluded
+      tricks(
+        cards(Suit.BLUE, 3, Suit.GREEN, 3, Suit.PINK, 3),
+        0,
+        0,
+        cards(Suit.BLACK, 3, Suit.GREEN, 9, Suit.PINK, 9),
+        0,
+        0,
+      ),
     ],
     [TaskState.FAILURE]: [
       // black should be excluded
@@ -387,6 +417,28 @@ const TESTS = {
     [TaskState.FAILURE]: [
       tricks(cards(Suit.BLACK, 3, Suit.BLACK, 2, Suit.PINK, 9), 0, 0), // 2 black
       repeat(13, tricks(cards(Suit.BLUE, 9, Suit.GREEN, 9, Suit.PINK, 9), 0, 0)), // no black
+    ],
+  },
+  // win exactly 2 9s
+  46: {
+    [TaskState.SUCCESS]: [
+      [
+        ...tricks(cards(Suit.BLUE, 9, Suit.GREEN, 9, Suit.PINK, 1), 0, 0),
+        ...repeat(12, tricks(cards(Suit.BLUE, 1, Suit.GREEN, 1, Suit.PINK, 1), 0, 0)),
+      ],
+    ],
+    [TaskState.PENDING]: [
+      [
+        ...tricks(cards(Suit.BLUE, 9, Suit.GREEN, 9, Suit.PINK, 1), 0, 0),
+        ...repeat(11, tricks(cards(Suit.BLUE, 1, Suit.GREEN, 1, Suit.PINK, 1), 0, 0)),
+      ],
+    ],
+    [TaskState.FAILURE]: [
+      tricks(cards(Suit.BLUE, 9, Suit.GREEN, 9, Suit.PINK, 9), 0, 0), // more than two
+      [
+        ...tricks(cards(Suit.BLUE, 9, Suit.GREEN, 1, Suit.PINK, 1), 0, 0), // only one
+        ...repeat(12, tricks(cards(Suit.BLUE, 1, Suit.GREEN, 1, Suit.PINK, 1), 0, 0)),
+      ],
     ],
   },
   // more tricks than anyone else
