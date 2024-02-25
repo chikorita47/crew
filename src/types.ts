@@ -109,13 +109,14 @@ type Enumerate<N extends number, Acc extends number[] = []> = Acc['length'] exte
   ? Acc[number]
   : Enumerate<N, [...Acc, Acc['length']]>;
 
-type IntRange<F extends number, T extends number> = Exclude<Enumerate<T>, Enumerate<F>>;
+export type IntRange<F extends number, T extends number> = Exclude<Enumerate<T>, Enumerate<F>>;
 
 // This type assumes that as cards are played, they are added to
 export type CardTally = {
   [key in Suit]: key extends 'black' ? Array<IntRange<1, 5>> : Array<IntRange<1, 10>>;
 };
 export type MaxNumCards = IntRange<1, 6>;
+export type SuitNumber<T extends Suit = Suit.BLUE> = T extends Suit.BLACK ? IntRange<1, 5> : IntRange<1, 10>;
 
 export enum Comparison {
   FEWER_THAN = -1,
