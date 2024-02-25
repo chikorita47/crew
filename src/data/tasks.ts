@@ -400,6 +400,7 @@ export default {
     subtext: 'If submarine cards 1,2,3,4 are in one hand, re-deal the playing cards',
     difficulty: [3, 3, 3],
     test: task_winCardCountWithProperty(1, Suit.BLACK, true),
+    redealSets: [[1, 2, 3, 4]],
   },
   '44': {
     id: 44,
@@ -407,6 +408,7 @@ export default {
     subtext: 'If submarine cards 2,3,4 are in one hand, re-deal the playing cards',
     difficulty: [3, 3, 4],
     test: task_winCardCountWithProperty(2, Suit.BLACK, true),
+    redealSets: [[2, 3, 4]],
   },
   '45': {
     id: 45,
@@ -414,6 +416,7 @@ export default {
     subtext: 'If submarine cards 1,2,3,4 are in one hand, re-deal the playing cards',
     difficulty: [3, 4, 4],
     test: task_winCardCountWithProperty(3, Suit.BLACK, true),
+    redealSets: [[1, 2, 3, 4]],
   },
   '46': {
     id: 46,
@@ -671,12 +674,16 @@ export default {
   '75': {
     id: 75,
     text: 'I will win the black 1 and no other submarine',
-    subtext: 'If submarine cards 1 and 4 or 1,2,3 are in one hand, redeal the playing cards',
+    subtext: 'If submarine cards 1 and 4 or 1,2,3 are in one hand, re-deal the playing cards',
     difficulty: [3, 3, 3],
     test: taskIntersection(
       task_winSpecificCard({ number: 1, suit: Suit.BLACK }),
       task_winCardCountWithProperty(1, Suit.BLACK, true),
     ),
+    redealSets: [
+      [1, 4],
+      [1, 2, 3],
+    ],
   },
   '76': {
     id: 76,
@@ -687,6 +694,10 @@ export default {
       task_winSpecificCard({ number: 2, suit: Suit.BLACK }),
       task_winCardCountWithProperty(1, Suit.BLACK, true),
     ),
+    redealSets: [
+      [2, 4],
+      [1, 2, 3],
+    ],
   },
   '77': {
     id: 77,

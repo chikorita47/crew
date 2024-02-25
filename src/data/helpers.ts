@@ -317,3 +317,24 @@ export function makeCard(from: Suit | number | Partial<Card>): Partial<Card> {
     return typeof from === 'number' ? { number: from } : { suit: from };
   } else return from;
 }
+
+// re-deal rules: after dealing out tasks, all tasks' redeal arrays are evaluated.
+// Any returning true will force a redeal
+export function getNeedsRedeal(...subGroupings: number[][]): (state: GameState) => boolean {
+  return (state: GameState) => {
+    return subGroupings.some(subGrouping => {
+      const player = getPlayerWithSub(subGrouping[0], state);
+      if (player && player.hand) {
+        const { hand } = player;
+        return subGrouping.every(number => handIncludesCard(hand, { suit: Suit.BLACK, number }));
+      }
+    });
+  };
+}
+
+function getPlayerWithSub(number: number, state: GameState) {
+  return state.players.find(p => p.hand && handIncludesCard(p.hand, { suit: Suit.BLACK, number }));
+}
+function handIncludesCard(hand: Card[], card: Card) {
+  return hand.some(c => c.number === card.number && c.suit === card.suit);
+}
