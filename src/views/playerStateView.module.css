@@ -4,10 +4,6 @@
   min-height: 12vw;
 }
 
-.container:active {
-  opacity: 30%;
-}
-
 .tasks {
   position: relative;
   background-color: #b6e4ff;
@@ -88,7 +84,6 @@
   border-radius: 2vw;
   width: 4vw;
   height: 4vw;
-  z-index: 10;
 }
 
 .token.top {

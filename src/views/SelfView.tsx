@@ -30,7 +30,7 @@ function SelfView({ player, tricksWon, hintMode, onPress, onPressUndo, onPressRe
         </div>
         <PlayerInfoView player={player} />
       </div>
-      <div onClick={onPress}>
+      <div className={styles.playerState} onClick={onPress}>
         <PlayerStateView
           hint={player.hint}
           hintMode={hintMode}

@@ -19,3 +19,8 @@
   color: white;
   opacity: 40%;
 }
+
+.playerState:active {
+  opacity: 30%;
+  padding-left: 2vw;
+}
