@@ -43,6 +43,7 @@ export default {
       }
       return TaskState.PENDING;
     },
+    layout: { type: 'no-image' },
   },
   '1': {
     id: 1,
@@ -68,6 +69,7 @@ export default {
     subtext: '',
     difficulty: [4, 3, 3],
     test: task_winExactTrickCount(0),
+    layout: { type: 'no-image' },
   },
   '4': {
     id: 4,
@@ -75,6 +77,7 @@ export default {
     subtext: '',
     difficulty: [1, 1, 1],
     test: task_winConsecutiveTricks(2),
+    layout: { type: 'no-image' },
   },
   '5': {
     id: 5,
@@ -82,6 +85,7 @@ export default {
     subtext: '',
     difficulty: [2, 3, 4],
     test: task_winConsecutiveTricks(3),
+    layout: { type: 'no-image' },
   },
   '6': {
     id: 6,
@@ -124,6 +128,7 @@ export default {
     subtext: '',
     difficulty: [3, 4, 5],
     test: task_winTrickUsingCard(2),
+    layout: { type: 'bottom-image', cards: [2] },
   },
   '12': {
     id: 12,
@@ -152,6 +157,7 @@ export default {
     subtext: '',
     difficulty: [2, 3, 4],
     test: task_winTrickPassingCardTest(c => c.number > 5),
+    layout: { type: 'bottom-image', value: 5 },
   },
   '16': {
     id: 16,
@@ -159,6 +165,7 @@ export default {
     subtext: 'Submarines are not allowed in the trick',
     difficulty: [2, 3, 3],
     test: task_winTrickPassingCardTest(c => c.number < 7 && c.suit !== Suit.BLACK),
+    layout: { type: 'bottom-image', value: 7 },
   },
   '17': {
     id: 17,
@@ -219,6 +226,7 @@ export default {
       const yellow = cards.filter(c => c.suit === Suit.YELLOW).length;
       return green === yellow && green !== 0;
     }),
+    layout: { type: 'bottom-image', cards: ['G', 'Y'], cardLayout: 'side-by-side' },
   },
   '21': {
     id: 21,
@@ -230,6 +238,7 @@ export default {
       const blue = cards.filter(c => c.suit === Suit.BLUE).length;
       return pink === blue && pink !== 0;
     }),
+    layout: { type: 'bottom-image', cards: ['P', 'B'], cardLayout: 'side-by-side' },
   },
   '22': {
     id: 22,
@@ -240,6 +249,7 @@ export default {
       task_winComparativeCardCountForProperties(Suit.PINK, Comparison.EQUAL_TO, Suit.YELLOW),
       task_winCardCountWithProperty(1, Suit.PINK, false),
     ),
+    layout: { type: 'bottom-image', cards: ['P', 'Y'], cardLayout: 'side-by-side' },
   },
   '23': {
     id: 23,
@@ -247,6 +257,7 @@ export default {
     subtext: '0 green cards is allowed',
     difficulty: [1, 1, 1],
     test: task_winComparativeCardCountForProperties(Suit.PINK, Comparison.MORE_THAN, Suit.GREEN),
+    layout: { type: 'bottom-image', cards: ['P', 'G'], cardLayout: 'big-small' },
   },
   '24': {
     id: 24,
@@ -254,6 +265,7 @@ export default {
     subtext: '0 blue cards is allowed',
     difficulty: [1, 1, 1],
     test: task_winComparativeCardCountForProperties(Suit.YELLOW, Comparison.MORE_THAN, Suit.BLUE),
+    layout: { type: 'bottom-image', cards: ['Y', 'B'], cardLayout: 'big-small' },
   },
   '25': {
     id: 25,
@@ -266,6 +278,7 @@ export default {
       task_winCardCountWithProperty(1, Suit.YELLOW, false),
       task_winCardCountWithProperty(1, Suit.PINK, false),
     ),
+    layout: { type: 'bottom-image', cards: ['B', 'G', 'Y', 'P'], cardLayout: 'cluster' },
   },
   '26': {
     id: 26,
@@ -278,6 +291,7 @@ export default {
       task_winCardCountWithProperty(9, Suit.YELLOW, true),
       task_winCardCountWithProperty(9, Suit.PINK, true),
     ),
+    layout: { type: 'no-image' },
   },
   '27': {
     id: 27,
@@ -285,6 +299,7 @@ export default {
     subtext: '',
     difficulty: [2, 2, 2],
     test: task_winCardCountWithProperty(2, 7, false),
+    layout: { type: 'bottom-image', cards: [7] },
   },
   '28': {
     id: 28,
@@ -292,6 +307,7 @@ export default {
     subtext: '',
     difficulty: [3, 4, 5],
     test: task_winCardCountWithProperty(3, 5, false),
+    layout: { type: 'bottom-image', cards: [5] },
   },
   '29': {
     id: 29,
@@ -299,6 +315,7 @@ export default {
     subtext: '',
     difficulty: [3, 4, 5],
     test: task_winCardCountWithProperty(3, 9, false),
+    layout: { type: 'bottom-image', cards: [9] },
   },
   '30': {
     id: 30,
@@ -306,6 +323,7 @@ export default {
     subtext: '',
     difficulty: [3, 4, 5],
     test: task_winCardCountWithProperty(4, 3, true),
+    layout: { type: 'bottom-image', cards: ['B3', 'P3', 'Y3', 'G3'] },
   },
   '31': {
     id: 31,
@@ -313,6 +331,7 @@ export default {
     subtext: '',
     difficulty: [4, 5, 6],
     test: task_winCardCountWithProperty(4, 9, true),
+    layout: { type: 'bottom-image', cards: ['B9', 'P9', 'Y9', 'G9'] },
   },
   '32': {
     id: 32,
@@ -320,6 +339,7 @@ export default {
     subtext: '',
     difficulty: [2, 3, 3],
     test: task_winCardCountWithProperty(5, Suit.PINK, false),
+    layout: { type: 'bottom-image', cards: ['P'] },
   },
   '33': {
     id: 33,
@@ -327,6 +347,7 @@ export default {
     subtext: '',
     difficulty: [3, 3, 3],
     test: task_winCardCountWithProperty(7, Suit.YELLOW, false),
+    layout: { type: 'bottom-image', cards: ['Y'] },
   },
   '34': {
     id: 34,
@@ -334,6 +355,7 @@ export default {
     subtext: '',
     difficulty: [3, 2, 2],
     test: task_winExactTrickCount(1),
+    layout: { type: 'no-image' },
   },
   '35': {
     id: 35,
@@ -341,6 +363,7 @@ export default {
     subtext: '',
     difficulty: [2, 2, 2],
     test: task_winExactTrickCount(2),
+    layout: { type: 'no-image' },
   },
   '36': {
     id: 36,
@@ -348,6 +371,7 @@ export default {
     subtext: '',
     difficulty: [2, 3, 5],
     test: task_winExactTrickCount(4),
+    layout: { type: 'no-image' },
   },
   '37': {
     id: 37,
@@ -355,6 +379,7 @@ export default {
     subtext: '',
     difficulty: [3, 3, 3],
     test: taskIntersection(task_winExactTrickCount(2), task_winConsecutiveTricks(2)),
+    layout: { type: 'no-image' },
   },
   '38': {
     id: 38,
@@ -362,6 +387,7 @@ export default {
     subtext: '',
     difficulty: [3, 3, 4],
     test: taskIntersection(task_winExactTrickCount(3), task_winConsecutiveTricks(3)),
+    layout: { type: 'no-image' },
   },
   '39': {
     id: 39,
@@ -369,6 +395,7 @@ export default {
     subtext: '',
     difficulty: [3, 3, 4],
     test: task_winCardCountWithProperty(1, Suit.PINK, true),
+    layout: { type: 'bottom-image', cards: ['P'] },
   },
   '40': {
     id: 40,
@@ -379,6 +406,7 @@ export default {
       task_winCardCountWithProperty(1, Suit.PINK, true),
       task_winCardCountWithProperty(1, Suit.GREEN, true),
     ),
+    layout: { type: 'bottom-image', cards: ['P', 'G'] },
   },
   '41': {
     id: 41,
@@ -386,6 +414,7 @@ export default {
     subtext: '',
     difficulty: [3, 4, 4],
     test: task_winCardCountWithProperty(2, Suit.BLUE, true),
+    layout: { type: 'bottom-image', cards: ['B'] },
   },
   '42': {
     id: 42,
@@ -393,6 +422,7 @@ export default {
     subtext: '',
     difficulty: [3, 4, 4],
     test: task_winCardCountWithProperty(2, Suit.GREEN, true),
+    layout: { type: 'bottom-image', cards: ['G'] },
   },
   '43': {
     id: 43,
@@ -401,6 +431,7 @@ export default {
     difficulty: [3, 3, 3],
     test: task_winCardCountWithProperty(1, Suit.BLACK, true),
     redealSets: [[1, 2, 3, 4]],
+    layout: { type: 'bottom-image', cards: ['S'] },
   },
   '44': {
     id: 44,
@@ -409,6 +440,7 @@ export default {
     difficulty: [3, 3, 4],
     test: task_winCardCountWithProperty(2, Suit.BLACK, true),
     redealSets: [[2, 3, 4]],
+    layout: { type: 'bottom-image', cards: ['S'] },
   },
   '45': {
     id: 45,
@@ -417,6 +449,7 @@ export default {
     difficulty: [3, 4, 4],
     test: task_winCardCountWithProperty(3, Suit.BLACK, true),
     redealSets: [[1, 2, 3, 4]],
+    layout: { type: 'bottom-image', cards: ['S'] },
   },
   '46': {
     id: 46,
@@ -424,6 +457,7 @@ export default {
     subtext: '',
     difficulty: [2, 3, 3],
     test: task_winCardCountWithProperty(2, 9, true),
+    layout: { type: 'bottom-image', cards: [9] },
   },
   '47': {
     id: 47,
@@ -431,6 +465,7 @@ export default {
     subtext: '',
     difficulty: [3, 4, 4],
     test: task_winCardCountWithProperty(3, 6, true),
+    layout: { type: 'bottom-image', cards: [6] },
   },
   '48': {
     id: 48,
@@ -498,6 +533,7 @@ export default {
     subtext: '',
     difficulty: [2, 2, 2],
     test: task_winCardCountWithProperty(0, 1, true),
+    layout: { type: 'bottom-image', cards: [1] },
   },
   '55': {
     id: 55,
@@ -509,6 +545,7 @@ export default {
       task_winCardCountWithProperty(0, 2, true),
       task_winCardCountWithProperty(0, 3, true),
     ),
+    layout: { type: 'bottom-image', cards: [1, 2, 3] },
   },
   '56': {
     id: 56,
@@ -516,6 +553,7 @@ export default {
     subtext: '',
     difficulty: [1, 2, 2],
     test: task_winCardCountWithProperty(0, 5, true),
+    layout: { type: 'bottom-image', cards: [5] },
   },
   '57': {
     id: 57,
@@ -523,6 +561,7 @@ export default {
     subtext: '',
     difficulty: [3, 3, 2],
     test: taskIntersection(task_winCardCountWithProperty(0, 8, true), task_winCardCountWithProperty(0, 9, true)),
+    layout: { type: 'bottom-image', cards: [8, 9] },
   },
   '58': {
     id: 58,
@@ -530,6 +569,7 @@ export default {
     subtext: '',
     difficulty: [1, 1, 1],
     test: task_winCardCountWithProperty(0, 9, true),
+    layout: { type: 'bottom-image', cards: [9] },
   },
   '59': {
     id: 59,
@@ -537,6 +577,7 @@ export default {
     subtext: '',
     difficulty: [1, 1, 1],
     test: task_winCardCountWithProperty(0, Suit.BLACK, true),
+    layout: { type: 'bottom-image', cards: ['S'] },
   },
   '60': {
     id: 60,
@@ -544,6 +585,7 @@ export default {
     subtext: '',
     difficulty: [2, 2, 2],
     test: task_winCardCountWithProperty(0, Suit.GREEN, true),
+    layout: { type: 'bottom-image', cards: ['G'] },
   },
   '61': {
     id: 61,
@@ -551,6 +593,7 @@ export default {
     subtext: '',
     difficulty: [2, 2, 2],
     test: task_winCardCountWithProperty(0, Suit.PINK, true),
+    layout: { type: 'bottom-image', cards: ['P'] },
   },
   '62': {
     id: 62,
@@ -558,6 +601,7 @@ export default {
     subtext: '',
     difficulty: [2, 2, 2],
     test: task_winCardCountWithProperty(0, Suit.YELLOW, true),
+    layout: { type: 'bottom-image', cards: ['Y'] },
   },
   '63': {
     id: 63,
@@ -568,6 +612,7 @@ export default {
       task_winCardCountWithProperty(0, Suit.PINK, true),
       task_winCardCountWithProperty(0, Suit.BLUE, true),
     ),
+    layout: { type: 'bottom-image', cards: ['P', 'B'] },
   },
   '64': {
     id: 64,
@@ -578,6 +623,7 @@ export default {
       task_winCardCountWithProperty(0, Suit.YELLOW, true),
       task_winCardCountWithProperty(0, Suit.GREEN, true),
     ),
+    layout: { type: 'bottom-image', cards: ['Y', 'G'] },
   },
   '65': {
     id: 65,
@@ -589,6 +635,7 @@ export default {
       task_winNthTrick(2, undefined, true),
       task_winNthTrick(3, undefined, true),
     ),
+    layout: { type: 'no-image' },
   },
   '66': {
     id: 66,
@@ -601,6 +648,7 @@ export default {
       task_winNthTrick(3, undefined, true),
       task_winNthTrick(4, undefined, true),
     ),
+    layout: { type: 'no-image' },
   },
   '67': {
     id: 67,
@@ -614,6 +662,7 @@ export default {
       task_winNthTrick(4, undefined, true),
       task_winNthTrick(5, undefined, true),
     ),
+    layout: { type: 'no-image' },
   },
   '68': {
     id: 68,
@@ -621,6 +670,7 @@ export default {
     subtext: '',
     difficulty: [4, 3, 3],
     test: taskIntersection(task_winNthTrick(1), task_winExactTrickCount(1)),
+    layout: { type: 'no-image' },
   },
   '69': {
     id: 69,
@@ -635,6 +685,7 @@ export default {
       }
       return trick?.winner === owner ? TaskState.FAILURE : TaskState.PENDING;
     },
+    layout: { type: 'no-image' },
   },
   '70': {
     id: 70,
@@ -642,6 +693,7 @@ export default {
     subtext: '',
     difficulty: [1, 1, 1],
     test: task_winNthTrick(1),
+    layout: { type: 'no-image' },
   },
   '71': {
     id: 71,
@@ -649,6 +701,7 @@ export default {
     subtext: '',
     difficulty: [1, 1, 2],
     test: taskIntersection(task_winNthTrick(1), task_winNthTrick(2)),
+    layout: { type: 'no-image' },
   },
   '72': {
     id: 72,
@@ -656,6 +709,7 @@ export default {
     subtext: '',
     difficulty: [2, 3, 4],
     test: taskIntersection(task_winNthTrick(1), task_winNthTrick(2), task_winNthTrick(3)),
+    layout: { type: 'no-image' },
   },
   '73': {
     id: 73,
@@ -663,6 +717,7 @@ export default {
     subtext: '',
     difficulty: [3, 4, 4],
     test: taskIntersection(task_winNthTrick(1), task_winNthTrick(LAST_TRICK)),
+    layout: { type: 'no-image' },
   },
   '74': {
     id: 74,
@@ -670,6 +725,7 @@ export default {
     subtext: '',
     difficulty: [2, 3, 3],
     test: task_winNthTrick(LAST_TRICK),
+    layout: { type: 'no-image' },
   },
   '75': {
     id: 75,
@@ -705,6 +761,7 @@ export default {
     subtext: '',
     difficulty: [1, 1, 1],
     test: task_winSpecificCard({ number: 3, suit: Suit.BLACK }),
+    layout: { type: 'bottom-image', cards: ['S3'] },
   },
   '78': {
     id: 78,
@@ -716,6 +773,7 @@ export default {
       task_winSpecificCard({ number: 2, suit: Suit.BLUE }),
       task_winSpecificCard({ number: 3, suit: Suit.BLUE }),
     ),
+    layout: { type: 'bottom-image', cards: ['B1', 'B2', 'B3'] },
   },
   '79': {
     id: 79,
@@ -723,6 +781,7 @@ export default {
     subtext: '',
     difficulty: [1, 1, 1],
     test: task_winSpecificCard({ number: 4, suit: Suit.BLUE }),
+    layout: { type: 'bottom-image', cards: ['B4'] },
   },
   '80': {
     id: 80,
@@ -733,6 +792,7 @@ export default {
       task_winSpecificCard({ number: 6, suit: Suit.BLUE }),
       task_winSpecificCard({ number: 7, suit: Suit.YELLOW }),
     ),
+    layout: { type: 'bottom-image', cards: ['B6', 'Y7'] },
   },
   '81': {
     id: 81,
@@ -744,6 +804,7 @@ export default {
       task_winSpecificCard({ number: 4, suit: Suit.YELLOW }),
       task_winSpecificCard({ number: 5, suit: Suit.YELLOW }),
     ),
+    layout: { type: 'bottom-image', cards: ['G3', 'Y4', 'Y5'] },
   },
   '82': {
     id: 82,
@@ -754,6 +815,7 @@ export default {
       task_winSpecificCard({ number: 5, suit: Suit.GREEN }),
       task_winSpecificCard({ number: 8, suit: Suit.BLUE }),
     ),
+    layout: { type: 'bottom-image', cards: ['G5', 'B8'] },
   },
   '83': {
     id: 83,
@@ -761,6 +823,7 @@ export default {
     subtext: '',
     difficulty: [1, 1, 1],
     test: task_winSpecificCard({ number: 6, suit: Suit.GREEN }),
+    layout: { type: 'bottom-image', cards: ['G6'] },
   },
   '84': {
     id: 84,
@@ -771,6 +834,7 @@ export default {
       task_winSpecificCard({ number: 1, suit: Suit.PINK }),
       task_winSpecificCard({ number: 7, suit: Suit.GREEN }),
     ),
+    layout: { type: 'bottom-image', cards: ['P1', 'G7'] },
   },
   '85': {
     id: 85,
@@ -778,6 +842,7 @@ export default {
     subtext: '',
     difficulty: [1, 1, 1],
     test: task_winSpecificCard({ number: 3, suit: Suit.PINK }),
+    layout: { type: 'bottom-image', cards: ['P3'] },
   },
   '86': {
     id: 86,
@@ -788,6 +853,7 @@ export default {
       task_winSpecificCard({ number: 5, suit: Suit.PINK }),
       task_winSpecificCard({ number: 6, suit: Suit.YELLOW }),
     ),
+    layout: { type: 'bottom-image', cards: ['P5', 'Y6'] },
   },
   '87': {
     id: 87,
@@ -798,6 +864,7 @@ export default {
       task_winSpecificCard({ number: 8, suit: Suit.PINK }),
       task_winSpecificCard({ number: 5, suit: Suit.BLUE }),
     ),
+    layout: { type: 'bottom-image', cards: ['P8', 'B5'] },
   },
   '88': {
     id: 88,
@@ -808,6 +875,7 @@ export default {
       task_winSpecificCard({ number: 9, suit: Suit.PINK }),
       task_winSpecificCard({ number: 8, suit: Suit.YELLOW }),
     ),
+    layout: { type: 'bottom-image', cards: ['P9', 'Y8'] },
   },
   '89': {
     id: 89,
@@ -815,6 +883,7 @@ export default {
     subtext: '',
     difficulty: [1, 1, 1],
     test: task_winSpecificCard({ number: 1, suit: Suit.YELLOW }),
+    layout: { type: 'bottom-image', cards: ['Y1'] },
   },
   '90': {
     id: 90,
@@ -825,6 +894,7 @@ export default {
       task_winSpecificCard({ number: 9, suit: Suit.YELLOW }),
       task_winSpecificCard({ number: 7, suit: Suit.BLUE }),
     ),
+    layout: { type: 'bottom-image', cards: ['Y9', 'B7'] },
   },
   '91': {
     id: 91,
@@ -832,6 +902,7 @@ export default {
     subtext: '',
     difficulty: [3, 3, 3],
     test: task_winTrickUsingCard(Suit.BLACK, trickContains({ suit: Suit.PINK, number: 7 })),
+    layout: { type: 'two-by-two', cards: ['P7', 'S'] },
   },
   '92': {
     id: 92,
@@ -839,6 +910,7 @@ export default {
     subtext: '',
     difficulty: [3, 3, 3],
     test: task_winTrickUsingCard(Suit.BLACK, trickContains({ suit: Suit.GREEN, number: 9 })),
+    layout: { type: 'two-by-two', cards: ['G9', 'S'] },
   },
   '93': {
     id: 93,
@@ -846,6 +918,7 @@ export default {
     subtext: '',
     difficulty: [3, 4, 5],
     test: task_winNthTrick(LAST_TRICK, trickContains({ suit: Suit.GREEN, number: 2 })),
+    layout: { type: 'inline-image', cards: ['G2'] },
   },
   '94': {
     id: 94,
@@ -858,6 +931,7 @@ export default {
       if (n === undefined || typeof n !== 'number') throw new Error('Missing required extra data for task');
       return task_winExactTrickCount(n)(state, owner);
     },
+    layout: { type: 'no-image' },
   },
   '95': {
     id: 95,
@@ -870,5 +944,6 @@ export default {
       if (n === undefined || typeof n !== 'number') throw new Error('Missing required extra data for task');
       return task_winExactTrickCount(n)(state, owner);
     },
+    layout: { type: 'no-image' },
   },
 } as TasksData;

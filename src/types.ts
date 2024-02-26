@@ -1,3 +1,5 @@
+import type { CardShorthand, SuitLetter } from './data/shorthandParser';
+
 export enum Suit {
   BLUE = 'blue',
   GREEN = 'green',
@@ -99,6 +101,16 @@ export type TasksDataEntry = {
   difficulty: TasksDataEntryDifficulty;
   requiresExtraData?: boolean;
   test: TasksDataEntryTest;
+  layout: TaskLayout;
+};
+type CardLayoutType = 'fan' | 'cluster' | 'side-by-side' | 'big-small';
+type TaskLayoutType = 'bottom-image' | 'inline-image' | 'no-image' | 'two-by-two';
+type TaskLayout = {
+  type: TaskLayoutType;
+  cards?: Array<CardShorthand | number | SuitLetter>;
+  cardLayout?: CardLayoutType;
+  value?: number;
+  playerComparison?: Comparison;
 };
 
 export type TasksData = {
