@@ -5,15 +5,11 @@
    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
    xmlns:svg="http://www.w3.org/2000/svg"
    xmlns="http://www.w3.org/2000/svg"
-   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
-   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
-   width="67.73333mm"
-   height="84.164169mm"
-   viewBox="0 0 67.73333 84.164169"
+   width="54.510185mm"
+   height="67.733337mm"
+   viewBox="0 0 54.510185 67.733337"
    version="1.1"
-   id="svg940"
-   inkscape:version="1.0.2-2 (e86c870879, 2021-01-15)"
-   sodipodi:docname="6.svg">
+   id="svg940">
   <defs
      id="defs934">
     <clipPath
@@ -43,39 +39,7 @@
          class="powerclip"
          d="m 213.21477,23.0073 h 49.01706 v 65.50209 h -49.01706 z m 20.29529,37.819902 v 11.272093 h 8.46576 V 60.827202 Z m 34.11597,16.927223 a 10.583333,10.583333 0 0 0 -10.58334,-10.583333 10.583333,10.583333 0 0 0 -10.58333,10.583333 10.583333,10.583333 0 0 0 10.58333,10.583333 10.583333,10.583333 0 0 0 10.58334,-10.583333 z" />
     </clipPath>
-    <inkscape:path-effect
-       effect="powerclip"
-       id="path-effect906"
-       is_visible="true"
-       lpeversion="1"
-       inverse="true"
-       flatten="false"
-       hide_clip="false"
-       message="Use fill-rule evenodd on &lt;b&gt;fill and stroke&lt;/b&gt; dialog if no flatten result after convert clip to paths." />
   </defs>
-  <sodipodi:namedview
-     id="base"
-     pagecolor="#ffffff"
-     bordercolor="#666666"
-     borderopacity="1.0"
-     inkscape:pageopacity="0.0"
-     inkscape:pageshadow="2"
-     inkscape:zoom="0.35"
-     inkscape:cx="128"
-     inkscape:cy="159.0504"
-     inkscape:document-units="mm"
-     inkscape:current-layer="layer1"
-     inkscape:document-rotation="0"
-     showgrid="false"
-     fit-margin-top="0"
-     fit-margin-left="0"
-     fit-margin-right="0"
-     fit-margin-bottom="0"
-     inkscape:window-width="2560"
-     inkscape:window-height="1377"
-     inkscape:window-x="2552"
-     inkscape:window-y="560"
-     inkscape:window-maximized="1" />
   <metadata
      id="metadata937">
     <rdf:RDF>
@@ -89,13 +53,11 @@
     </rdf:RDF>
   </metadata>
   <g
-     inkscape:label="Layer 1"
-     inkscape:groupmode="layer"
      id="layer1"
-     transform="translate(-71.966668,-106.08458)">
+     transform="translate(-71.96667,-106.08458)">
     <g
        id="g913"
-       transform="matrix(1.5047653,0,0,1.5047653,-256.39535,63.940168)">
+       transform="matrix(1.2109995,0,0,1.2109995,-192.29131,72.167755)">
       <circle
          style="opacity:1;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.264999;stroke-linecap:round;stroke-linejoin:round;stroke-opacity:1;paint-order:fill markers stroke"
          id="path14160"
@@ -106,10 +68,7 @@
          style="fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
          d="m 248.24531,83.509114 h -19.87682 c 0,0 -10.15339,0.198437 -10.15339,-10.054167 V 40.315885 c 0,0 -0.22324,-12.303125 10.98848,-12.303125 h 14.34538 c 1.45521,-0.03307 12.63385,-0.198437 12.63385,9.525 v 8.003646 h -13.95677 v -5.787761 h -8.48214 v 9.895009 h 11.64716 c 3.32119,-0.0117 7.05393,0.730155 9.208,3.157049 2.15407,2.426894 2.93333,5.931214 2.53093,14.499444 -0.4024,8.56823 1.29254,16.203967 -8.88468,16.203967 z"
          id="path885"
-         sodipodi:nodetypes="scscscsccccccszs"
-         clip-path="url(#clipPath898)"
-         inkscape:path-effect="#path-effect906"
-         inkscape:original-d="m 248.24531,83.509114 h -19.87682 c 0,0 -10.15339,0.198437 -10.15339,-10.054167 V 40.315885 c 0,0 -0.22324,-12.303125 10.98848,-12.303125 h 14.34538 c 1.45521,-0.03307 12.63385,-0.198437 12.63385,9.525 v 8.003646 h -13.95677 v -5.787761 h -8.48214 v 9.895009 h 11.64716 c 3.32119,-0.0117 7.05393,0.730155 9.208,3.157049 2.15407,2.426894 2.93333,5.931214 2.53093,14.499444 -0.4024,8.56823 1.29254,16.203967 -8.88468,16.203967 z" />
+         clip-path="url(#clipPath898)" />
     </g>
   </g>
 </svg>

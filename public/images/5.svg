@@ -5,41 +5,13 @@
    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
    xmlns:svg="http://www.w3.org/2000/svg"
    xmlns="http://www.w3.org/2000/svg"
-   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
-   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
-   width="256.00003"
-   height="371.7753"
-   viewBox="0 0 67.733337 98.365547"
+   width="176.2785"
+   height="256.00003"
+   viewBox="0 0 46.640351 67.733341"
    version="1.1"
-   id="svg2350"
-   inkscape:version="1.0.2-2 (e86c870879, 2021-01-15)"
-   sodipodi:docname="5.svg">
+   id="svg2350">
   <defs
      id="defs2344" />
-  <sodipodi:namedview
-     id="base"
-     pagecolor="#ffffff"
-     bordercolor="#666666"
-     borderopacity="1.0"
-     inkscape:pageopacity="0.0"
-     inkscape:pageshadow="2"
-     inkscape:zoom="0.35"
-     inkscape:cx="150.85715"
-     inkscape:cy="220.17336"
-     inkscape:document-units="mm"
-     inkscape:current-layer="layer1"
-     inkscape:document-rotation="0"
-     showgrid="false"
-     fit-margin-top="0"
-     fit-margin-left="0"
-     fit-margin-right="0"
-     fit-margin-bottom="0"
-     units="px"
-     inkscape:window-width="2560"
-     inkscape:window-height="1377"
-     inkscape:window-x="2552"
-     inkscape:window-y="560"
-     inkscape:window-maximized="1" />
   <metadata
      id="metadata2347">
     <rdf:RDF>
@@ -53,14 +25,11 @@
     </rdf:RDF>
   </metadata>
   <g
-     inkscape:label="Layer 1"
-     inkscape:groupmode="layer"
      id="layer1"
      transform="translate(-65.919045,-89.912465)">
     <path
-       style="fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.153156px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-       d="m 65.919045,154.10061 2.9e-5,12.19849 c 0,11.29552 2.680234,21.97791 23.892361,21.97791 H 113.3071 c 0,0 20.34528,0.45946 20.34528,-18.26387 v -27.6934 c 0,-9.81325 -1.81701,-13.5042 -4.40802,-16.25693 -2.59102,-2.75273 -5.87259,-5.59569 -18.6037,-5.59569 H 92.759685 V 110.43539 H 132.38884 V 89.912465 H 67.335765 v 52.570845 h 39.782315 v 25.30906 H 91.457857 V 154.10061 H 65.919045"
-       id="path2331"
-       sodipodi:nodetypes="ccscssssccccccccccc" />
+       style="fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.105461px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="m 65.919045,134.11165 2e-5,8.39973 c 0,7.77796 1.845577,15.13373 16.451992,15.13373 h 16.178832 c 0,0 14.009511,0.31637 14.009511,-12.57628 v -19.06935 c 0,-6.75728 -1.25117,-9.29883 -3.03531,-11.19432 -1.78414,-1.8955 -4.04379,-3.85313 -12.81028,-3.85313 H 84.401186 V 104.0443 H 111.68935 V 89.912465 H 66.894581 v 36.199655 h 27.393623 v 17.42751 H 83.504763 v -9.42798 H 65.919045"
+       id="path2331" />
   </g>
 </svg>

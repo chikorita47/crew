@@ -5,41 +5,13 @@
    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
    xmlns:svg="http://www.w3.org/2000/svg"
    xmlns="http://www.w3.org/2000/svg"
-   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
-   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
-   width="256.00003"
-   height="357.03754"
-   viewBox="0 0 67.733337 94.466179"
+   width="183.55493"
+   height="255.99998"
+   viewBox="0 0 48.565573 67.733327"
    version="1.1"
-   id="svg12328"
-   inkscape:version="1.0.2-2 (e86c870879, 2021-01-15)"
-   sodipodi:docname="2.svg">
+   id="svg12328">
   <defs
      id="defs12322" />
-  <sodipodi:namedview
-     id="base"
-     pagecolor="#ffffff"
-     bordercolor="#666666"
-     borderopacity="1.0"
-     inkscape:pageopacity="0.0"
-     inkscape:pageshadow="2"
-     inkscape:zoom="0.62240079"
-     inkscape:cx="-137.29799"
-     inkscape:cy="383.56456"
-     inkscape:document-units="mm"
-     inkscape:current-layer="layer1"
-     inkscape:document-rotation="0"
-     showgrid="false"
-     fit-margin-top="0"
-     fit-margin-left="0"
-     fit-margin-right="0"
-     fit-margin-bottom="0"
-     units="px"
-     inkscape:window-width="2560"
-     inkscape:window-height="1377"
-     inkscape:window-x="2552"
-     inkscape:window-y="560"
-     inkscape:window-maximized="1" />
   <metadata
      id="metadata12325">
     <rdf:RDF>
@@ -53,14 +25,11 @@
     </rdf:RDF>
   </metadata>
   <g
-     inkscape:label="Layer 1"
-     inkscape:groupmode="layer"
      id="layer1"
      transform="translate(-71.966666,-100.93358)">
     <path
-       style="fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.674697px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-       d="m 139.7,195.39976 v -19.97542 h -29.381 l 26.2035,-26.20348 v -28.92335 c 0,-8.9299 -3.49957,-19.31322 -21.74397,-19.31322 H 95.897332 c -6.094269,0 -23.930666,-1.939763 -23.930666,18.17466 v 18.80722 h 24.0139 v -17.31808 h 14.789584 v 23.25783 l -37.465112,37.43611 4.56e-4,14.05773 h 66.394476"
-       id="path12309"
-       sodipodi:nodetypes="cccccscscccccccc" />
+       style="fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.483765px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="m 120.53224,168.66691 v -14.3226 H 99.465729 l 18.788211,-18.7882 v -20.73837 c 0,-6.40284 -2.50923,-13.8478 -15.59068,-13.8478 H 89.125227 c -4.36966,0 -17.158561,-1.390833 -17.158561,13.03144 v 13.48499 h 17.218241 v -12.41726 h 10.604301 v 16.67613 l -26.862914,26.84212 3.27e-4,10.07955 h 47.605599"
+       id="path12309" />
   </g>
 </svg>
