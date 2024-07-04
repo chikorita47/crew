@@ -1,4 +1,4 @@
-import { getCaptainId } from '../selectors';
+import { getCaptainId, getNextPlayerId } from '../selectors';
 import {
   Card,
   // CardTally,
@@ -181,9 +181,17 @@ export function task_winNthTrick(
 export function task_notOpenTrickWithCardProperty(property: Suit | number): TasksDataEntryTest {
   return (state: GameState, owner: number): TaskState => {
     const trick = getMostRecentTrick(state);
+    const isLastTrick = state.tricks?.length === getMaxTrickCount(state);
     if (!trick) return TaskState.PENDING;
+
+    if (owner === getNextPlayerId(state) && !isLastTrick) {
+      // owner must lead, and hand only contains cards with the given property
+      if (state.players[owner].hand?.every(card => card.number === property || card.suit === property))
+        return TaskState.FAILURE;
+    }
+
     if (owner !== trick.leader) {
-      if (state.tricks?.length === getMaxTrickCount(state)) {
+      if (isLastTrick) {
         return TaskState.SUCCESS;
       }
       return TaskState.PENDING;
@@ -192,13 +200,10 @@ export function task_notOpenTrickWithCardProperty(property: Suit | number): Task
     // owner leads with a card with given property
     if (trick.cards?.[0].number === property || trick.cards?.[0].suit === property) return TaskState.FAILURE;
 
-    // owner's hand only contains cards with the given property
-    if (state.players[0].hand?.every(card => card.number === property || card.suit === property))
-      return TaskState.FAILURE;
-
-    if (state.tricks?.length === getMaxTrickCount(state) && (trick.cards?.length || 0) > 1) {
+    if (isLastTrick && (trick.cards?.length || 0) > 1) {
       return TaskState.SUCCESS;
     }
+
     return TaskState.PENDING;
   };
 }

@@ -653,3 +653,21 @@ for (const taskId of [94, 95]) {
     });
   });
 }
+
+describe('task_notOpenTrickWithCardProperty checking player hand', () => {
+  const test = TASKS_DATA[1].test;
+  it('should fail early if player hand contains only invalid cards and they must lead', () => {
+    const state = createGameState();
+    state.players[1].tasks[1] = { id: 1 };
+    state.tricks = tricks(cards(Suit.GREEN, 9, Suit.BLUE, 9, Suit.YELLOW, 9), 0, 1);
+    expect(test(state, 1)).toBe(TaskState.FAILURE);
+  });
+  it('should not fail if player hand contains only one invalid card and is the extra card', () => {
+    const state = createGameState();
+    state.players[1].tasks[1] = { id: 1 };
+    state.players[1].extraCards = 1;
+    state.players[1].hand = [{ number: 1, suit: Suit.GREEN }];
+    state.tricks = repeat(13, tricks(cards(Suit.GREEN, 9, Suit.BLUE, 9, Suit.YELLOW, 9), 0, 1));
+    expect(test(state, 1)).toBe(TaskState.SUCCESS);
+  });
+});
