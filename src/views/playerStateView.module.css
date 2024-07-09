@@ -7,7 +7,7 @@
 .tasks {
   position: relative;
   background-color: #b6e4ff;
-  border: 0.4vw solid #004aad;
+  border: 0.25vw solid #004aad;
   border-radius: 1vw;
   font-size: 4vw;
   text-align: center;
@@ -57,13 +57,13 @@
 }
 
 .hint.unused {
-  border: 0.4vw dashed #666666;
+  border: 0.3vw dashed #666666;
   background-color: rgb(228, 236, 244);
   opacity: 75%;
 }
 
 .hint.given {
-  border: 0.4vw solid white;
+  border: 0.25vw solid white;
   color: white;
   font-size: 7vw;
   text-align: center;
@@ -73,7 +73,7 @@
 }
 
 .hint.used {
-  border: 0.4vw solid rgb(105, 112, 118);
+  border: 0.25vw solid rgb(105, 112, 118);
   background-color: rgb(189, 193, 197);
 }
 

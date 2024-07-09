@@ -35,89 +35,110 @@ function SetupGameScreen({ state, code, playerKey, onStartGame }: SetupGameScree
   const numberOfPlayers = Object.keys(state.clientList).length;
   const canStart = numberOfPlayers >= 3 && numberOfPlayers <= 5;
   return (
-    <div className="center-container">
-      <div>
+    <div className={styles.container}>
+      <div className={styles.codeContainer}>
         Code: <span className={styles.code}>{code}</span>
       </div>
-      <div>Players:</div>
-      {Object.entries(state.clientList).map(([key, playerName]) => (
-        <div key={key}>
-          <span onClick={() => setDealer(key)}>{playerName}</span>
-          {key === dealer && ' (Dealer)'}
-          {state.host !== playerName && key !== dealer && (
-            <span
-              onClick={() => {
-                Db.removeProvisionalPlayer(key, code);
-              }}>
-              {' '}
-              ✕
+      <div className={styles.playersContainer}>
+        <div className={styles.playersHeader}>Players:</div>
+        {Object.entries(state.clientList).map(([key, playerName]) => (
+          <div key={key} className={styles.playerContainer}>
+            {state.host !== playerName && key !== dealer ? (
+              <div
+                className={styles.playerX}
+                onClick={() => {
+                  Db.removeProvisionalPlayer(key, code);
+                }}>
+                {' '}
+                ✕
+              </div>
+            ) : (
+              <div className={styles.playerX} />
+            )}
+            <span className={styles.playerName} onClick={() => setDealer(key)}>
+              {playerName}
+              {key === dealer && ' (Dealer)'}
             </span>
-          )}
-        </div>
-      ))}
-      <input
-        type="number"
-        value={difficulty ?? ''}
-        placeholder="Difficulty"
-        min={1}
-        max={100}
-        onChange={event => {
-          setDifficulty(event.target.value === '' ? undefined : ~~event.target.value);
-          setLogbookNumber(undefined);
-        }}
-      />
-      <select
-        value={logbookNumber ?? 0}
-        onChange={event => {
-          setLogbookNumber(~~event.target.value || undefined);
-          setDifficulty(undefined);
-        }}>
-        <option value={0}>None</option>
-        <option value={8}>Mission 8</option>
-        <option value={12}>Mission 12</option>
-        <option value={21}>Mission 21</option>
-        <option value={23}>Mission 23</option>
-        <option value={27}>Mission 27</option>
-        <option value={32}>Mission 32</option>
-      </select>
+          </div>
+        ))}
+      </div>
+      <div className={styles.gameSelect}>
+        <input
+          className={styles.difficultyInput}
+          type="number"
+          value={difficulty ?? ''}
+          placeholder="Difficulty"
+          min={1}
+          max={100}
+          onChange={event => {
+            setDifficulty(event.target.value === '' ? undefined : ~~event.target.value);
+            setLogbookNumber(undefined);
+          }}
+        />
+        <select
+          className={styles.logbookSelect}
+          value={logbookNumber ?? 0}
+          onChange={event => {
+            setLogbookNumber(~~event.target.value || undefined);
+            setDifficulty(undefined);
+          }}>
+          <option value={0}>Normal</option>
+          <option value={8}>Mission 8</option>
+          <option value={12}>Mission 12</option>
+          <option value={21}>Mission 21</option>
+          <option value={23}>Mission 23</option>
+          <option value={27}>Mission 27</option>
+          <option value={32}>Mission 32</option>
+        </select>
+      </div>
       <div className={styles.hintModeContainer}>
         Hint Mode:
-        <input
-          type="radio"
-          id="hintModeDefault"
-          name="hintMode"
-          value="default"
-          checked={hintMode === RulesetHintMode.DEFAULT}
-          onClick={() => setHintMode(RulesetHintMode.DEFAULT)}
-        />
-        <label htmlFor="hintModeDefault">Default</label>
-        <input
-          type="radio"
-          id="hintModeFewer"
-          name="hintMode"
-          value="fewer"
-          checked={hintMode === RulesetHintMode.FEWER}
-          onClick={() => setHintMode(RulesetHintMode.FEWER)}
-        />
-        <label htmlFor="hintModeFewer">2 Fewer</label>
-        <input
-          type="radio"
-          id="hintModeNoTokens"
-          name="hintMode"
-          value="noTokens"
-          checked={hintMode === RulesetHintMode.NO_TOKENS}
-          onClick={() => setHintMode(RulesetHintMode.NO_TOKENS)}
-        />
-        <label htmlFor="hintModeNoTokens">No Tokens</label>
-        <input
-          type="radio"
-          id="hintModeNone"
-          name="hintMode"
-          value="none"
-          checked={hintMode === RulesetHintMode.NONE}
-          onClick={() => setHintMode(RulesetHintMode.NONE)}
-        />
-        <label htmlFor="hintModeNone">No Hints</label>
+        <div className={styles.hintModeOptions}>
+          <div>
+            <input
+              type="radio"
+              id="hintModeDefault"
+              name="hintMode"
+              value="default"
+              checked={hintMode === RulesetHintMode.DEFAULT}
+              onClick={() => setHintMode(RulesetHintMode.DEFAULT)}
+            />
+            <label htmlFor="hintModeDefault">Default</label>
+          </div>
+          <div>
+            <input
+              type="radio"
+              id="hintModeFewer"
+              name="hintMode"
+              value="fewer"
+              checked={hintMode === RulesetHintMode.FEWER}
+              onClick={() => setHintMode(RulesetHintMode.FEWER)}
+            />
+            <label htmlFor="hintModeFewer">2 Fewer</label>
+          </div>
+          <div>
+            <input
+              type="radio"
+              id="hintModeNoTokens"
+              name="hintMode"
+              value="noTokens"
+              checked={hintMode === RulesetHintMode.NO_TOKENS}
+              onClick={() => setHintMode(RulesetHintMode.NO_TOKENS)}
+            />
+            <label htmlFor="hintModeNoTokens">No Tokens</label>
+          </div>
+          <div>
+            <input
+              type="radio"
+              id="hintModeNone"
+              name="hintMode"
+              value="none"
+              checked={hintMode === RulesetHintMode.NONE}
+              onClick={() => setHintMode(RulesetHintMode.NONE)}
+            />
+            <label htmlFor="hintModeNone">No Hints</label>
+          </div>
+        </div>
       </div>
       <Button
         text="DEAL"

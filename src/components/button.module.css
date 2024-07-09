@@ -1,16 +1,16 @@
 .button {
   background-color: #b6e4ff;
-  border: 0.6vw solid #004aad;
+  border: 0.3vw solid #004aad;
   border-radius: 2vw;
   padding: 2vw;
   margin: 0 2vw 0 2vw;
   font-size: 6vw;
-  box-shadow: 0 0 2vw 0.5vw rgba(0, 0, 0, 0.2);
+  box-shadow: 0.1vw 0.2vw 1vw 0.5vw rgba(0, 0, 0, 0.15);
   width: max-content;
 }
 
 .button.big {
-  border-width: 1vw;
+  border-width: 0.3vw;
   font-size: 12vw;
   box-shadow: 0 0 2vw 0.9vw rgba(0, 0, 0, 0.2);
 }

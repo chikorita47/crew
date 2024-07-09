@@ -38,19 +38,19 @@ function TaskListView({
             ('provisionalPlayerId' in task && playerId === task.provisionalPlayerId));
         return (
           <div key={`task-${task.id}`} className={styles.taskCardContainer}>
-            <div
-              className={[styles.taskCard, isFinished ? styles.finished : null].filter(v => v).join(' ')}
-              onClick={onPress ? () => onPress(task.id) : undefined}>
-              <div className={styles.taskText}>
-                {taskData.text}
-                {showExtraData && <b>{` (${task.data!.n})`}</b>}
+            <div className={isFinished ? styles.finished : ''}>
+              <div className={styles.taskCard} onClick={onPress ? () => onPress(task.id) : undefined}>
+                <div className={styles.taskText}>
+                  {taskData.text}
+                  {showExtraData && <b>{` (${task.data!.n})`}</b>}
+                </div>
+                {taskData.subtext && <div className={styles.taskSubtext}>{taskData.subtext}</div>}
+                {'provisionalPlayerId' in task && !!playerNames?.[task.provisionalPlayerId!] && (
+                  <div className={styles.claimant}>{playerNames![task.provisionalPlayerId!]}</div>
+                )}
               </div>
-              {taskData.subtext && <div className={styles.taskSubtext}>{taskData.subtext}</div>}
-              {'provisionalPlayerId' in task && !!playerNames?.[task.provisionalPlayerId!] && (
-                <div className={styles.claimant}>{playerNames![task.provisionalPlayerId!]}</div>
-              )}
+              {!!difficulty && <div className={styles.difficulty}>{difficulty}</div>}
             </div>
-            {!!difficulty && <div className={styles.difficulty}>{difficulty}</div>}
             {isFinished && <div className={[styles.status, styles.success].join(' ')}>✓</div>}
             {isFailed && <div className={[styles.status, styles.fail].join(' ')}>✗</div>}
             {!!onKick && (
