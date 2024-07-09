@@ -200,7 +200,7 @@ export function getCanPlayerGiveHint(state: GameState, playerId: number): boolea
 }
 
 export function getCurrentTrickId(state: GameState): number {
-  if (!state.tricks) {
+  if (!state.tricks || !state.tricks.length) {
     return 0;
   }
   return state.tricks.length - 1;
