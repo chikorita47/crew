@@ -51,6 +51,7 @@ export default {
     subtext: '',
     difficulty: [2, 1, 1],
     test: taskIntersection(task_notOpenTrickWithCardProperty(Suit.GREEN), task_notOpenTrickWithCardProperty(Suit.PINK)),
+    layout: { type: 'bottom-image' },
   },
   '2': {
     id: 2,
@@ -93,6 +94,7 @@ export default {
     subtext: '',
     difficulty: [1, 2, 2],
     test: task_winTrickUsingCard(7, trickContains(5)),
+    layout: { type: 'two-by-two', cards: [5, 7] },
   },
   '7': {
     id: 7,
@@ -100,6 +102,7 @@ export default {
     subtext: '',
     difficulty: [2, 3, 4],
     test: task_winTrickUsingCard(6, trickContains(6, 2)),
+    layout: { type: 'two-by-two', cards: [6, 6] },
   },
   '8': {
     id: 8,
@@ -107,6 +110,7 @@ export default {
     subtext: '',
     difficulty: [3, 4, 5],
     test: task_winTrickUsingCard(4, trickContains(8)),
+    layout: { type: 'two-by-two', cards: [8, 4] },
   },
   '9': {
     id: 9,
@@ -114,6 +118,7 @@ export default {
     subtext: 'Submarines are not allowed in the trick',
     difficulty: [2, 5, 6],
     test: task_winTrickPassingCardTest(c => c.number % 2 === 0 && c.suit !== Suit.BLACK),
+    layout: { type: 'bottom-image', cards: [2, 4, 6, 8] },
   },
   '10': {
     id: 10,
@@ -121,6 +126,7 @@ export default {
     subtext: 'Submarines are not allowed in the trick',
     difficulty: [2, 4, 5],
     test: task_winTrickPassingCardTest(c => c.number % 2 === 1 && c.suit !== Suit.BLACK),
+    layout: { type: 'bottom-image', cards: [1, 3, 5, 7, 9], cardLayout: 'cluster' },
   },
   '11': {
     id: 11,
@@ -136,6 +142,7 @@ export default {
     subtext: '',
     difficulty: [3, 4, 5],
     test: task_winTrickUsingCard(3),
+    layout: { type: 'bottom-image', cards: [3] },
   },
   '13': {
     id: 13,
@@ -143,6 +150,7 @@ export default {
     subtext: '',
     difficulty: [2, 3, 4],
     test: task_winTrickUsingCard(5),
+    layout: { type: 'bottom-image', cards: [5] },
   },
   '14': {
     id: 14,
@@ -150,6 +158,7 @@ export default {
     subtext: '',
     difficulty: [2, 3, 3],
     test: task_winTrickUsingCard(6),
+    layout: { type: 'bottom-image', cards: [6] },
   },
   '15': {
     id: 15,
@@ -184,6 +193,7 @@ export default {
         task_winTrickPassingCardTest(c => c.suit !== Suit.BLACK),
       )(state, owner);
     },
+    layout: { type: 'bottom-image', value: 7 },
   },
   '18': {
     id: 18,
@@ -215,6 +225,7 @@ export default {
       ),
       task_winTrickPassingCardTest(c => c.suit !== Suit.BLACK),
     ),
+    layout: { type: 'bottom-image', value: [22, 23] },
   },
   '20': {
     id: 20,
@@ -478,6 +489,7 @@ export default {
         .map(p => task_winComparativeTrickCount(Comparison.FEWER_THAN, p.id));
       return taskIntersection(...tasks)(state, owner);
     },
+    layout: { type: 'bottom-image', playerComparison: 'fewer' },
   },
   '49': {
     id: 49,
@@ -490,6 +502,7 @@ export default {
         .map(p => task_winComparativeTrickCount(Comparison.MORE_THAN, p.id));
       return taskIntersection(...tasks)(state, owner);
     },
+    layout: { type: 'bottom-image', playerComparison: 'more' },
   },
   '50': {
     id: 50,
@@ -505,6 +518,7 @@ export default {
       if (numTricksWon >= numTricksToWin) return TaskState.SUCCESS;
       return TaskState.PENDING;
     },
+    layout: { type: 'bottom-image', playerComparison: 'more-combined' },
   },
   '51': {
     id: 51,
@@ -512,6 +526,7 @@ export default {
     subtext: 'I am not the Captain',
     difficulty: [4, 3, 3],
     test: task_winComparativeTrickCount(Comparison.EQUAL_TO, CAPTAIN),
+    layout: { type: 'bottom-image' },
   },
   '52': {
     id: 52,
@@ -519,6 +534,7 @@ export default {
     subtext: 'I am not the Captain',
     difficulty: [2, 2, 2],
     test: task_winComparativeTrickCount(Comparison.FEWER_THAN, CAPTAIN),
+    layout: { type: 'bottom-image' },
   },
   '53': {
     id: 53,
@@ -526,6 +542,7 @@ export default {
     subtext: 'I am not the Captain',
     difficulty: [2, 2, 3],
     test: task_winComparativeTrickCount(Comparison.MORE_THAN, CAPTAIN),
+    layout: { type: 'bottom-image' },
   },
   '54': {
     id: 54,
@@ -740,6 +757,7 @@ export default {
       [1, 4],
       [1, 2, 3],
     ],
+    layout: { type: 'inline-image', cards: ['S1'] },
   },
   '76': {
     id: 76,
@@ -754,6 +772,7 @@ export default {
       [2, 4],
       [1, 2, 3],
     ],
+    layout: { type: 'inline-image', cards: ['S2'] },
   },
   '77': {
     id: 77,
@@ -946,4 +965,4 @@ export default {
     },
     layout: { type: 'no-image' },
   },
-} as TasksData;
+} satisfies TasksData;

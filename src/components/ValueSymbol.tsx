@@ -9,7 +9,7 @@ type Props = {
 function ValueSymbol({ value }: Props) {
   const valueDigits = String(value).split('');
   return (
-    <div className={[styles.valueSymbol, styles.number, styles.numberOutlined].join(' ')}>
+    <div className={[styles.valueSymbol, styles.number].join(' ')}>
       <div className={styles.valueNumberContainer}>
         {valueDigits.map((v, i) => (
           <NumberSymbol number={Number(v)} key={`digit-${v}_${i}`} stroke />

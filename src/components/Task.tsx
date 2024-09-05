@@ -1,13 +1,13 @@
 import React from 'react';
 import SuitSymbol from './SuitSymbol';
 import { Card, Comparison, Suit, TasksDataEntry } from '@/types';
-import type { CardShorthand, SuitLetter } from '@/data/shorthandParser';
+import type { CardShorthand } from '@/data/shorthandParser';
 import styles from './task.module.css';
 import parse from '@/data/shorthandParser';
 import ValueSymbol from './ValueSymbol';
 
-import { cityMedium } from '@/fonts';
 import NumberSymbol from './Number';
+import CaptainSymbol from './CaptainSymbol';
 
 // const SUITS = [Suit.BLUE, Suit.GREEN, Suit.YELLOW, Suit.PINK];
 /*
@@ -20,27 +20,37 @@ import NumberSymbol from './Number';
  *
  */
 type TaskLayout = 'bottom-image' | 'inline-image' | 'no-image' | 'two-by-two';
-// type TaskProps = {
-//   layout: TaskLayout;
-//   content: { cards?: Card[] };
-//   subscript?: string;
-//   playerCount: number;
-// } & React.HTMLAttributes<HTMLDivElement>;
 
 type TaskProps = TasksDataEntry & { playerCount?: number };
 function Task({ layout, text, subtext }: TaskProps) {
   if (!layout) return <></>;
   const subscript = subtext;
-  const { cards, type, playerComparison, value, cardLayout = 'fan' } = layout;
+  const { cards, type, playerComparison, value, cardLayout = 'fan', cardExtras } = layout;
+
+  // Validate cardExtras
+  const cardArrangementExtras: Pick<CardArrangementProps, 'quantityTag' | 'topText'> = {};
+  if (cards && cardExtras) {
+    if (cardExtras.length !== cards.length) {
+      throw new Error(
+        `cardExtras array length must equal cards length in task layout property for: 
+        \t${text}`,
+      );
+    }
+
+    if (typeof cardExtras[0] === 'number') cardArrangementExtras.quantityTag = cardExtras as number[];
+    if (typeof cardExtras[0] === 'string') cardArrangementExtras.topText = cardExtras as string[];
+  }
+
   const Image = () =>
     cards ? (
-      <CardArrangement type={cardLayout} cards={parse(cards)} />
+      <CardArrangement type={cardLayout} cards={parse(cards)} taskType={type} {...cardArrangementExtras} />
     ) : playerComparison ? (
       <SuitSymbol suit={Suit.BLUE} />
     ) : value ? (
-      <ValueSymbol value={value} />
+      <ValueArrangement value={value} />
     ) : (
-      <></>
+      // Captain
+      <CaptainSymbol />
     );
   return (
     <CardIconBase>
@@ -52,38 +62,38 @@ function Task({ layout, text, subtext }: TaskProps) {
               <div className={styles.taskTextContainer}>{parseTaskText(text, type)}</div>
               {/* Image  */}
               <Image />
-              {/* Subscript */}
-              {subscript ? <div className={styles.subscriptContainer}>{subscript}</div> : null}
             </>
           ) : type === 'inline-image' ? (
-            <></>
+            <>
+              {/* Text */}
+              {/* Image  */}
+              <Image />
+              {/* Text */}
+            </>
           ) : type === 'two-by-two' ? (
-            <></>
+            <>
+              {/* Text 1 */}
+              <span />
+              {/* Grid */}
+              <div className={styles.gridContainer}>
+                <div className={styles.gridColumn}>
+                  <span> </span>
+                  <span> </span>
+                </div>
+                <div className={styles.gridColumn}>
+                  <Image />
+                </div>
+              </div>
+            </>
           ) : (
             <div className={styles.taskTextContainer}>{parseTaskText(text, type)}</div>
           )}
+          {/* Subscript */}
+          {subscript ? <div className={styles.subscriptContainer}>{subscript}</div> : null}
         </div>
       </div>
     </CardIconBase>
   );
-  // const { subscript } = props;
-  // return (
-  //   <div style={{ backgroundColor: 'gray', width: '100%', height: '100%' }}>
-  //     {/* <CardIcon number={1} />
-  //     <CardIcon suit={Suit.BLACK} />
-  //     <CardIcon suit={Suit.GREEN} />
-  //     <CardIcon number={4} suit={Suit.PINK} />
-  //     <CardIcon number={9} suit={Suit.YELLOW} />
-  //     <CardIcon number={7} suit={Suit.BLUE} />
-  //     <CardIcon number={3} suit={Suit.BLACK} />
-  //     <CardIcon number={6} /> */}
-  //     <CardArrangement cards={[{ number: 1, suit: Suit.BLACK }]} />
-  //     {taskRenderer(tasks[11])}
-  //     {taskRenderer(tasks[15])}
-  //     {/* Subscript Container */}
-  //     {subscript ? <div className={styles.subscriptContainer}>{subscript}</div> : null}
-  //   </div>
-  // );
 }
 
 export default Task;
@@ -159,101 +169,130 @@ type CardArrangementType = 'fan' | 'cluster' | 'side-by-side' | 'big-small';
 type CardArrangementProps = {
   cards: Array<Partial<Card>>;
   type: CardArrangementType;
-  quantityTag?: number;
-  topText?: Array<[number, string]>;
+  quantityTag?: number[];
+  topText?: string[];
+  taskType?: TaskLayout;
 };
 
-function CardArrangement({ cards, type, quantityTag, topText }: CardArrangementProps) {
+function CardArrangement({ cards, type, quantityTag, topText, taskType }: CardArrangementProps) {
   return (
-    <div style={getArrangementStyle(cards.length, type)}>
-      {cards.map(card => {
-        return <CardIcon key={`${card.suit || 'all'}-${card.number || 'any'}`} suit={card.suit} number={card.number} />;
+    <div className={getArrangementStyle(cards.length, type, taskType)}>
+      {cards.map((card, i) => {
+        return (
+          <div key={`${card.suit || 'all'}-${card.number || 'any'}-${i}`} className={styles.cardExtrasContainer}>
+            {topText ? <span className={styles.cardExtrasTopText}>{topText}</span> : null}
+
+            <CardIcon suit={card.suit} number={card.number} />
+          </div>
+        );
       })}
     </div>
   );
 }
+type ValueArrangementProps = { value: number | number[]; delimiter?: string };
+function ValueArrangement({ value, delimiter = 'or' }: ValueArrangementProps) {
+  if (typeof value === 'number') return <ValueSymbol value={value} />;
+  if (value.length === 1) return <ValueSymbol value={value[0]} />;
+  if (value.length !== 2) throw new Error(`Unsupported length of value array in <ValueArrangement />: ${value.length}`);
 
-function getArrangementStyle(cards: number, type: CardArrangementType): React.CSSProperties {
-  // returns the style of the Arrangement container based on the number of cards in the arrangement,
-  // and the type of arrangement
-  if (cards === 1) return {};
-  if (cards >= 2) return { flexDirection: 'row', display: 'flex' };
-  if (type === 'side-by-side') return {};
-  return {};
-}
-
-type TaskStuff = {
-  layout: TaskLayout;
-  text: string;
-  subscriptText?: string;
-  cards?: Array<CardShorthand | number | SuitLetter>;
-  /** not needed? can just search the text for the word captain */
-  captain?: boolean;
-  playerComparison?: Comparison;
-  value?: number;
-};
-const exampleTasks: TaskStuff[] = [
-  {
-    // I will win a 6 with another 6
-    layout: 'two-by-two',
-    cards: [6, 6],
-    text: 'I will win a 6 with another 6',
-  },
-  {
-    layout: 'inline-image',
-    text: 'I will win the green 2 in the final trick of the game',
-    cards: ['G2'],
-  },
-  { layout: 'bottom-image', text: 'I will win exactly 1x pink and 1x green', cards: ['P', 'G'] },
-  { layout: 'no-image', text: 'I will win exactly 4 tricks' },
-  {
-    layout: 'bottom-image',
-    text: 'I will win more tricks than the Captain',
-    subscriptText: 'I am not the Captain',
-    captain: true,
-  },
-  { layout: 'bottom-image', text: 'I will win a trick of which the card values are all greater than 5', value: 5 },
-];
-console.log(exampleTasks);
-
-function taskRenderer({ layout, text, subtext }: TasksDataEntry) {
-  const subscript = subtext;
-  const { cards, type, playerComparison, value, cardLayout = 'fan' } = layout;
-  const Image = () =>
-    cards ? (
-      <CardArrangement type={cardLayout} cards={parse(cards)} />
-    ) : playerComparison ? (
-      <SuitSymbol suit={Suit.BLUE} />
-    ) : value ? (
-      <ValueSymbol value={value} />
-    ) : (
-      <></>
-    );
   return (
-    <CardIconBase>
-      <div className={styles.taskCardContainer}>
-        <div className={styles.taskCardContent}>
-          {type === 'bottom-image' ? (
-            <>
-              {/* Text */}
-              <div className={styles.taskTextContainer}>{parseTaskText(text, type)}</div>
-              {/* Image  */}
-              <Image />
-              {/* Subscript */}
-              {subscript ? <div className={styles.subscriptContainer}>{subscript}</div> : null}
-            </>
-          ) : type === 'inline-image' ? (
-            <></>
-          ) : type === 'two-by-two' ? (
-            <></>
-          ) : (
-            <div className={styles.taskTextContainer}>{parseTaskText(text, type)}</div>
-          )}
-        </div>
-      </div>
-    </CardIconBase>
+    <div className={styles.valueArrangement}>
+      <ValueSymbol value={value[0]} />
+      <span className={styles.valueDelimiter}>{delimiter}</span>
+      <ValueSymbol value={value[1]} />
+    </div>
   );
 }
+
+function getArrangementStyle(numCards: number, type: CardArrangementType, taskType?: TaskLayout) {
+  // returns the style of the Arrangement container based on the number of cards in the arrangement,
+  // and the type of arrangement
+  // if (numCards === 1) return {};
+  // if (numCards >= 2) return { flexDirection: 'row', display: 'flex' };
+  if (taskType === 'two-by-two') return styles.cardArrangementTwoByTwo;
+
+  return styles.cardArrangementContainer;
+}
+
+// type TaskStuff = {
+//   layout: TaskLayout;
+//   text: string;
+//   subscriptText?: string;
+//   cards?: Array<CardShorthand | number | SuitLetter>;
+//   /** not needed? can just search the text for the word captain */
+//   captain?: boolean;
+//   playerComparison?: Comparison;
+//   value?: number;
+// };
+// const exampleTasks: TaskStuff[] = [
+//   {
+//     // I will win a 6 with another 6
+//     layout: 'two-by-two',
+//     cards: [6, 6],
+//     text: 'I will win a 6 with another 6',
+//   },
+//   {
+//     layout: 'inline-image',
+//     text: 'I will win the green 2 in the final trick of the game',
+//     cards: ['G2'],
+//   },
+//   { layout: 'bottom-image', text: 'I will win exactly 1x pink and 1x green', cards: ['P', 'G'] },
+//   { layout: 'no-image', text: 'I will win exactly 4 tricks' },
+//   {
+//     layout: 'bottom-image',
+//     text: 'I will win more tricks than the Captain',
+//     subscriptText: 'I am not the Captain',
+//     captain: true,
+//   },
+//   { layout: 'bottom-image', text: 'I will win a trick of which the card values are all greater than 5', value: 5 },
+// ];
+// console.log(exampleTasks);
+
+// function taskRenderer({ layout, text, subtext }: TasksDataEntry) {
+//   const subscript = subtext;
+//   const { cards, type, playerComparison, value, cardLayout = 'fan' } = layout;
+//   const Image = () =>
+//     cards ? (
+//       <CardArrangement type={cardLayout} cards={parse(cards)} />
+//     ) : playerComparison ? (
+//       <SuitSymbol suit={Suit.BLUE} />
+//     ) : value ? (
+//       <ValueSymbol value={value} />
+//     ) : (
+//       <></>
+//     );
+//   return (
+//     <CardIconBase>
+//       <div className={styles.taskCardContainer}>
+//         <div className={styles.taskCardContent}>
+//           {type === 'bottom-image' ? (
+//             <>
+//               {/* Text */}
+//               <div className={styles.taskTextContainer}>{parseTaskText(text, type)}</div>
+//               {/* Image  */}
+//               <Image />
+//               {/* Subscript */}
+//               {subscript ? <div className={styles.subscriptContainer}>{subscript}</div> : null}
+//             </>
+//           ) : type === 'inline-image' ? (
+//             <></>
+//           ) : type === 'two-by-two' ? (
+//             <></>
+//           ) : (
+//             <div className={styles.taskTextContainer}>{parseTaskText(text, type)}</div>
+//           )}
+//         </div>
+//       </div>
+//     </CardIconBase>
+//   );
+// }
+
+// function getTaskSymbols(text: string, symbols: string[]) {
+//   // Text-only
+//   if (symbols.length === 0) return;
+
+//   //
+// }
 
 function parseTaskText(text: string, type: TaskLayout) {
   // get text split indices by finding all splitters (I will win, 2x, green 7, )
@@ -274,7 +313,7 @@ function parseTaskText(text: string, type: TaskLayout) {
           <br />
         </>
       );
-    if (type === 'no-image' && text.match(/\d|X/)) return <span className={styles.textLarge}>{text}</span>;
+    if (type === 'no-image' && text.match(/\d|X/)) return <span className={styles.textLarge}> {text} </span>;
     return <span key={i + text}>{text}</span>;
   });
   // if (text.startsWith('I will win')) {

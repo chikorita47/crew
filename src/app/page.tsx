@@ -11,8 +11,12 @@ import SetupGameScreen from '../screens/SetupGameScreen';
 import TasksScreen from '../screens/TasksScreen';
 // import TextGameScreen from '../screens/TextGame';
 import * as Selectors from '../selectors';
-import { GameState, ProvisionalGame } from '../types';
+import { GameState, ProvisionalGame, TasksDataEntry } from '../types';
 import UndoHandler from '../UndoHandler';
+import Task from '@/components/Task';
+import tasks from '@/data/tasks';
+
+const TESTING = true;
 
 function App() {
   const [code, setCode] = useState<string | undefined>();
@@ -49,6 +53,15 @@ function App() {
       return cleanup;
     }
   }, [code]);
+  const ALL_TASKS = Object.values(tasks) as TasksDataEntry[];
+  if (TESTING)
+    return (
+      <div>
+        {ALL_TASKS.map((t, i) => (
+          <Task key={`task${i}`} playerCount={4} {...t} />
+        ))}
+      </div>
+    );
 
   if (orientation.startsWith('landscape')) {
     return <div className="center-container">Please rotate your device into portrait mode!</div>;

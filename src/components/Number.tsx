@@ -6,6 +6,7 @@ type Props = {
   size?: number;
   stroke?: boolean;
 };
+// TODO: standardize the width of all number document dimensions
 
 function NumberSymbol({ size, number, stroke = false }: Props) {
   const className = [styles.numberSymbol, stroke ? styles.valueNumber : ''].join(' ');

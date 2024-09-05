@@ -102,6 +102,7 @@ export type TasksDataEntry = {
   requiresExtraData?: boolean;
   test: TasksDataEntryTest;
   layout: TaskLayout;
+  redealSets?: number[][];
 };
 type CardLayoutType = 'fan' | 'cluster' | 'side-by-side' | 'big-small';
 type TaskLayoutType = 'bottom-image' | 'inline-image' | 'no-image' | 'two-by-two';
@@ -109,8 +110,21 @@ type TaskLayout = {
   type: TaskLayoutType;
   cards?: Array<CardShorthand | number | SuitLetter>;
   cardLayout?: CardLayoutType;
-  value?: number;
-  playerComparison?: Comparison;
+
+  /** Array containing the quantity tag(s) or top text for the `cards`.
+   *  Provide a `number` for the quantity tag, or a `string` for the top text.
+   *  The array must have the same length as `cards`, as
+   *  the extras will apply to the card with a matching index.
+   *
+   *  @example
+   *  const layout = {
+   *   cards: ['P', 'Y', 'B'],
+   *   cardExtras: ['or', '', 'or']
+   *  }
+   */
+  cardExtras?: number[] | string[];
+  value?: number | number[];
+  playerComparison?: 'more' | 'more-combined' | 'fewer';
 };
 
 export type TasksData = {

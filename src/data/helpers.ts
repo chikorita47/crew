@@ -320,13 +320,13 @@ export function makeCard(from: Suit | number | Partial<Card>): Partial<Card> {
 
 // re-deal rules: after dealing out tasks, all tasks' redeal arrays are evaluated.
 // Any returning true will force a redeal
-export function getNeedsRedeal(...subGroupings: number[][]): (state: GameState) => boolean {
+export function getNeedsRedeal(...redealSets: number[][]): (state: GameState) => boolean {
   return (state: GameState) => {
-    return subGroupings.some(subGrouping => {
-      const player = getPlayerWithSub(subGrouping[0], state);
+    return redealSets.some(redealSet => {
+      const player = getPlayerWithSub(redealSet[0], state);
       if (player && player.hand) {
         const { hand } = player;
-        return subGrouping.every(number => handIncludesCard(hand, { suit: Suit.BLACK, number }));
+        return redealSet.every(number => handIncludesCard(hand, { suit: Suit.BLACK, number }));
       }
     });
   };
